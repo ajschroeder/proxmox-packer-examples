@@ -1,0 +1,169 @@
+/*
+    DESCRIPTION:
+    Storage variables used for Linux builds.
+    - Variables are passed to and used by guest operating system configuration files (e.g., ks.cfg).
+*/
+
+vm_efi_storage_pool      = "vm-data"
+vm_efi_type              = "4m"
+vm_efi_pre_enrolled_keys = false
+
+// VM Storage Settings
+vm_disk_device     = "vda"
+vm_disk_use_swap   = true
+vm_disk_partitions = [
+  {
+    name = "efi"
+    size = 1024,
+    format = {
+      label  = "EFIFS",
+      fstype = "fat32",
+    },
+    mount = {
+      path    = "/boot/efi",
+      options = "",
+    },
+    volume_group = "",
+  },
+  {
+    name = "boot"
+    size = 1024,
+    format = {
+      label  = "BOOTFS",
+      fstype = "ext4",
+    },
+    mount = {
+      path    = "/boot",
+      options = "",
+    },
+    volume_group = "",
+  },
+  {
+    name = "vg_root"
+    size = -1,
+    format = {
+      label  = "",
+      fstype = "",
+    },
+    mount = {
+      path    = "",
+      options = "",
+    },
+    volume_group = "vg_root",
+  },
+]
+vm_disk_lvm = [
+  {
+    name: "vg_root",
+    partitions: [
+      {
+        name = "lv_swap",
+        size = 1024,
+        format = {
+          label  = "SWAPFS",
+          fstype = "swap",
+        },
+        mount = {
+          path    = "",
+          options = "",
+        },
+      },
+      {
+        name = "lv_root",
+        size = 3000,
+        format = {
+          label  = "ROOTFS",
+          fstype = "ext4",
+        },
+        mount = {
+          path    = "/",
+          options = "",
+        },
+      },
+      {
+        name = "lv_home",
+        size = 1200,
+        format = {
+          label  = "HOMEFS",
+          fstype = "ext4",
+        },
+        mount = {
+          path    = "/home",
+          options = "nodev,nosuid",
+        },
+      },
+      {
+        name = "lv_opt",
+        size = 2048,
+        format = {
+          label  = "OPTFS",
+          fstype = "ext4",
+        },
+        mount = {
+          path    = "/opt",
+          options = "nodev",
+        },
+      },
+      {
+        name = "lv_tmp",
+        size = 2500,
+        format = {
+          label  = "TMPFS",
+          fstype = "ext4",
+        },
+        mount = {
+          path    = "/tmp",
+          options = "nodev,noexec,nosuid",
+        },
+      },
+      {
+        name = "lv_var",
+        size = 3072,
+        format = {
+          label  = "VARFS",
+          fstype = "ext4",
+        },
+        mount = {
+          path    = "/var",
+          options = "nodev",
+        },
+      },
+      {
+        name = "lv_var_tmp",
+        size = 4096,
+        format = {
+          label  = "VARTMPFS",
+          fstype = "ext4",
+        },
+        mount = {
+          path    = "/var/tmp",
+          options = "nodev,noexec,nosuid",
+        },
+      },
+      {
+        name = "lv_var_log",
+        size = 1024,
+        format = {
+          label  = "VARLOGFS",
+          fstype = "ext4",
+        },
+        mount = {
+          path    = "/var/log",
+          options = "nodev,noexec,nosuid",
+        },
+      },
+      {
+        name = "lv_var_audit",
+        size = 500,
+        format = {
+          label  = "AUDITFS",
+          fstype = "ext4",
+        },
+        mount = {
+          path    = "/var/log/audit",
+          options = "nodev,noexec,nosuid",
+        },
+      },
+    ],
+  }
+]

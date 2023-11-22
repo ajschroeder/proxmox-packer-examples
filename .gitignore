@@ -1,2 +1,22 @@
 !**/template_*
 **/credentials*
+
+# Configurations
+## Ignore default config directory.
+config/
+
+# Manifests
+## Ignore manifests directory.
+manifests/*.json
+
+# MacOS
+## Ignore desktop services files.
+**/.DS_Store
+
+# Certificates and Keys
+## Ignore certificates files.
+**/*.cer
+**/*.crt
+**/*.p7b
+## Ignore public key files
+**/*.pub

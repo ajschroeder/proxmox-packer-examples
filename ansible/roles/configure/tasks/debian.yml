@@ -1,0 +1,37 @@
+---
+- name: "Configure SSH for Public Key Authentication."
+  shell: |
+    sudo sed -i 's/.*PubkeyAuthentication.*/PubkeyAuthentication yes/' /etc/ssh/sshd_config
+
+- name: Creating SSH key regeneration service file
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/regenerate_ssh_host_keys.service
+    content: |
+      [Unit]
+      Description=Regenerate SSH host keys
+      Before=ssh.service
+      ConditionFileIsExecutable=/usr/bin/ssh-keygen
+
+      [Service]
+      Type=oneshot
+      ExecStartPre=-/bin/dd if=/dev/hwrng of=/dev/urandom count=1 bs=4096
+      ExecStartPre=-/bin/sh -c "/bin/rm -f -v /etc/ssh/ssh_host_*_key*"
+      ExecStart=/usr/bin/ssh-keygen -A -v
+      ExecStartPost=/bin/systemctl disable regenerate_ssh_host_keys
+
+      [Install]
+      WantedBy=multi-user.target
+  when: not cloud_init | bool
+
+- name: Reload systemd to re-read configurations
+  ansible.builtin.systemd:
+    daemon-reload: true
+  when: not cloud_init | bool
+
+- name: Enable regenerate_ssh_host_keys service
+  ansible.builtin.systemd:
+    name: regenerate_ssh_host_keys
+    enabled: true
+  when: not cloud_init | bool
+
+...
