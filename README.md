@@ -501,23 +501,10 @@ vm_disk_partitions = [
 Below is an example of a partition layout for a VM template that boots with BIOS and uses LVM. The first partition is a 1GB primary partition and is mounted as /boot, finally the second partition consumes the rest of the free space (noted by -1 for space) and is setup for LVM.
 
 > [!WARNING]
-> The mount point of `/boot` also is not arbitrary
+> The mount point of `/boot` is used by the templates and is required.
 
 ```hcl
 vm_disk_partitions = [
-  {
-    name = "bios_grub"
-    size = 1,
-    format = {
-      label  = "",
-      fstype = "",
-    },
-    mount = {
-      path    = "",
-      options = "",
-    },
-    volume_group = "",
-  },
   {
     name = "boot"
     size = 1000,
@@ -551,7 +538,7 @@ vm_disk_partitions = [
 Below is an example of a partition layout for a VM template that uses LVM and has extra partitions with mount options required by CIS for hardening a system. The first partition is a 1GB primary partition and is mounted as /boot, finally the second partition consumes the rest of the free space (noted by -1 for space) and is setup for LVM.
 
 > [!WARNING]
-> The mount point of `/boot` also is not arbitrary
+> The mount point of `/boot` is used by the templates and is required.
 
 ```hcl title="config/linux-storage.pkrvars.hcl"
 // VM Storage Settings
@@ -713,7 +700,7 @@ vm_disk_lvm = [
 - Networking configurations other than DHCP for templates
 
 # Contributing
-Contributions 
+Contributions are welcome, please read the [CONTRIBUTING](.github/CONTRIBUTING.md) document for more details.
 
 # Credits
 The repository is modeled after the [VMware Packer Examples][packer-examples-for-vsphere] repository. As someone who initially struggled with organization of a packer project, the VMware repository helped me significantly.
