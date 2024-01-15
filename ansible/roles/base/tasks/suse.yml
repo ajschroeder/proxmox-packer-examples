@@ -1,0 +1,9 @@
+---
+
+- name: Updating the operating system
+  ansible.builtin.zypper:
+    name: "*"
+    state: latest
+    update_cache: true
+
+...
