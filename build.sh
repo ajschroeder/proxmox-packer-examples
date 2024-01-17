@@ -8,6 +8,193 @@ SCRIPT_PATH=$(realpath "$(dirname "$(follow_link "$0")")")
 CONFIG_PATH=$(realpath "${1:-${SCRIPT_PATH}/config}")
 
 menu_option_1() {
+  INPUT_PATH="$SCRIPT_PATH"/builds/linux/centos/8-stream/
+  echo -e "\nCONFIRM: Build a CentOS 8 Stream Template for Proxmox?"
+  echo -e "\nContinue? (y/n)"
+  read -r REPLY
+  if [[ ! $REPLY =~ ^[Yy]$ ]]
+  then
+    exit 1
+  fi
+
+  ### Build a CentOS 8 Stream Template for Proxmox. ###
+  echo "Building a CentOS 8 Stream Template for Proxmox..."
+
+  ### Initialize HashiCorp Packer and required plugins. ###
+  echo "Initializing HashiCorp Packer and required plugins..."
+  packer init "$INPUT_PATH"
+
+  ### Start the Build. ###
+  echo "Starting the build...."
+  packer build -force \
+      -var-file="$CONFIG_PATH/proxmox.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/build.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/ansible.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/common.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/linux-storage.pkrvars.hcl" \
+      "$INPUT_PATH"
+
+  ### All done. ###
+  echo "Done."
+}
+
+menu_option_2() {
+  INPUT_PATH="$SCRIPT_PATH"/builds/linux/centos/9-stream/
+  echo -e "\nCONFIRM: Build a CentOS 9 Stream Template for Proxmox?"
+  echo -e "\nContinue? (y/n)"
+  read -r REPLY
+  if [[ ! $REPLY =~ ^[Yy]$ ]]
+  then
+    exit 1
+  fi
+
+  ### Build a CentOS 9 Stream Template for Proxmox. ###
+  echo "Building a CentOS 9 Stream Template for Proxmox..."
+
+  ### Initialize HashiCorp Packer and required plugins. ###
+  echo "Initializing HashiCorp Packer and required plugins..."
+  packer init "$INPUT_PATH"
+
+  ### Start the Build. ###
+  echo "Starting the build...."
+  packer build -force \
+      -var-file="$CONFIG_PATH/proxmox.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/build.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/ansible.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/common.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/linux-storage.pkrvars.hcl" \
+      "$INPUT_PATH"
+
+  ### All done. ###
+  echo "Done."
+}
+
+menu_option_3() {
+  INPUT_PATH="$SCRIPT_PATH"/builds/linux/debian/11/
+  echo -e "\nCONFIRM: Build a Debian 11 (Bullseye) Template for Proxmox?"
+  echo -e "\nContinue? (y/n)"
+  read -r REPLY
+  if [[ ! $REPLY =~ ^[Yy]$ ]]
+  then
+    exit 1
+  fi
+
+  ### Build a Debian 11 (Bullseye) for Proxmox. ###
+  echo "Building a Debian 11 (Bullseye) for Proxmox..."
+
+  ### Initialize HashiCorp Packer and required plugins. ###
+  echo "Initializing HashiCorp Packer and required plugins..."
+  packer init "$INPUT_PATH"
+
+  ### Start the Build. ###
+  echo "Starting the build...."
+  packer build -force \
+      -var-file="$CONFIG_PATH/proxmox.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/build.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/ansible.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/common.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/linux-storage.pkrvars.hcl" \
+      "$INPUT_PATH"
+
+  ### All done. ###
+  echo "Done."
+}
+
+menu_option_4() {
+  INPUT_PATH="$SCRIPT_PATH"/builds/linux/debian/12/
+  echo -e "\nCONFIRM: Build a Debian 12 (Bookworm) Template for Proxmox?"
+  echo -e "\nContinue? (y/n)"
+  read -r REPLY
+  if [[ ! $REPLY =~ ^[Yy]$ ]]
+  then
+    exit 1
+  fi
+
+  ### Build a Debian 12 (Bookworm) for Proxmox. ###
+  echo "Building a Debian 12 (Bookworm) for Proxmox..."
+
+  ### Initialize HashiCorp Packer and required plugins. ###
+  echo "Initializing HashiCorp Packer and required plugins..."
+  packer init "$INPUT_PATH"
+
+  ### Start the Build. ###
+  echo "Starting the build...."
+  packer build -force \
+      -var-file="$CONFIG_PATH/proxmox.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/build.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/ansible.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/common.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/linux-storage.pkrvars.hcl" \
+      "$INPUT_PATH"
+
+  ### All done. ###
+  echo "Done."
+}
+
+menu_option_5() {
+  INPUT_PATH="$SCRIPT_PATH"/builds/linux/ubuntu/20-04-lts/
+  echo -e "\nCONFIRM: Build a Ubuntu Server 20.04 LTS Template for Proxmox?"
+  echo -e "\nContinue? (y/n)"
+  read -r REPLY
+  if [[ ! $REPLY =~ ^[Yy]$ ]]
+  then
+    exit 1
+  fi
+
+  ### Build a Ubuntu Server 20.04 LTS Template for Proxmox. ###
+  echo "Building a Ubuntu Server 20.04 LTS Template for Proxmox..."
+
+  ### Initialize HashiCorp Packer and required plugins. ###
+  echo "Initializing HashiCorp Packer and required plugins..."
+  packer init "$INPUT_PATH"
+
+  ### Start the Build. ###
+  echo "Starting the build...."
+  packer build -force \
+      -var-file="$CONFIG_PATH/proxmox.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/build.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/ansible.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/common.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/linux-storage.pkrvars.hcl" \
+      "$INPUT_PATH"
+
+  ### All done. ###
+  echo "Done."
+}
+
+menu_option_6() {
+  INPUT_PATH="$SCRIPT_PATH"/builds/linux/ubuntu/20-04-lts/
+  echo -e "\nCONFIRM: Build a Ubuntu Server 20.04 LTS (cloud-init) Template for Proxmox?"
+  echo -e "\nContinue? (y/n)"
+  read -r REPLY
+  if [[ ! $REPLY =~ ^[Yy]$ ]]
+  then
+    exit 1
+  fi
+
+  ### Build a Ubuntu Server 20.04 LTS Template for Proxmox. ###
+  echo "Building a Ubuntu Server 20.04 LTS (cloud-init) Template for Proxmox..."
+
+  ### Initialize HashiCorp Packer and required plugins. ###
+  echo "Initializing HashiCorp Packer and required plugins..."
+  packer init "$INPUT_PATH"
+
+  ### Start the Build. ###
+  echo "Starting the build...."
+  packer build -force \
+      -var-file="$CONFIG_PATH/proxmox.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/build.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/ansible.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/common.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/linux-storage.pkrvars.hcl" \
+      -var "vm_cloud_init_enable=true" \
+      "$INPUT_PATH"
+
+  ### All done. ###
+  echo "Done."
+}
+
+menu_option_7() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/ubuntu/22-04-lts/
   echo -e "\nCONFIRM: Build a Ubuntu Server 22.04 LTS Template for Proxmox?"
   echo -e "\nContinue? (y/n)"
@@ -38,7 +225,7 @@ menu_option_1() {
   echo "Done."
 }
 
-menu_option_2() {
+menu_option_8() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/ubuntu/22-04-lts/
   echo -e "\nCONFIRM: Build a Ubuntu Server 22.04 LTS (cloud-init) Template for Proxmox?"
   echo -e "\nContinue? (y/n)"
@@ -70,9 +257,9 @@ menu_option_2() {
   echo "Done."
 }
 
-menu_option_3() {
-  INPUT_PATH="$SCRIPT_PATH"/builds/linux/ubuntu/20-04-lts/
-  echo -e "\nCONFIRM: Build a Ubuntu Server 20.04 LTS Template for Proxmox?"
+menu_option_9() {
+  INPUT_PATH="$SCRIPT_PATH"/builds/linux/opensuse/leap-15-5/
+  echo -e "\nCONFIRM: Build a OpenSUSE Leap 15.5 Template for Proxmox?"
   echo -e "\nContinue? (y/n)"
   read -r REPLY
   if [[ ! $REPLY =~ ^[Yy]$ ]]
@@ -80,8 +267,8 @@ menu_option_3() {
     exit 1
   fi
 
-  ### Build a Ubuntu Server 20.04 LTS Template for Proxmox. ###
-  echo "Building a Ubuntu Server 20.04 LTS Template for Proxmox..."
+  ### Build a OpenSUSE Leap 15.5 Template for Proxmox. ###
+  echo "Building a OpenSUSE Leap 15.5 Template for Proxmox..."
 
   ### Initialize HashiCorp Packer and required plugins. ###
   echo "Initializing HashiCorp Packer and required plugins..."
@@ -95,38 +282,6 @@ menu_option_3() {
       -var-file="$CONFIG_PATH/ansible.pkrvars.hcl" \
       -var-file="$CONFIG_PATH/common.pkrvars.hcl" \
       -var-file="$CONFIG_PATH/linux-storage.pkrvars.hcl" \
-      "$INPUT_PATH"
-
-  ### All done. ###
-  echo "Done."
-}
-
-menu_option_4() {
-  INPUT_PATH="$SCRIPT_PATH"/builds/linux/ubuntu/20-04-lts/
-  echo -e "\nCONFIRM: Build a Ubuntu Server 20.04 LTS (cloud-init) Template for Proxmox?"
-  echo -e "\nContinue? (y/n)"
-  read -r REPLY
-  if [[ ! $REPLY =~ ^[Yy]$ ]]
-  then
-    exit 1
-  fi
-
-  ### Build a Ubuntu Server 20.04 LTS Template for Proxmox. ###
-  echo "Building a Ubuntu Server 20.04 LTS (cloud-init) Template for Proxmox..."
-
-  ### Initialize HashiCorp Packer and required plugins. ###
-  echo "Initializing HashiCorp Packer and required plugins..."
-  packer init "$INPUT_PATH"
-
-  ### Start the Build. ###
-  echo "Starting the build...."
-  packer build -force \
-      -var-file="$CONFIG_PATH/proxmox.pkrvars.hcl" \
-      -var-file="$CONFIG_PATH/build.pkrvars.hcl" \
-      -var-file="$CONFIG_PATH/ansible.pkrvars.hcl" \
-      -var-file="$CONFIG_PATH/common.pkrvars.hcl" \
-      -var-file="$CONFIG_PATH/linux-storage.pkrvars.hcl" \
-      -var "vm_cloud_init_enable=true" \
       "$INPUT_PATH"
 
   ### All done. ###
@@ -165,10 +320,15 @@ until [ "$selection" = "0" ]; do
   echo ""
   echo "      Linux Distribution:"
   echo ""
-  echo "    	 1  -  Ubuntu Server 22.04 LTS"
-  echo "       2  -  Ubuntu Server 22.04 LTS (cloud-init)"
-  echo "       3  -  Ubuntu Server 20.04 LTS"
-  echo "       4  -  Ubuntu Server 20.04 LTS (cloud-init)"
+  echo "       1  -  CentOS 8 Stream"
+  echo "       2  -  CentOS 9 Stream"
+  echo "       3  -  Debian 11 (Bullseye)"
+  echo "       4  -  Debian 12 (Bookworm)"
+  echo "       5  -  Ubuntu Server 20.04 LTS"
+  echo "       6  -  Ubuntu Server 20.04 LTS (cloud-init)"
+  echo "       7  -  Ubuntu Server 22.04 LTS"
+  echo "       8  -  Ubuntu Server 22.04 LTS (cloud-init)"
+  echo "       9  -  OpenSUSE Leap 15.5"
   echo ""
   echo "      Other:"
   echo ""
@@ -182,6 +342,11 @@ until [ "$selection" = "0" ]; do
     2 ) clear ; menu_option_2 ; press_enter ;;
     3 ) clear ; menu_option_3 ; press_enter ;;
     4 ) clear ; menu_option_4 ; press_enter ;;
+    5 ) clear ; menu_option_5 ; press_enter ;;
+    6 ) clear ; menu_option_6 ; press_enter ;;
+    7 ) clear ; menu_option_7 ; press_enter ;;
+    8 ) clear ; menu_option_8 ; press_enter ;;
+    9 ) clear ; menu_option_9 ; press_enter ;;
     [Ii] ) clear ; info ; press_enter ;;
     [Qq] ) clear ; exit ;;
     * ) clear ; incorrect_selection ; press_enter ;;

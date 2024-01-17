@@ -1,10 +1,19 @@
 ---
-- name: "Prepare the {{ ansible_facts['distribution'] }} guest operating system."
+
+- name: Prepare the {{ ansible_facts['distribution'] }} guest operating system
   include_tasks: "{{ ansible_facts['distribution'] | lower }}.yml"
   when: "ansible_facts['distribution'] == 'Debian'"
-- name: "Prepare the {{ ansible_facts['distribution'] }} guest operating system."
+
+- name: Prepare the {{ ansible_facts['distribution'] }} guest operating system
   include_tasks: "{{ ansible_facts['distribution'] | lower }}.yml"
   when: "ansible_facts['distribution'] == 'Ubuntu'"
-- name: "Prepare the {{ ansible_facts['distribution'] }} guest operating system."
+
+- name: Prepare the {{ ansible_facts['distribution'] }} guest operating system
   include_tasks: redhat.yml
   when: "ansible_facts['distribution'] in ['RedHat', 'CentOS', 'Rocky', 'AlmaLinux', 'OracleLinux']"
+
+- name: Prepare the {{ ansible_facts['distribution'] }} guest operating system
+  include_tasks: "{{ ansible_facts['distribution'] | lower }}.yml"
+  when: "ansible_facts['distribution'] == 'Suse'"
+
+...
