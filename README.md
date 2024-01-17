@@ -29,6 +29,7 @@ The following builds are available:
 | CentOS Stream    | 8         |
 | Debian           | 12        |
 | Debian           | 11        |
+| OpenSUSE Leap    | 15.5      |
 | Ubuntu Server    | 22.04 LTS |
 | Ubuntu Server    | 20.04 LTS | 
 
@@ -694,6 +695,7 @@ vm_disk_lvm = [
 
 ## CentOS Stream 8
 - Anaconda will stop the install with a message complaining about not enough disk space. This is a known issue with kickstart on RHEL 8, however none of the fixes that have been tried have worked. If you want to build a CentOS-Stream-8 template, you will need to access the console of the machine and simply ignore the warning and continue the installation.
+- OpenSUSE does not support custom storage layouts at this time. This is planned for a future release
 
 # Unsupported Features
 - UEFI firmware
