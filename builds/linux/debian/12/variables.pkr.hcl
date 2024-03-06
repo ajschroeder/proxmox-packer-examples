@@ -1,6 +1,6 @@
 /*
     DESCRIPTION:
-    Debian 11 variables using the Packer Builder for Proxmox (proxmox-iso).
+    Debian 12 variables using the Packer Builder for Proxmox (proxmox-iso).
 */
 
 //  BLOCK: variable

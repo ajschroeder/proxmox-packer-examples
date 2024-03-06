@@ -1,6 +1,6 @@
 /*
     DESCRIPTION:
-    Debian 11 template using the Packer Builder for Proxmox (proxmox-iso).
+    CentOS Stream 8 template using the Packer Builder for Proxmox (proxmox-iso).
 */
 
 //  BLOCK: packer
