@@ -1,6 +1,6 @@
 /*
     DESCRIPTION:
-    Debian 11 variables using the Packer Builder for Proxmox (proxmox-iso).
+    CentOS Stream 9 variables using the Packer Builder for Proxmox (proxmox-iso).
 */
 
 //  BLOCK: variable

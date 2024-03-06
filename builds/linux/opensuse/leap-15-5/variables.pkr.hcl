@@ -1,6 +1,6 @@
 /*
     DESCRIPTION:
-    Debian 11 variables using the Packer Builder for Proxmox (proxmox-iso).
+    openSUSE-Leap 15.5 variables using the Packer Builder for Proxmox (proxmox-iso).
 */
 
 //  BLOCK: variable

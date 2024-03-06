@@ -1,6 +1,6 @@
 /*
     DESCRIPTION:
-    Ubuntu Server 22.04 LTS variables used by the Packer Plugin for Proxmox (proxmox-iso).
+    CentOS Stream 8 variables used by the Packer Plugin for Proxmox (proxmox-iso).
 */
 
 // Guest Operating System Metadata

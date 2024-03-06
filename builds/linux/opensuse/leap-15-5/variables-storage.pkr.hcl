@@ -1,6 +1,6 @@
 /*
     DESCRIPTION:
-    Debian 11 storage variables used by the Packer Plugin for Proxmox (proxmox-iso).
+    openSUSE-Leap 15.5 storage variables used by the Packer Plugin for Proxmox (proxmox-iso).
 */
 
 // VM Storage Settings

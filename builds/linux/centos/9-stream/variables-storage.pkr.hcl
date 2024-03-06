@@ -1,6 +1,6 @@
 /*
     DESCRIPTION:
-    Debian 11 storage variables used by the Packer Plugin for Proxmox (proxmox-iso).
+    CentOS Stream 9 storage variables used by the Packer Plugin for Proxmox (proxmox-iso).
 */
 
 // VM Storage Settings

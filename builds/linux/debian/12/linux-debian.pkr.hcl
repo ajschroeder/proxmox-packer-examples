@@ -1,6 +1,6 @@
 /*
     DESCRIPTION:
-    Debian 11 template using the Packer Builder for Proxmox (proxmox-iso).
+    Debian 12 template using the Packer Builder for Proxmox (proxmox-iso).
 */
 
 //  BLOCK: packer
