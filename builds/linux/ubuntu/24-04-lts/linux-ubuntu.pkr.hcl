@@ -1,6 +1,6 @@
 /*
     DESCRIPTION:
-    Ubuntu Server 22.04 LTS template using the Packer Builder for Proxmox (proxmox-iso).
+    Ubuntu Server 24.04 LTS template using the Packer Builder for Proxmox (proxmox-iso).
 */
 
 //  BLOCK: packer

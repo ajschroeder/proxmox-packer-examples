@@ -2,9 +2,11 @@
 - name: "Configure SSH for Public Key Authentication"
   shell: |
     sudo sed -i 's/.*PubkeyAuthentication.*/PubkeyAuthentication yes/' /etc/ssh/sshd_config
-- name: "Restarting the SSH daemon."
-  shell: |
-    sudo systemctl restart sshd
+
+- name: Restarting the SSH daemon
+  ansible.builtin.service:
+    name: ssh
+    state: restarted
 
 - name: Remove cloud-init files
   ansible.builtin.file:
@@ -18,7 +20,7 @@
     - /etc/netplan/00-installer-config.yaml
   when:
     - cloud_init | bool
-    - ansible_distribution_version == "20.04" or ansible_distribution_version == "22.04"
+    - ansible_distribution_version == "20.04" or ansible_distribution_version == "22.04" or ansible_distribution_version == "24.04"
 
 - name: Disable cloud-init if configured to 
   block:
@@ -38,7 +40,7 @@
         - 'etc_cloud_folder.stat.exists'
   when: 
     - not cloud_init | bool
-    - ansible_distribution_version == "20.04" or ansible_distribution_version == "22.04"
+    - ansible_distribution_version == "20.04" or ansible_distribution_version == "22.04" or ansible_distribution_version == "24.04"
 
 - name: Copy cloud-init PVE default file
   ansible.builtin.copy:
@@ -51,7 +53,7 @@
   shell: |
     sed -i -e "s/GRUB_CMDLINE_LINUX_DEFAULT=\"\(.*\)\"/GRUB_CMDLINE_LINUX_DEFAULT=\"\"/" /etc/default/grub
     update-grub
-  when: ansible_distribution_version == "20.04" or ansible_distribution_version == "22.04"
+  when: ansible_distribution_version == "20.04" or ansible_distribution_version == "22.04" or ansible_distribution_version == "24.04"
 
 - name: Creating SSH key regeneration service file
   ansible.builtin.copy:
@@ -84,4 +86,3 @@
     enabled: true
   when: not cloud_init | bool
 
-...
