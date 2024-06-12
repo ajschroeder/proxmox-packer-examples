@@ -132,6 +132,68 @@ menu_option_4() {
 }
 
 menu_option_5() {
+  INPUT_PATH="$SCRIPT_PATH"/builds/linux/rocky/8/
+  echo -e "\nCONFIRM: Build a Rocky Linux 8 Template for Proxmox?"
+  echo -e "\nContinue? (y/n)"
+  read -r REPLY
+  if [[ ! $REPLY =~ ^[Yy]$ ]]
+  then
+    exit 1
+  fi
+
+  ### Build a Rocky Linux 8 for Proxmox. ###
+  echo "Building a Rocky Linux 8 for Proxmox..."
+
+  ### Initialize HashiCorp Packer and required plugins. ###
+  echo "Initializing HashiCorp Packer and required plugins..."
+  packer init "$INPUT_PATH"
+
+  ### Start the Build. ###
+  echo "Starting the build...."
+  packer build -force \
+      -var-file="$CONFIG_PATH/proxmox.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/build.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/ansible.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/common.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/linux-storage.pkrvars.hcl" \
+      "$INPUT_PATH"
+
+  ### All done. ###
+  echo "Done."
+}
+
+menu_option_6() {
+  INPUT_PATH="$SCRIPT_PATH"/builds/linux/rocky/9/
+  echo -e "\nCONFIRM: Build a Rocky Linux 9 Template for Proxmox?"
+  echo -e "\nContinue? (y/n)"
+  read -r REPLY
+  if [[ ! $REPLY =~ ^[Yy]$ ]]
+  then
+    exit 1
+  fi
+
+  ### Build a Rocky Linux 9 for Proxmox. ###
+  echo "Building a Rocky Linux 9 for Proxmox..."
+
+  ### Initialize HashiCorp Packer and required plugins. ###
+  echo "Initializing HashiCorp Packer and required plugins..."
+  packer init "$INPUT_PATH"
+
+  ### Start the Build. ###
+  echo "Starting the build...."
+  packer build -force \
+      -var-file="$CONFIG_PATH/proxmox.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/build.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/ansible.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/common.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/linux-storage.pkrvars.hcl" \
+      "$INPUT_PATH"
+
+  ### All done. ###
+  echo "Done."
+}
+
+menu_option_7() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/ubuntu/20-04-lts/
   echo -e "\nCONFIRM: Build a Ubuntu Server 20.04 LTS Template for Proxmox?"
   echo -e "\nContinue? (y/n)"
@@ -162,7 +224,7 @@ menu_option_5() {
   echo "Done."
 }
 
-menu_option_6() {
+menu_option_8() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/ubuntu/20-04-lts/
   echo -e "\nCONFIRM: Build a Ubuntu Server 20.04 LTS (cloud-init) Template for Proxmox?"
   echo -e "\nContinue? (y/n)"
@@ -194,7 +256,7 @@ menu_option_6() {
   echo "Done."
 }
 
-menu_option_7() {
+menu_option_9() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/ubuntu/22-04-lts/
   echo -e "\nCONFIRM: Build a Ubuntu Server 22.04 LTS Template for Proxmox?"
   echo -e "\nContinue? (y/n)"
@@ -225,7 +287,7 @@ menu_option_7() {
   echo "Done."
 }
 
-menu_option_8() {
+menu_option_10() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/ubuntu/22-04-lts/
   echo -e "\nCONFIRM: Build a Ubuntu Server 22.04 LTS (cloud-init) Template for Proxmox?"
   echo -e "\nContinue? (y/n)"
@@ -257,7 +319,7 @@ menu_option_8() {
   echo "Done."
 }
 
-menu_option_9() {
+menu_option_11() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/ubuntu/24-04-lts/
   echo -e "\nCONFIRM: Build a Ubuntu Server 24.04 LTS Template for Proxmox?"
   echo -e "\nContinue? (y/n)"
@@ -288,7 +350,7 @@ menu_option_9() {
   echo "Done."
 }
 
-menu_option_10() {
+menu_option_12() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/ubuntu/24-04-lts/
   echo -e "\nCONFIRM: Build a Ubuntu Server 24.04 LTS (cloud-init) Template for Proxmox?"
   echo -e "\nContinue? (y/n)"
@@ -320,7 +382,7 @@ menu_option_10() {
   echo "Done."
 }
 
-menu_option_11() {
+menu_option_13() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/opensuse/leap-15-5/
   echo -e "\nCONFIRM: Build a OpenSUSE Leap 15.5 Template for Proxmox?"
   echo -e "\nContinue? (y/n)"
@@ -387,13 +449,15 @@ until [ "$selection" = "0" ]; do
   echo "       2  -  CentOS 9 Stream"
   echo "       3  -  Debian 11 (Bullseye)"
   echo "       4  -  Debian 12 (Bookworm)"
-  echo "       5  -  Ubuntu Server 20.04 LTS"
-  echo "       6  -  Ubuntu Server 20.04 LTS (cloud-init)"
-  echo "       7  -  Ubuntu Server 22.04 LTS"
-  echo "       8  -  Ubuntu Server 22.04 LTS (cloud-init)"
-  echo "       9  -  Ubuntu Server 24.04 LTS"
-  echo "       10 -  Ubuntu Server 24.04 LTS (cloud-init)"
-  echo "       11 -  OpenSUSE Leap 15.5"
+  echo "       5  -  Rocky Linux 8"
+  echo "       6  -  Rocky Linux 9"
+  echo "       7  -  Ubuntu Server 20.04 LTS"
+  echo "       8  -  Ubuntu Server 20.04 LTS (cloud-init)"
+  echo "       9  -  Ubuntu Server 22.04 LTS"
+  echo "       10 -  Ubuntu Server 22.04 LTS (cloud-init)"
+  echo "       11 -  Ubuntu Server 24.04 LTS"
+  echo "       12 -  Ubuntu Server 24.04 LTS (cloud-init)"
+  echo "       13 -  OpenSUSE Leap 15.5"
   echo ""
   echo "      Other:"
   echo ""
@@ -414,6 +478,8 @@ until [ "$selection" = "0" ]; do
     9 ) clear ; menu_option_9  ; press_enter ;;
     10) clear ; menu_option_10 ; press_enter ;;
     11) clear ; menu_option_11 ; press_enter ;;
+    12) clear ; menu_option_12 ; press_enter ;;
+    13) clear ; menu_option_13 ; press_enter ;;
     [Ii] ) clear ; info ; press_enter ;;
     [Qq] ) clear ; exit ;;
     * ) clear ; incorrect_selection ; press_enter ;;
