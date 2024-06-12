@@ -29,7 +29,10 @@ The following builds are available:
 | CentOS Stream    | 8         |
 | Debian           | 12        |
 | Debian           | 11        |
+| Rocky Linux      | 9         |
+| Rocky Linux      | 8         |
 | OpenSUSE Leap    | 15.5      |
+| Ubuntu Server    | 24.04 LTS |
 | Ubuntu Server    | 22.04 LTS |
 | Ubuntu Server    | 20.04 LTS | 
 
