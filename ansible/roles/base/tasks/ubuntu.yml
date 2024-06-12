@@ -8,10 +8,5 @@
 
 - name: "Installing additional packages."
   apt:
-    name:
-      - bash-completion
-      - curl
-      - wget
-      - unzip
-      - ca-certificates
+    name: "{{ additional_packages[ansible_os_family] }}"
     state: latest     # noqa package-latest

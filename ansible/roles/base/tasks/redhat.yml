@@ -4,38 +4,16 @@
   ansible.builtin.shell: "subscription-manager refresh"
   when: "ansible_facts['distribution'] == 'RedHat'"
 
-- name: "Updating the guest operating system."
-  ansible.builtin.dnf:
-    name: "*"
-    state: latest     # noqa package-latest
-    update_cache: "yes"
-  when: "ansible_facts['distribution_major_version'] >= \"8\""
+- block:
+  - name: "Updating the guest operating system."
+    ansible.builtin.dnf:
+      name: "*"
+      state: latest     # noqa package-latest
+      update_cache: "yes"
 
-- name: "Installing additional packages."
-  ansible.builtin.dnf:
-    name:
-      - curl
-      - wget
-      - unzip
-      - ca-certificates
-    state: latest     # noqa package-latest
-  when: "ansible_facts['distribution_major_version'] >= \"8\""
+  - name: "Installing additional packages."
+    ansible.builtin.dnf:
+      name: "{{ additional_packages[ansible_os_family] }}"
+      state: latest     # noqa package-latest
+  when: ansible_distribution_major_version | int > 8
 
-- name: "Updating the guest operating system."
-  when: "ansible_facts['distribution_major_version'] <= \"7\""
-  ansible.builtin.yum:
-    name: "*"
-    state: latest     # noqa package-latest
-    update_cache: "yes"
-
-- name: "Installing additional packages."
-  when: "ansible_facts['distribution_major_version'] <= \"7\""
-  ansible.builtin.yum:
-    name:
-      - curl
-      - wget
-      - unzip
-      - ca-certificates
-    state: latest     # noqa package-latest
-
-...
