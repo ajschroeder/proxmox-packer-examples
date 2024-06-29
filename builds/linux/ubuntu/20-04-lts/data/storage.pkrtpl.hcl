@@ -21,16 +21,21 @@
         path: /dev/${device}
         wipe: superblock
         preserve: false
-        name: ''
-%{ if vm_bios == "ovmf" ~}
-        grub_device: false
-%{ endif ~}
 %{ if vm_bios == "seabios" ~}
         grub_device: true
 %{ endif ~}
         type: disk
         id: disk-${device}
-# BIOS boot partition
+%{if vm_bios == "seabios" ~}
+      - device: disk-${device}
+        size: 1M
+        flag: bios_grub
+        number: 1
+        preserve: false
+        type: partition
+        id: partition-grub
+%{ endif ~}
+
 %{ for index, partition in partitions ~}
       - device: disk-${device}
 %{ if partition.size != -1 ~}
@@ -40,7 +45,7 @@
 %{ endif ~}
         wipe: superblock
         preserve: false
-%{ if partition.name == "bios_grub" && vm_bios == "seabios" && index == 0 ~}
+%{ if partition.mount.path == "/boot" && vm_bios == "seabios" && index == 0 ~}
         flag: bios_grub
         grub_device: false
 %{ endif ~}
@@ -57,7 +62,6 @@
         label: ${partition.format.label}
         fstype: ${partition.format.fstype}
 %{ endif ~}
-# Don't create a mount for the GRUB partition when using BIOS
 %{ if partition.volume_group == "" && partition.name != "bios_grub" ~}
       - id: mount-${partition.name}
         type: mount
