@@ -472,13 +472,6 @@
     <ipv6 t="boolean">true</ipv6>
     <keep_install_network t="boolean">true</keep_install_network>
     <managed t="boolean">false</managed>
-    <net-udev t="list">
-      <rule t="map">
-        <name>eth0</name>
-        <rule>ATTR{address}</rule>
-        <value>bc:24:11:b0:93:4b</value>
-      </rule>
-    </net-udev>
     <routing t="map">
       <ipv4_forward t="boolean">false</ipv4_forward>
       <ipv6_forward t="boolean">false</ipv6_forward>
