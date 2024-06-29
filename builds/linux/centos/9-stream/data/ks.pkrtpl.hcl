@@ -26,9 +26,7 @@ keyboard ${vm_os_keyboard}
 ### --device	  device to be activated and / or configured with the network command
 ### --bootproto	  method to obtain networking configuration for device (default dhcp)
 ### --noipv6	  disable IPv6 on this device
-###
-### network  --bootproto=static --ip=172.16.11.200 --netmask=255.255.255.0 --gateway=172.16.11.200 --nameserver=172.16.11.4 --hostname centos-linux-8
-network --bootproto=dhcp
+${network}
 
 ### Lock the root account.
 rootpw --lock
