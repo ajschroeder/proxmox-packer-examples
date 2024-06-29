@@ -33,10 +33,40 @@ data "git-repository" "cwd" {}
 //  Defines the local variables.
 
 locals {
+  bios_boot_command = [
+    "<esc><esc><esc>",
+    "<enter><wait>",
+    "/casper/vmlinuz ",
+    "root=/dev/sr0 ",
+    "initrd=/casper/initrd ",
+    "autoinstall ",
+    "${local.data_source_command}",
+    "<enter>"
+  ]
+  uefi_boot_command = [
+    // This waits for 3 seconds, sends the "c" key, and then waits for another 3 seconds. In the GRUB boot loader, this is used to enter command line mode.
+    "<esc><wait>",
+    // This types a command to load the Linux kernel fromthe specified path with the 'autoinstall' option and the value of the 'data_source_command' local variable.
+    // The 'autoinstall' option is used to automate the installation process.
+    // The 'data_source_command' local variable is used to specify the kickstart data source configured in the common variables.
+    "linux /casper/vmlinuz autoinstall ${local.data_source_command} ---",
+    // This sends the "enter" key and then waits. This is typically used to execute the command and give the system time to process it.
+    "<enter><wait>",
+    // This types a command to load the initial RAM disk from the specified path.
+    "initrd /casper/initrd",
+    // This sends the "enter" key and then waits. This is typically used to execute the command and give the system time to process it.
+    "<enter><wait>",
+    // This types the "boot" command. This starts the boot process using the loaded kernel and initial RAM disk.
+    "boot",
+    // This sends the "enter" key. This is typically used to execute the command.
+    "<enter>"
+  ]
   build_by          = "Built by: HashiCorp Packer ${packer.version}"
   build_date        = formatdate("DD-MM-YYYY hh:mm ZZZ", "${timestamp()}" )
   build_version     = data.git-repository.cwd.head
-  build_description = "Version: ${local.build_version}\nBuilt on: ${local.build_date}\n${local.build_by}\nCloud-Init: ${var.vm_cloud_init_enable}"
+  build_description = "Version: ${local.build_version}\nBuilt on: ${local.build_date}\n${local.build_by}\nCloud-Init: ${var.vm_cloudinit}"
+  # For some reason 20.04 doesn't like quotes in the boot commands for BIOS machines
+  http_command      = var.vm_bios == "ovmf" ? "ds=\"nocloud-net;seedfrom=http://{{.HTTPIP}}:{{.HTTPPort}}/\"" : "ds=nocloud-net;seedfrom=http://{{.HTTPIP}}:{{.HTTPPort}}/"
   vm_disk_type      = var.vm_disk_type == "virtio" ? "vda" : "sda"
   manifest_date     = formatdate("YYYY-MM-DD hh:mm:ss", timestamp())
   manifest_path     = "${path.cwd}/manifests/"
@@ -51,6 +81,14 @@ locals {
       vm_os_language           = var.vm_os_language
       vm_os_keyboard           = var.vm_os_keyboard
       vm_os_timezone           = var.vm_os_timezone
+
+      network                  = templatefile("${abspath(path.root)}/data/network.pkrtpl.hcl", {
+        device                 = var.vm_network_device
+        ip                     = var.vm_ip_address
+        netmask                = var.vm_ip_netmask
+        gateway                = var.vm_ip_gateway
+        dns                    = var.vm_dns_list
+      })
       storage                  = templatefile("${abspath(path.root)}/data/storage.pkrtpl.hcl", {
         device                 = var.vm_disk_device
         swap                   = var.vm_disk_use_swap
@@ -58,11 +96,13 @@ locals {
         lvm                    = var.vm_disk_lvm
         vm_bios                = var.vm_bios
       })
+      additional_packages = var.additional_packages
     })
   }
-  # For some reason 20.04 doesn't like quotes in the boot commands
-  data_source_command = var.common_data_source == "http" ? "ds=nocloud-net;seedfrom=http://{{.HTTPIP}}:{{.HTTPPort}}/" : "ds=nocloud"
-  vm_name = "${var.vm_os_family}-${var.vm_os_name}-${var.vm_os_version}"
+
+  data_source_command = var.common_data_source == "http" ? "${local.http_command}" : "ds=nocloud"
+  vm_name = var.vm_cloudinit == false ? "${var.vm_os_family}-${var.vm_os_name}-${var.vm_os_version}" : "${var.vm_os_family}-${var.vm_os_name}-${var.vm_os_version}-cloud-init"
+  boot_command = var.vm_bios == "ovmf" ? local.uefi_boot_command : local.bios_boot_command
   vm_bios = var.vm_bios == "ovmf" ? var.vm_firmware_path : null
 }
 
@@ -127,16 +167,7 @@ source "proxmox-iso" "ubuntu" {
   http_port_max     = var.common_data_source == "http" ? var.common_http_port_max : null
   boot              = var.vm_boot
   boot_wait         = var.vm_boot_wait
-  boot_command = [
-    "<esc><esc><esc>",
-    "<enter><wait>",
-    "/casper/vmlinuz ",
-    "root=/dev/sr0 ",
-    "initrd=/casper/initrd ",
-    "autoinstall ",
-    "${local.data_source_command}",
-    "<enter>"
-  ]
+  boot_command      = local.boot_command
 
   dynamic "additional_iso_files" {
     for_each = var.common_data_source == "disk" ? [1] : []
@@ -151,8 +182,8 @@ source "proxmox-iso" "ubuntu" {
   template_description = "${local.build_description}"
 
   # VM Cloud Init Settings
-  cloud_init              = var.vm_cloud_init_enable
-  cloud_init_storage_pool = var.vm_cloud_init_enable == true ? var.vm_storage_pool : null
+  cloud_init              = var.vm_cloudinit
+  cloud_init_storage_pool = var.vm_cloudinit == true ? var.vm_storage_pool : null
 
 }
 
@@ -161,19 +192,22 @@ build {
   sources = ["source.proxmox-iso.ubuntu"]
 
   provisioner "ansible" {
-    user          = "${var.build_username}"
-    playbook_file = "${path.cwd}/ansible/main.yml"
-    roles_path    = "${path.cwd}/ansible/roles"
+    user                   = var.build_username
+    galaxy_file            = "${path.cwd}/ansible/linux-requirements.yml"
+    galaxy_force_with_deps = true
+    playbook_file          = "${path.cwd}/ansible/linux-playbook.yml"
+    roles_path             = "${path.cwd}/ansible/roles"
     ansible_env_vars = [
-      "ANSIBLE_CONFIG=${path.cwd}/ansible/ansible.cfg"
+      "ANSIBLE_CONFIG=${path.cwd}/ansible/ansible.cfg",
+      "ANSIBLE_PYTHON_INTERPRETER=/usr/bin/python3"
     ]
     extra_arguments = [
       "--extra-vars", "display_skipped_hosts=false",
-      "--extra-vars", "BUILD_USERNAME=${var.build_username}",
-      "--extra-vars", "BUILD_SECRET='${var.build_key}'",
-      "--extra-vars", "ANSIBLE_USERNAME=${var.ansible_username}",
-      "--extra-vars", "ANSIBLE_SECRET='${var.ansible_key}'",
-      "--extra-vars", "cloud_init='${var.vm_cloud_init_enable}'",
+      "--extra-vars", "build_username=${var.build_username}",
+      "--extra-vars", "build_key='${var.build_key}'",
+      "--extra-vars", "ansible_username=${var.ansible_username}",
+      "--extra-vars", "ansible_key='${var.ansible_key}'",
+      "--extra-vars", "enable_cloudinit='${var.vm_cloudinit}'",
     ]
   }
 
@@ -194,7 +228,7 @@ build {
       vm_os_type               = "${var.vm_os_type}"
       vm_mem_size              = "${var.vm_mem_size}"
       vm_network_card_model    = "${var.vm_network_card_model}"
-      vm_cloud_init_enable     = "${var.vm_cloud_init_enable}"
+      vm_cloudinit             = "${var.vm_cloudinit}"
     }
   }
 }
