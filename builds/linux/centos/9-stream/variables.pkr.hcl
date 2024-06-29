@@ -171,7 +171,7 @@ variable "vm_vlan_tag" {
 
 // Cloud-Init Settings
 
-variable "vm_cloud_init_enable" {
+variable "vm_cloudinit" {
   type        = bool
   description = "Enable or disable cloud-init drive in Proxmox. (e.g. false)"
   default     = false
@@ -295,3 +295,10 @@ variable "common_hcp_packer_registry_enabled" {
   default     = false
 }
 
+// Additional Settings
+
+variable "additional_packages" {
+  type        = list(string)
+  description = "Additional packages to install."
+  default     = []
+}
