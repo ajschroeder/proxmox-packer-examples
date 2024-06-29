@@ -13,6 +13,7 @@ vm_os_version    = "15.5"
 
 // Virtual Machine Guest Operating System Setting
 vm_os_type       = "l26"
+vm_cloudinit     = true
 
 // Virtual Machine Hardware Settings
 vm_bios                 = "seabios"
