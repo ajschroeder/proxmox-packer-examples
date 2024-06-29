@@ -13,9 +13,10 @@ vm_os_version    = "8"
 
 // Virtual Machine Guest Operating System Setting
 vm_os_type       = "l26"
+vm_cloudinit     = true
 
 // Virtual Machine Hardware Settings
-vm_bios                 = "seabios"
+vm_bios                 = "ovmf"
 vm_cpu_count            = 1
 vm_cpu_sockets          = 1
 vm_cpu_type             = "kvm64"
