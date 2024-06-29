@@ -171,7 +171,7 @@ variable "vm_vlan_tag" {
 
 // Cloud-Init Settings
 
-variable "vm_cloud_init_enable" {
+variable "vm_cloudinit" {
   type        = bool
   description = "Enable or disable cloud-init drive in Proxmox. (e.g. false)"
   default     = false
