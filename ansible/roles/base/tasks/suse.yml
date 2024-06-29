@@ -1,9 +1,29 @@
 ---
 
-- name: Updating the operating system
-  ansible.builtin.zypper:
-    name: "*"
-    state: latest
-    update_cache: true
+- block:
+  - name: Updating the operating system
+    ansible.builtin.zypper:
+      name: "*"
+      state: latest
+      update_cache: true
 
-...
+  - name: Installing additional packages
+    ansible.builtin.zypper:
+      name: "{{ additional_packages[ansible_os_family] }}"
+      state: latest
+
+- name: "Configure cloud-init."
+  block:
+  - name: "Add the SUSE OSS repo."
+    become: true
+    community.general.zypper_repository:
+      name: repo-oss
+      repo: "http://download.opensuse.org/distribution/leap/15.5/repo/oss/"
+      auto_import_keys: true
+
+  - name: "Installing cloud-init."
+    become: true
+    ansible.builtin.zypper:
+      name: cloud-init
+      state: latest
+  when: enable_cloudinit == 'true'

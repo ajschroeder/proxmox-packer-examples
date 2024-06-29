@@ -12,6 +12,12 @@ additional_packages:
     - curl
     - unzip
     - wget
+  Suse:
+    - bash-completion
+    - ca-certificates
+    - curl
+    - unzip
+    - wget
   Ubuntu:
     - bash-completion
     - ca-certificates

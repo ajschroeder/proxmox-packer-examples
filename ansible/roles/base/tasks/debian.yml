@@ -1,4 +1,5 @@
 ---
+
 - block:
   - name: "Updating the guest operating system."
     ansible.builtin.apt:
@@ -11,3 +12,10 @@
     ansible.builtin.apt:
       name: "{{ additional_packages[ansible_os_family] }}"
       state: latest     # noqa package-latest
+
+  - name: "Installing cloud-init."
+    become: true
+    ansible.builtin.apt:
+      name: cloud-init
+      state: latest
+    when: enable_cloudinit == 'true' and ansible_distribution_version | int >= 11

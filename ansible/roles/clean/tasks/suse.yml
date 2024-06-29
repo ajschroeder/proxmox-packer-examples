@@ -2,13 +2,14 @@
 
 # Tasks to clean the SUSE Customer Center file.
 - name: "Cleaning the SUSE Customer Center file."
-  file:
+  ansible.builtin.file:
     path: /etc/SUSEConnect
     state: absent
+  when: "ansible_facts['distribution'] != 'openSUSE Leap'"
 
 # Tasks to clean the audit logs.
 - name: "Cleaning the audit logs."
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: absent
   loop:
@@ -24,13 +25,13 @@
 
 # Tasks to clean the persistent udev rules.
 - name: "Cleaning persistent udev rules."
-  file:
+  ansible.builtin.file:
     path: /etc/udev/rules.d/70-persistent-net.rules
     state: absent
 
 # Tasks to find the /tmp directories.
 - name: "Finding the /tmp directories."
-  find:
+  ansible.builtin.find:
     paths:
       - /tmp
       - /var/tmp
@@ -40,7 +41,7 @@
 
 # Tasks to clean the /tmp directories.
 - name: "Cleaning the /tmp directories."
-  file:
+  ansible.builtin.file:
     path: "{{ item.path }}"
     state: absent
   loop: "{{ find_tmp_directories.files }}"
@@ -49,14 +50,14 @@
 
 # Tasks to find the SSH host keys.
 - name: "Finding the SSH host keys."
-  find:
+  ansible.builtin.find:
     paths: /etc/ssh
     patterns: 'ssh_host_*'
   register: find_ssh_host_keys
 
 # Tasks to clean the SSH host keys.
 - name: "Cleaning the SSH host keys."
-  file:
+  ansible.builtin.file:
     path: "{{ item.path }}"
     state: absent
   loop: "{{ find_ssh_host_keys.files }}"
@@ -73,7 +74,7 @@
 - name: "Cleaning the shell history."
   block:
   - name: "Cleaning the shell history."
-    file:
+    ansible.builtin.file:
       path: "{{ ansible_env.HOME }}/.bash_history"
       state: absent
 

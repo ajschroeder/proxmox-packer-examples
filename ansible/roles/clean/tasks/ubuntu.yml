@@ -1,93 +1,93 @@
 ---
+# Tasks for setting custom facts.
+- name: "Setting custom facts."
+  ansible.builtin.set_fact:
+    enable_cloudinit: "{{ enable_cloudinit | default('false') }}"
 
-- name: Remove audit log files
+# Tasks for removing the cloud-init package.
+- name: "Removing the cloud-init package."
+  ansible.builtin.apt:
+    name: cloud-init
+    state: absent
+  when: enable_cloudinit == 'false'
+
+# Tasks to clean the audit logs.
+- name: "Cleaning the audit logs."
   ansible.builtin.file:
     path: "{{ item }}"
     state: absent
   loop:
-    - "/var/log/audit/audit.log"
-    - "/var/log/wtmp"
-    - "/var/log/lastlog"
+    - /var/log/audit/audit.log
+    - /var/log/auth.log
+    - /var/log/btmp
+    - /var/log/dpkg.log
+    - /var/log/faillog
+    - /var/log/kern.log
+    - /var/log/lastlog
+    - /var/log/syslog
+    - /var/log/wtmp
 
-- name: Check to see if the /var/log/audit directory exists
-  ansible.builtin.stat:
-    path: "/var/log/audit"
-  register: audit_directory
-
-- name: Ensure /var/log/audit directory exists
-  ansible.builtin.file:
-    path: /var/log/audit
-    state: directory
-    mode: "0750"
-    owner: root
-    group: adm
-  when: audit_directory.stat.exists
-
-- name: Ensure /var/log/audit/audit.log exists
-  ansible.builtin.file:
-    path: /var/log/audit/audit.log
-    state: touch
-    mode: "0640"
-    owner: root
-    group: adm
-  when: audit_directory.stat.exists
-
-- name: Ensure wtmp and lastlog exist with the correct permissions
-  ansible.builtin.copy:
-    dest: "{{ item }}"
-    content: ""
-    mode: "0664"
-    owner: root
-    group: utmp
-  loop:
-    - "/var/log/wtmp"
-    - "/var/log/lastlog"
-
-- name: Cleaning persistent udev rules
+# Tasks to clean the persistent udev rules.
+- name: "Cleaning persistent udev rules."
   ansible.builtin.file:
     path: /etc/udev/rules.d/70-persistent-net.rules
     state: absent
 
-- name: "Cleaning the /tmp directories"
+# Tasks to find the /tmp directories.
+- name: "Finding the /tmp directories."
+  ansible.builtin.find:
+    paths:
+      - /tmp
+      - /var/tmp
+    file_type: any
+  register: find_tmp_directories
+
+# Tasks to clean the /tmp directories.
+- name: "Cleaning the /tmp directories."
   ansible.builtin.file:
-    path: "{{ item }}"
+    path: "{{ item.path }}"
     state: absent
-  loop:
-    - "/tmp/*"
-    - "/var/tmp/*"
+  loop: "{{ find_tmp_directories.files }}"
+  loop_control:
+    label: "{{ item.path }}"
 
-- name: Cleaning the SSH host keys
-  shell: |
-    rm -f /etc/ssh/ssh_host_*
+# Tasks to find the SSH host keys.
+- name: "Finding the SSH host keys."
+  ansible.builtin.find:
+    paths: /etc/ssh
+    patterns: 'ssh_host_*'
+  register: find_ssh_host_keys
 
-- name: remove /etc/machine-id
-  file:
-    path: /etc/machine-id
+# Tasks to clean the SSH host keys.
+- name: "Cleaning the SSH host keys."
+  ansible.builtin.file:
+    path: "{{ item.path }}"
     state: absent
+  loop: "{{ find_ssh_host_keys.files }}"
+  loop_control:
+    label: "{{ item.path }}"
 
-- name: remove /var/lib/dbus/machine-id
-  file:
-    path: /var/lib/dbus/machine-id
-    state: absent
+# Tasks to clean the machine-id.
+- name: "Cleaning the machine-id."
+  block:
+    - name: "Emptying the /etc/machine-id."
+      community.general.filesize:
+        path: /etc/machine-id
+        size: 0
+    - name: "Removing /var/lib/dbus/machine-id."
+      ansible.builtin.file:
+        path: /var/lib/dbus/machine-id
+        state: absent
+    - name: "Creating a symbolic link to /etc/machine-id."
+      ansible.builtin.file:
+        src: /etc/machine-id
+        dest: /var/lib/dbus/machine-id
+        state: link
 
-- name: generate new machine-id
-  command: systemd-machine-id-setup
-
-- name: Clean apt
-  ansible.builtin.apt:
-    autoclean: yes
-    autoremove: yes
-    clean: yes
-
-- name: Cleaning the shell history
-  shell: |
-    unset HISTFILE
-    history -cw
-    echo > ~/.bash_history
-    rm -fr /root/.bash_history
-
-- name: Clean cloud-init
-  ansible.builtin.command: cloud-init clean
-  when: cloud_init | bool
-
-...
+# Tasks to clean the shell history.
+- name: "Cleaning the shell history."
+  block:
+  - name: "Cleaning the shell history."
+    ansible.builtin.file:
+      path: "{{ ansible_env.HOME }}/.bash_history"
+      state: absent
