@@ -18,7 +18,6 @@
     - /var/log/lastlog
     - /var/log/mail
     - /var/log/messages
-    - /var/log/secure
     - /var/log/warn
     - /var/log/wtmp
     - /var/log/zypper.log
