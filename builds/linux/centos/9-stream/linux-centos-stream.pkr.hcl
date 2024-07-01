@@ -72,7 +72,6 @@ locals {
       vm_os_language           = var.vm_os_language
       vm_os_keyboard           = var.vm_os_keyboard
       vm_os_timezone           = var.vm_os_timezone
-      vm_cloudinit             = var.vm_cloudinit
       network = templatefile("${abspath(path.root)}/data/network.pkrtpl.hcl", {
         device  = var.vm_bridge_interface
         ip      = var.vm_ip_address
