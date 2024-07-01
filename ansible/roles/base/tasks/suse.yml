@@ -18,7 +18,7 @@
     become: true
     community.general.zypper_repository:
       name: repo-oss
-      repo: "http://download.opensuse.org/distribution/leap/15.5/repo/oss/"
+      repo: "http://download.opensuse.org/distribution/leap/$releasever/repo/oss/"
       auto_import_keys: true
 
   - name: "Installing cloud-init."
