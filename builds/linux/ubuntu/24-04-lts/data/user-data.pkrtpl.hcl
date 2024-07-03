@@ -6,7 +6,8 @@ autoinstall:
   locale: ${vm_os_language}
   keyboard:
     layout: ${vm_os_keyboard}
-${storage}  
+${storage}
+${network}
   identity:
     hostname: ubuntu-server
     username: ${build_username}
