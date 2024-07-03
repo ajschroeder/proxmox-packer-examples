@@ -4,6 +4,12 @@
     - Variables are passed to and used by guest operating system configuration files (e.g., ks.cfg).
 */
 
+// VM EFI Settings
+vm_efi_storage_pool      = "vm-data"
+vm_efi_type              = "4m"
+vm_efi_pre_enrolled_keys = false
+
+// VM Storage Settings
 vm_efi_storage_pool      = "vm-data"
 vm_efi_type              = "4m"
 vm_efi_pre_enrolled_keys = false
@@ -39,7 +45,7 @@ vm_disk_partitions = [
     volume_group = "",
   },
   {
-    name = "vg_root"
+    name = "sysvg"
     size = -1,
     format = {
       label  = "",
@@ -49,12 +55,12 @@ vm_disk_partitions = [
       path    = "",
       options = "",
     },
-    volume_group = "vg_root",
+    volume_group = "sysvg",
   },
 ]
 vm_disk_lvm = [
   {
-    name: "vg_root",
+    name: "sysvg",
     partitions: [
       {
         name = "lv_swap",
@@ -70,7 +76,7 @@ vm_disk_lvm = [
       },
       {
         name = "lv_root",
-        size = 3000,
+        size = 10240,
         format = {
           label  = "ROOTFS",
           fstype = "ext4",
@@ -82,7 +88,7 @@ vm_disk_lvm = [
       },
       {
         name = "lv_home",
-        size = 1200,
+        size = 4096,
         format = {
           label  = "HOMEFS",
           fstype = "ext4",
@@ -106,7 +112,7 @@ vm_disk_lvm = [
       },
       {
         name = "lv_tmp",
-        size = 2500,
+        size = 4096,
         format = {
           label  = "TMPFS",
           fstype = "ext4",
@@ -118,7 +124,7 @@ vm_disk_lvm = [
       },
       {
         name = "lv_var",
-        size = 3072,
+        size = 2048,
         format = {
           label  = "VARFS",
           fstype = "ext4",
@@ -130,7 +136,7 @@ vm_disk_lvm = [
       },
       {
         name = "lv_var_tmp",
-        size = 4096,
+        size = 1000,
         format = {
           label  = "VARTMPFS",
           fstype = "ext4",
@@ -142,7 +148,7 @@ vm_disk_lvm = [
       },
       {
         name = "lv_var_log",
-        size = 1024,
+        size = 4096,
         format = {
           label  = "VARLOGFS",
           fstype = "ext4",
