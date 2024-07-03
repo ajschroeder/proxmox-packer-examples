@@ -101,7 +101,7 @@ locals {
   }
 
   data_source_command = var.common_data_source == "http" ? "${local.http_command}" : "ds=nocloud"
-  vm_name = var.vm_cloudinit == false ? "${var.vm_os_family}-${var.vm_os_name}-${var.vm_os_version}" : "${var.vm_os_family}-${var.vm_os_name}-${var.vm_os_version}-cloud-init"
+  vm_name = "${var.vm_os_family}-${var.vm_os_name}-${var.vm_os_version}"
   boot_command = var.vm_bios == "ovmf" ? local.uefi_boot_command : local.bios_boot_command
   vm_bios = var.vm_bios == "ovmf" ? var.vm_firmware_path : null
 }
