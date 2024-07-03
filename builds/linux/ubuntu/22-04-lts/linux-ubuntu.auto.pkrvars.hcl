@@ -13,9 +13,10 @@ vm_os_version    = "22.04-lts"
 
 // Virtual Machine Guest Operating System Setting
 vm_os_type       = "l26"
+vm_cloudinit     = true
 
 // Virtual Machine Hardware Settings
-vm_bios                 = "seabios"
+vm_bios                 = "ovmf"
 vm_cpu_count            = 1
 vm_cpu_sockets          = 1
 vm_cpu_type             = "kvm64"
@@ -32,7 +33,7 @@ vm_vlan_tag             = "102"
 // Removable Media Settings
 iso_path     = "iso"
 iso_file     = "ubuntu-22.04-live-server-amd64.iso"
-iso_checksum = "84aeaf7823c8c61baa0ae862d0a06b03409394800000b3235854a6b38eb4856f"
+iso_checksum = "file:https://releases.ubuntu.com/jammy/SHA256SUMS"
 
 // Boot Settings
 vm_boot      = "order=virtio0;ide2;net0"
