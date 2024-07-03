@@ -13,9 +13,10 @@ vm_os_version    = "24.04-lts"
 
 // Virtual Machine Guest Operating System Setting
 vm_os_type       = "l26"
+vm_cloudinit     = true
 
 // Virtual Machine Hardware Settings
-vm_bios                 = "seabios"
+vm_bios                 = "ovmf"
 vm_cpu_count            = 1
 vm_cpu_sockets          = 1
 vm_cpu_type             = "kvm64"
@@ -32,7 +33,7 @@ vm_vlan_tag             = "102"
 // Removable Media Settings
 iso_path     = "iso"
 iso_file     = "ubuntu-24.04-live-server-amd64.iso"
-iso_checksum = "8762f7e74e4d64d72fceb5f70682e6b069932deedb4949c6975d0f0fe0a91be3"
+iso_checksum = "https://releases.ubuntu.com/noble/SHA256SUMS"
 
 // Boot Settings
 vm_boot      = "order=virtio0;ide2;net0"
