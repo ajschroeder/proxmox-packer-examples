@@ -199,7 +199,7 @@ build {
       "--extra-vars", "build_key='${var.build_key}'",
       "--extra-vars", "ansible_username=${var.ansible_username}",
       "--extra-vars", "ansible_key='${var.ansible_key}'",
-      "--extra-vars", "enable_cloud_init='${var.vm_cloudinit}'",
+      "--extra-vars", "enable_cloudinit='${var.vm_cloudinit}'",
     ]
   }
 
