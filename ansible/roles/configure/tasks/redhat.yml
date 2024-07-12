@@ -28,6 +28,26 @@
     state: disabled
     policy: targeted
 
+# Tasks for configuring cloud-init.
+- block:
+    - name: "Message: Configuring cloud-init"
+      ansible.builtin.debug:
+        msg: "Configuring cloud-init"
+    - name: "Add Proxmox datasource"
+      ansible.builtin.copy:
+        content: "datasource_list: [ NoCloud, ConfigDrive ]"
+        dest: /etc/cloud/cloud.cfg.d/99_pve.cfg
+    - name: Enable cloud-init services
+      ansible.builtin.service:
+        name: "{{ item }}"
+        enabled: true
+      loop:
+        - cloud-config
+        - cloud-init
+        - cloud-init-local
+        - cloud-final
+  when: enable_cloudinit == 'true'
+
 # Tasks for restarting the SSH daemon.
 - name: "Restarting the SSH daemon."
   ansible.builtin.systemd:

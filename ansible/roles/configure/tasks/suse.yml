@@ -31,13 +31,6 @@
   ansible.builtin.hostname:
     name: "localhost"
 
-# Tasks for restarting the SSH daemon.
-- name: "Restarting the SSH daemon."
-  ansible.builtin.systemd:
-    name: sshd
-    state: restarted
-    daemon_reload: true
-
 # Tasks for configuring cloud-init.
 - name: "Configuring cloud-init."
   block:
@@ -45,8 +38,20 @@
       ansible.builtin.debug:
         msg: "Configuring cloud-init"
     - ansible.builtin.copy:
-        content: 'datasource_list: [ ConfigDrive, NoCloud ]'
-        dest: /etc/cloud/cloud.cfg.d/90_dpkg.cfg
+        content: "datasource_list: [ NoCloud, ConfigDrive ]"
+        dest: /etc/cloud/cloud.cfg.d/99_pve.cfg
+    - name: Enable cloud-init services
+      ansible.builtin.service:
+        name: "{{ item }}"
+        enabled: true
+      loop:
+        - cloud-init
+        - cloud-init-local
   when: enable_cloudinit == 'true'
 
-...
+# Tasks for restarting the SSH daemon.
+- name: "Restarting the SSH daemon."
+  ansible.builtin.systemd:
+    name: sshd
+    state: restarted
+    daemon_reload: true
