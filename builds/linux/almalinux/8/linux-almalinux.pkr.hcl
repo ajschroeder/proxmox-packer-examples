@@ -1,6 +1,6 @@
 /*
     DESCRIPTION:
-    AlmaLinux OS 8 template using the Packer Builder for Proxmox (proxmox-iso).
+    AlmaLinux 8 template using the Packer Builder for Proxmox (proxmox-iso).
 */
 
 //  BLOCK: packer
