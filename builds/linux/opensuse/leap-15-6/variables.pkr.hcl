@@ -1,6 +1,6 @@
 /*
     DESCRIPTION:
-    openSUSE-Leap 15.6 variables using the Packer Builder for Proxmox (proxmox-iso).
+    openSUSE Leap 15.6 variables using the Packer Builder for Proxmox (proxmox-iso).
 */
 
 //  BLOCK: variable
@@ -80,7 +80,7 @@ variable "vm_os_type" {
 variable "vm_bios" {
   type        = string
   description = "The firmware type. Allowed values 'ovmf' or 'seabios'"
-  default     = "OVMF"
+  default     = "ovmf"
 
   validation {
     condition     = contains(["ovmf", "seabios"], var.vm_bios)
@@ -97,16 +97,19 @@ variable "vm_firmware_path" {
 variable "vm_efi_storage_pool" {
   type        = string
   description = "Set the UEFI disk storage location. (e.g. 'local-lvm')"
+  default     = "local-lvm"
 }
 
 variable "vm_efi_type" {
   type        = string
   description = "Specifies the version of the OVMF firmware to be used. (e.g. '4m')"
+  default     = "4m"
 }
 
 variable "vm_efi_pre_enrolled_keys" {
   type        = bool
   description = "Whether Microsoft Standard Secure Boot keys should be pre-loaded on the EFI disk. (e.g. false)"
+  default     = false
 }
 
 variable "vm_cpu_count" {
