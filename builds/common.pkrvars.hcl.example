@@ -7,6 +7,9 @@
 // Removable Media Settings
 common_iso_storage = "OS"
 
+// Where to store the completed VM templates
+vm_storage_pool = "pool0"
+
 // Boot and Provisioning Settings
 common_data_source      = "http"
 common_http_ip          = null
