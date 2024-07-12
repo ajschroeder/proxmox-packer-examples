@@ -2,7 +2,7 @@
 
 - name: "Getting guest operating system information."
   ansible.builtin.debug:
-    msg: "OS: {{ ansible_distribution }} Version: {{ ansible_distribution_version }} Family: {{ ansible_os_family }}"
+    msg: "OS Family: {{ ansible_os_family }} | Ansible Distribution: {{ ansible_distribution }} | Distribution Version: {{ ansible_distribution_version }}"
 
 - name: Prepare the {{ ansible_facts['distribution'] }} guest operating system
   include_tasks: "{{ ansible_facts['distribution'] | lower }}.yml"
