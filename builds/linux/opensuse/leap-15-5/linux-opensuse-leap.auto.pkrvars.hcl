@@ -24,11 +24,8 @@ vm_mem_size             = 2048
 vm_disk_type            = "virtio"
 vm_disk_size            = "32G"
 vm_disk_format          = "raw"
-vm_storage_pool         = "vm-data"
 vm_disk_controller_type = "virtio-scsi-pci"
 vm_network_card_model   = "virtio"
-vm_bridge_interface     = "vmbr0"
-vm_vlan_tag             = "102"
 
 // Removable Media Settings
 iso_path     = "iso"
@@ -41,6 +38,3 @@ vm_boot_wait = "5s"
 
 // EFI Settings
 vm_firmware_path         = "./OVMF.fd"
-vm_efi_storage_pool      = "vm-data"
-vm_efi_pre_enrolled_keys = false
-vm_efi_type              = "4m"
