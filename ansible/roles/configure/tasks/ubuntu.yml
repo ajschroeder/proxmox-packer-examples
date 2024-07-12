@@ -44,8 +44,8 @@
         - /etc/cloud/cloud.cfg.d/99-installer.cfg
         - /etc/netplan/00-installer-config.yaml
     - ansible.builtin.copy:
-        content: 'datasource_list: [ VMware, OVF, None ]'
-        dest: /etc/cloud/cloud.cfg.d/90_dpkg.cfg
+        content: "datasource_list: [ NoCloud, ConfigDrive ]"
+        dest: /etc/cloud/cloud.cfg.d/99_pve.cfg
   when: enable_cloudinit == 'true'
 
 # Tasks for setting SSH keys to regenerate.
