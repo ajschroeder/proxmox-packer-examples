@@ -4,11 +4,23 @@
   ansible.builtin.set_fact:
     enable_cloudinit: "{{ enable_cloudinit | default('false') }}"
 
-# Tasks for removing the cloud-init package.
-- name: "Removing the cloud-init package."
-  ansible.builtin.apt:
-    name: cloud-init
-    state: absent
+# Tasks for disabling cloud-init
+- name: "Disabling cloud-init."
+  block:
+    - name: 'Check if /etc/cloud/ exists'
+      ansible.builtin.stat:
+        path: '/etc/cloud/'
+      register: etc_cloud_folder
+
+    - name: 'Generate /etc/cloud/cloud-init.disabled'
+      ansible.builtin.copy:
+        dest: '/etc/cloud/cloud-init.disabled'
+        content: "disabled by ansible\n"
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+      when:
+        - 'etc_cloud_folder.stat.exists'
   when: enable_cloudinit == 'false'
 
 # Tasks to clean the audit logs.
