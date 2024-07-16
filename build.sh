@@ -359,7 +359,7 @@ menu_option_11() {
   echo "Done."
 }
 
-menu_option_12()) {
+menu_option_12() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/ubuntu/24-04-lts/
   echo -e "\nCONFIRM: Build a Ubuntu Server 24.04 LTS Template for Proxmox?"
   echo -e "\nContinue? (y/n)"
