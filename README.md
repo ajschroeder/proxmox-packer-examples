@@ -6,7 +6,7 @@
 1. [Requirements](#requirements)
 1. [Download](#download)
 1. [Configuration](#configuration)
-1. [Build](#build)
+1. [Packer Machine Image Builds](#packer-machine-image-builds)
 1. [Troubleshoot](#troubleshoot)
 1. [Known Issues](#known-issues)
 1. [Unsupported Features](#unsupported-features)
@@ -17,24 +17,28 @@
 
 This repository provides opinionated infrastructure-as-code examples to automate the creation of virtual machine images and their guest operating systems on Proxmox using [HashiCorp Packer][packer] and the [Packer Plugin for Proxmox][packer-plugin-proxmox] (`proxmox-iso` builder). All examples are authored in the HashiCorp Configuration Language ("HCL2").
 
-By default, the machine image artifacts are converted to templates within Proxmox after a virtual machine is built and configured according to the individual templates. With the Packer Plugin for Proxmox, a new template with a unique VMID gets created each time Packer runs successfully[^1]. This is unlike VMware, where if an item with the same name exists it will be overwritten.
+By default, the machine image artifacts are converted to templates within Proxmox after a virtual machine is built and configured according to the individual templates.
 
 The following builds are available:
 
 ## Linux Distributions
 
-| Operating System | Version   |
-| :---             | :---      |
-| CentOS Stream    | 9         |
-| CentOS Stream    | 8         |
-| Debian           | 12        |
-| Debian           | 11        |
-| Rocky Linux      | 9         |
-| Rocky Linux      | 8         |
-| OpenSUSE Leap    | 15.5      |
-| Ubuntu Server    | 24.04 LTS |
-| Ubuntu Server    | 22.04 LTS |
-| Ubuntu Server    | 20.04 LTS | 
+| Operating System | Version   | Custom Storage Config | Static IP Support  | UEFI Bootloader    | BIOS Bootloader    |
+| :---             | :---      | :---:                 | :---:              | :---:              | :---:              |
+| AlmaLinux        | 9         | &check;               | &check;            | &check;            |                    |
+| AlmaLinux        | 8         | &check;               | &check;            | &check;            |                    |
+| CentOS Stream    | 9         | &check;               | &check;            |                    |                    |
+| Debian           | 12        | &check;               |                    |                    |                    |
+| Debian           | 11        | &check;               |                    |                    |                    |
+| Oracle Linux     | 9         | &check;               |                    |                    |                    |
+| Oracle Linux     | 8         | &check;               |                    |                    |                    |
+| Rocky Linux      | 9         | &check;               |                    |                    |                    |
+| Rocky Linux      | 8         | &check;               |                    |                    |                    |
+| OpenSUSE Leap    | 15.6      | &check;               |                    |                    |                    |
+| OpenSUSE Leap    | 15.5      | &check;               |                    |                    |                    |
+| Ubuntu Server    | 24.04 LTS | &check;               |                    |                    |                    |
+| Ubuntu Server    | 22.04 LTS | &check;               |                    |                    |                    |
+| Ubuntu Server    | 20.04 LTS | &check;               | &check;            | &check;            | &check;            |
 
 ## Requirements
 
@@ -42,13 +46,13 @@ The following builds are available:
 
 Operating systems and versions tested with the project:
 
-- Proxmox PVE Version 8
+- Proxmox PVE Version >= 8
 - Ubuntu Server 22.04 LTS (`x86_64`)
 - CentOS Stream 9 (`x86_64`)
 
 **Packer**:
 
-- HashiCorp [Packer][packer-install] 1.9.4 or higher.
+- HashiCorp [Packer][packer-install] 1.11.0 or higher.
 
   > **Note**
   >
@@ -117,8 +121,8 @@ Operating systems and versions tested with the project:
   >
   > Required plugins are automatically downloaded and initialized when using `./build.sh`. For dark sites, you may download the plugins and place these same directory as your Packer executable `/usr/local/bin` or `$HOME/.packer.d/plugins`.
 
-  - HashiCorp [Packer Plugin for Proxmox][packer-plugin-proxmox] 1.1.3 or later.
-  - [Packer Plugin for Git][packer-plugin-git] 0.4.2 or later - a community plugin for HashiCorp Packer.
+  - HashiCorp [Packer Plugin for Proxmox][packer-plugin-proxmox] 1.1.8 or later.
+  - [Packer Plugin for Git][packer-plugin-git] 0.6.2 or later - a community plugin for HashiCorp Packer.
 
 **Ansible**:
 
@@ -230,7 +234,20 @@ This is useful for the purposes of running machine image builds for different en
 
 ## Configuration Variables
 
-### Build
+### Ansible Variables
+
+Edit the `config/ansible.pkrvars.hcl` file to configure the credentials for the Ansible account on Linux machine images.
+
+```hcl title="config/ansible.pkrvars.hcl"
+ansible_username = "ansible"
+ansible_key      = "<public_key>"
+```
+
+**Ansible User Password**
+
+A random password is auto-generated for the Ansible user.
+
+### Build Variables
 
 Edit the `config/build.pkrvars.hcl` file to configure the credentials for the default account on machine images.
 
@@ -285,20 +302,7 @@ The content of the public key, `build_key`, is added the key to the `~/.ssh/auth
 >
 > If you wish to disable Password Authentication and only use Public Key Authentication, comment or remove the portion of the associated Ansible `configure` role.
 
-### Ansible
-
-Edit the `config/ansible.pkrvars.hcl` file to configure the credentials for the Ansible account on Linux machine images.
-
-```hcl title="config/ansible.pkrvars.hcl"
-ansible_username = "ansible"
-ansible_key      = "<public_key>"
-```
-
-**Ansible User Password**
-
-A random password is auto-generated for the Ansible user.
-
-### Common
+### Common Variables
 
 Edit the `config/common.pkrvars.hcl` file to configure the following common variables:
 
@@ -322,7 +326,7 @@ common_shutdown_timeout = "15m"
 common_hcp_packer_registry_enabled = false
 ```
 
-### Data Source
+#### Data Source
 
 The default provisioning data source for Linux machine image builds is `http`. This is used to serve the kickstart files to the Linux guest operating system during the build.
 
@@ -355,7 +359,7 @@ common_data_source = "disk"
 
 The Packer plugin's `cd_content` option is used when selecting `disk` unless the distribution does not support a secondary CD-ROM.
 
-### HTTP Binding
+#### HTTP Binding
 
 If you need to define a specific IPv4 address from your host for Packer's built-in HTTP server, modify the `common_http_ip` variable from `null` to a `string` value that matches an IP address on your Packer host.
 
@@ -363,7 +367,22 @@ If you need to define a specific IPv4 address from your host for Packer's built-
 common_http_ip = "172.16.11.254"
 ```
 
-### Proxmox VE
+### Network Variables
+
+Configuring a static IP address under the `configs/network.pkrvars.hcl` file is supported. If you want to use DHCP for the templates then leave these variables commented out. The default is DHCP.
+
+Edit the `config/network.pkrvars.hcl` file to configure the following:
+
+- Static IP address settings
+
+```hcl title="config/network.pkrvars.hcl"
+vm_ip_address = "192.168.101.100"
+vm_ip_netmask = 24
+vm_ip_gateway = "192.168.101.1"
+vm_dns_list   = [ "8.8.8.8", "8.8.4.4" ]
+```
+
+### Proxmox Variables
 
 Edit the `config/proxmox.pkrvars.hcl` file to configure the following:
 
@@ -386,80 +405,9 @@ For more information, please see the [Proxmox documentation][proxmox-api-tokens]
 
 For Proxmox installs that use a self-signed certificate, you will want to set `proxmox_insecure_connection` to `true`.
 
-### Machine Images
-
-Edit the `*.auto.pkrvars.hcl` file in each `builds/<type>/<build>` directory to configure the following virtual machine hardware settings, as required:
-
-- CPUs `(int)`
-- CPU Cores `(int)`
-- Memory in MB `(int)`
-- Primary Disk in MB `(string)` (e.g. 32GB)
-- .iso Path `(string)`
-- .iso File `(string)`
-
-```hcl title="builds/linux/debian/11/linux-debian.auto.pkrvars.hcl"
-// Guest Operating System Metadata
-vm_os_language   = "en_US"
-vm_os_keyboard   = "us"
-vm_os_timezone   = "UTC"
-vm_os_family     = "linux"
-vm_os_name       = "debian"
-vm_os_version    = "11"
-
-// Virtual Machine Guest Operating System Setting
-vm_os_type       = "l26"
-
-// Virtual Machine Hardware Settings
-vm_bios                 = "seabios"
-vm_cpu_count            = 1
-vm_cpu_sockets          = 1
-vm_cpu_type             = "kvm64"
-vm_mem_size             = 2048
-vm_disk_type            = "virtio"
-vm_disk_size            = "32G"
-vm_disk_format          = "raw"
-vm_storage_pool         = "vm-data"
-vm_disk_controller_type = "virtio-scsi-pci"
-vm_network_card_model   = "virtio"
-vm_bridge_interface     = "vmbr0"
-vm_vlan_tag             = "102"
-
-// Removable Media Settings
-iso_path     = "iso"
-iso_file     = "ubuntu-22.04-live-server-amd64.iso"
-iso_checksum = "84aeaf7823c8c61baa0ae862d0a06b03409394800000b3235854a6b38eb4856f"
-
-// Boot Settings
-vm_boot      = "order=virtio0;ide2;net0"
-vm_boot_wait = "5s"
-
-// EFI Settings (currently an unsupported feature)
-vm_firmware_path         = "./OVMF.fd"
-vm_efi_storage_pool      = "vm-data"
-vm_efi_pre_enrolled_keys = false
-vm_efi_type              = "4m"
-```
-
-> [!NOTE]
-> All `variables.auto.pkrvars.hcl` default to using:
->   - VirtIO SCSI storage device
->   - VirtIO (paravirtualized) network card device
->   - BIOS boot firmware
-
-The defaults use VirtIO to balance out performance, compatibility, and ease of use. Feel free to change the storage and network controllers to suit your needs. However, if you change the storage or network controllers and run into issues you should change them back to defaults and try the builds again. I won't support any builds that don't use the VirtIO drivers.
-
-At this time UEFI is [not supported](#unsupported-features) so that means we are left with `seabios` as the default (and only) firmware setting. The reasons for not supporting UEFI may be boring, but the biggest reason is that Proxmox Virtual Machines that have EFI disks can't be live migrated between nodes or storage pools. 
-
-If you are interested in more detail - when I first started testing these packer builds in my home lab I was using `ovmf` (UEFI) firmware. During my initial testing the ZFS pool where I housed my VMs cratered and I had to rebuild the pool and restore all my VMs from backups. During the recovery of my storage pool, I changed over to LVM and had to migrate VMs between storage pools several times and each VM that had EFI disks had to be shutdown, migrated, and then powered on. Offline migration isn't *that* much of an inconvenience, however at the time I was trying to figure out my VM storage and recover all my VMs it was just one more annoyance. All that said, I think Proxmox should support live migration regardless of VM firmware type.
-
-### VM Storage
-
-> [!WARNING]
-> The storage config is still very much a work in progress. Suggestions are welcome, see the contributing section.
+### Storage Variables
 
 Edit the `config/linux-storage.pkrvars.hcl` file to configure storage for VM templates.
-
-This file is fairly lengthy and should be broken down into chunks.
 
 #### Disk Device
 
@@ -468,81 +416,29 @@ This file is fairly lengthy and should be broken down into chunks.
 vm_disk_device     = "vda"
 ```
 
-`vm_disk_device`:`string` - This variable depends on the disk controller used inside of the specific `.auto.pkrvars.hcl` file. By default, the builds use the `virtio-scsi-pci` disk controller and that requires the use of `vda`. If you decide to run a SCSI controller, then you'll have to change the value to `sda`. This variable only accepts `sda` or `vda` as values.
+`vm_disk_device`:`string` - This variable depends on the disk controller used inside of the specific `.auto.pkrvars.hcl` file. By default, the builds use the `virtio-scsi-pci` disk controller and that requires the use of `vda`. If you decide to use a non-virtio controller, then you'll have to change the `vm_disk_device` variable to the appropriate device.
+
+#### EFI Device
+```hcl
+vm_efi_storage_pool      = "pool0"
+vm_efi_type              = "4m"
+vm_efi_pre_enrolled_keys = false
+```
 
 #### Disk Partitions
 
 `vm_disk_partitions`:`list[dict]` - Use this list to define the primary partitions that will be created when a specific build runs. Each of the builds process this list in order, so the first partition defined in the list will be the first partition created, the second one listed will be the second one created, and so on.
 
-##### Automatic Partitioning (All In One) Example
-This example is the simplest way to allocate storage within your templates. It makes use of the particular Linux distribution's automatic partitioning feature in their respective automatic installers.
+> **Note**
+>
+> - All partition sizes are in MegaBytes (MB)
+> - If you want to have a partition consume all available free space, you can indicate that with `-1`
 
-The three settings to note are:
+##### Partitioning Examples
 
-- name `(string)`: This must be set to `autopart` to use automatic partitioning
-- size `(int)`: This needs to be set to -1 to consume all available disk space
-- fstype `(string)` (optional): This can be set to `lvm`, `simple`, or left blank. Setting this to `simple` uses a single regular partition. Setting this to `lvm` still uses a single partition, but makes use of LVM. Leaving this value blank will default to a `simple` partitioning scheme.
-
-```hcl
-vm_disk_partitions = [
-  {
-    name = "autopart"
-    size = -1,
-    format = {
-      label  = "",
-      fstype = "lvm",
-    },
-    mount = {
-      path    = "",
-      options = "",
-    },
-    volume_group = "",
-  },
-]
-```
-
-##### LVM Partitioning Example
-Below is an example of a partition layout for a VM template that boots with BIOS and uses LVM. The first partition is a 1GB primary partition and is mounted as /boot, finally the second partition consumes the rest of the free space (noted by -1 for space) and is setup for LVM.
-
-> [!WARNING]
-> The mount point of `/boot` is used by the templates and is required.
-
-```hcl
-vm_disk_partitions = [
-  {
-    name = "boot"
-    size = 1000,
-    format = {
-      label  = "BOOTFS",
-      fstype = "ext4",
-    },
-    mount = {
-      path    = "/boot",
-      options = "",
-    },
-    volume_group = "",
-  },
-  {
-    name = "vg_root"
-    size = -1,
-    format = {
-      label  = "",
-      fstype = "",
-    },
-    mount = {
-      path    = "",
-      options = "",
-    },
-    volume_group = "vg_root",
-  },
-]
-```
-
-##### LVM Partitioning Example with CIS partitions
-Below is an example of a partition layout for a VM template that uses LVM and has extra partitions with mount options required by CIS for hardening a system. The first partition is a 1GB primary partition and is mounted as /boot, finally the second partition consumes the rest of the free space (noted by -1 for space) and is setup for LVM.
-
-> [!WARNING]
-> The mount point of `/boot` is used by the templates and is required.
+<details>
+  <summary>Single Partition Example for BIOS bootloaders</summary>
+Below is an example of a partition layout for a VM template that boots with BIOS and uses a single partition for the OS.
 
 ```hcl title="config/linux-storage.pkrvars.hcl"
 // VM Storage Settings
@@ -550,8 +446,52 @@ vm_disk_device     = "vda"
 vm_disk_use_swap   = true
 vm_disk_partitions = [
   {
+    name = "root"
+    size = -1,
+    format = {
+      label  = "ROOTFS",
+      fstype = "ext4",
+    },
+    mount = {
+      path    = "/",
+      options = "",
+    },
+    volume_group = "",
+  },
+]
+```
+</details>
+
+<details>
+  <summary>Single Partition Example for UEFI bootloaders</summary>
+This example is similar to the above example except that it has the extra partitions needed for the UEFI (OVMF) bootloader. Note the extra variables for the EFI settings.
+
+```hcl title="config/linux-storage.pkrvars.hcl"
+// VM EFI Settings
+vm_efi_storage_pool      = "pool0"
+vm_efi_type              = "4m"
+vm_efi_pre_enrolled_keys = false
+
+// VM Storage Settings
+vm_disk_device     = "vda"
+vm_disk_use_swap   = true
+vm_disk_partitions = [
+  {
+    name = "efi"
+    size = 1024,
+    format = {
+      label  = "EFIFS",
+      fstype = "fat32",
+    },
+    mount = {
+      path    = "/boot/efi",
+      options = "",
+    },
+    volume_group = "",
+  },
+  {
     name = "boot"
-    size = 1000,
+    size = 1024,
     format = {
       label  = "BOOTFS",
       fstype = "ext4",
@@ -563,7 +503,65 @@ vm_disk_partitions = [
     volume_group = "",
   },
   {
-    name = "vg_root"
+    name = "root"
+    size = -1,
+    format = {
+      label  = "ROOTFS",
+      fstype = "ext4",
+    },
+    mount = {
+      path    = "/",
+      options = "",
+    },
+    volume_group = "",
+  },
+]
+```
+</details>
+
+<details>
+  <summary>LVM Partitioning Example with CIS partitions for UEFI bootloaders</summary>
+This is a more complex example of a partition layout for a VM template that uses LVM and has volumes with mount options required by CIS for hardening a linux system.
+
+
+```hcl title="config/linux-storage.pkrvars.hcl"
+//VM EFI Settings
+vm_efi_storage_pool      = "pool0"
+vm_efi_type              = "4m"
+vm_efi_pre_enrolled_keys = false
+
+// UEFI VM Storage Settings
+vm_disk_device     = "vda"
+vm_disk_use_swap   = true
+vm_disk_partitions = [
+  {
+    name = "efi"
+    size = 1024,
+    format = {
+      label  = "EFIFS",
+      fstype = "fat32",
+    },
+    mount = {
+      path    = "/boot/efi",
+      options = "",
+    },
+    volume_group = "",
+  },
+  {
+    name = "boot"
+    size = 1024,
+    format = {
+      label  = "BOOTFS",
+      fstype = "ext4",
+    },
+    mount = {
+      path    = "/boot",
+      options = "",
+    },
+    volume_group = "",
+  },
+  {
+    name = "sysvg"
     size = -1,
     format = {
       label  = "",
@@ -573,16 +571,16 @@ vm_disk_partitions = [
       path    = "",
       options = "",
     },
-    volume_group = "vg_root",
+    volume_group = "sysvg",
   },
 ]
 vm_disk_lvm = [
   {
-    name: "vg_root",
+    name: "sysvg",
     partitions: [
       {
         name = "lv_swap",
-        size = 1000,
+        size = 1024,
         format = {
           label  = "SWAPFS",
           fstype = "swap",
@@ -594,7 +592,7 @@ vm_disk_lvm = [
       },
       {
         name = "lv_root",
-        size = 3000,
+        size = 10240,
         format = {
           label  = "ROOTFS",
           fstype = "ext4",
@@ -606,7 +604,7 @@ vm_disk_lvm = [
       },
       {
         name = "lv_home",
-        size = 1000,
+        size = 4096,
         format = {
           label  = "HOMEFS",
           fstype = "ext4",
@@ -618,7 +616,7 @@ vm_disk_lvm = [
       },
       {
         name = "lv_opt",
-        size = 2000,
+        size = 2048,
         format = {
           label  = "OPTFS",
           fstype = "ext4",
@@ -630,7 +628,7 @@ vm_disk_lvm = [
       },
       {
         name = "lv_tmp",
-        size = 2000,
+        size = 4096,
         format = {
           label  = "TMPFS",
           fstype = "ext4",
@@ -642,7 +640,7 @@ vm_disk_lvm = [
       },
       {
         name = "lv_var",
-        size = 3000,
+        size = 2048,
         format = {
           label  = "VARFS",
           fstype = "ext4",
@@ -666,7 +664,7 @@ vm_disk_lvm = [
       },
       {
         name = "lv_var_log",
-        size = 1000,
+        size = 4096,
         format = {
           label  = "VARLOGFS",
           fstype = "ext4",
@@ -692,17 +690,80 @@ vm_disk_lvm = [
   }
 ]
 ```
+</details>
 
+
+## Packer Machine Image Builds
+
+Edit the `*.auto.pkrvars.hcl` file in each `builds/<type>/<build>` directory to configure the following virtual machine hardware settings, as required:
+
+- CPUs `(int)`
+- CPU Cores `(int)`
+- Memory in MB `(int)`
+- Primary Disk in MB `(string)` (e.g. 32GB)
+- .iso Path `(string)`
+- .iso File `(string)`
+
+```hcl title="builds/linux/debian/11/linux-debian.auto.pkrvars.hcl"
+// Guest Operating System Metadata
+vm_os_language   = "en_US"
+vm_os_keyboard   = "us"
+vm_os_timezone   = "UTC"
+vm_os_family     = "linux"
+vm_os_name       = "ubuntu"
+vm_os_version    = "22.04-lts"
+
+// Virtual Machine Guest Operating System Setting
+vm_os_type       = "l26"
+vm_cloudinit     = true
+
+// Virtual Machine Hardware Settings
+vm_bios                 = "ovmf"
+vm_cpu_count            = 1
+vm_cpu_sockets          = 1
+vm_cpu_type             = "kvm64"
+vm_mem_size             = 2048
+vm_disk_type            = "virtio"
+vm_disk_size            = "32G"
+vm_disk_format          = "raw"
+vm_disk_controller_type = "virtio-scsi-pci"
+vm_network_card_model   = "virtio"
+
+// Removable Media Settings
+iso_path     = "iso"
+iso_file     = "ubuntu-22.04-live-server-amd64.iso"
+// The checksum can be a URL or an actual checksum value. URL is preferred
+iso_checksum = "file:https://releases.ubuntu.com/jammy/SHA256SUMS"
+
+// Boot Settings
+vm_boot      = "order=virtio0;ide2;net0"
+vm_boot_wait = "5s"
+
+// EFI Settings
+vm_firmware_path         = "./OVMF.fd"
+```
+
+> **Note**
+>
+>   All `variables.auto.pkrvars.hcl` default to using:
+>   - VirtIO SCSI storage device
+>   - VirtIO (paravirtualized) network card device
+>   - BIOS boot firmware
+
+The defaults use VirtIO to balance out performance, compatibility, and ease of use. Feel free to change the storage and network controllers to suit your needs. However, if you change the storage or network controllers and run into issues you should change them back to defaults and try the builds again. I won't support any builds that don't use the VirtIO drivers.
+
+Both UEFI and BIOS booting are supported for builds. Inside the `*.auto.pkrvars.hcl` file specific to the build, you can set the `vm_bios` variable to either `seabios` for BIOS or `ovmf` for UEFI booting. The storage layouts are different for each bootloader type so you'll need to configure the storage layouts accordingly.
+
+If you are interested in more detail - when I first started testing these packer builds in my home lab I was using `ovmf` (UEFI) firmware. During my initial testing the ZFS pool where I housed my VMs cratered and I had to rebuild the pool and restore all my VMs from backups. During the recovery of my storage pool, I changed over to LVM and had to migrate VMs between storage pools several times and each VM that had EFI disks had to be shutdown, migrated, and then powered on. Offline migration isn't *that* much of an inconvenience, however at the time I was trying to figure out my VM storage and recover all my VMs it was just one more annoyance. All that said, I think Proxmox should support live migration regardless of VM firmware type. Maybe this will be addressed in a future release of Proxmox?
+
+### Cloud-Init
+All builds for operating systems that support [cloud-init][cloud-init] now have the option to enable it. This can be done on a per-build basis inside the `*.auto.pkrvars.hcl` files in the `builds/linux/<distro>/<version>/` directory. The default setting is `true`.
+
+If a particular linux distribution ships with cloud-init (e.g. Ubuntu) and cloud-init is set to `false` in the `*.auto.pkrvars.hcl` packer file for the build, then cloud-init will be disabled in the operating system **and** within Proxmox for that specific template.
 
 # Known Issues
 
-## CentOS Stream 8
-- Anaconda will stop the install with a message complaining about not enough disk space. This is a known issue with kickstart on RHEL 8, however none of the fixes that have been tried have worked. If you want to build a CentOS-Stream-8 template, you will need to access the console of the machine and simply ignore the warning and continue the installation.
-- OpenSUSE does not support custom storage layouts at this time. This is planned for a future release
-
 # Unsupported Features
-- UEFI firmware
-- Networking configurations other than DHCP for templates
 
 # Contributing
 Contributions are welcome, please read the [CONTRIBUTING](.github/CONTRIBUTING.md) document for more details.
@@ -714,6 +775,7 @@ The repository is modeled after the [VMware Packer Examples][packer-examples-for
 [//]: Links
 [ansible]: https://www.ansible.com
 [ansible-core]: https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#selecting-an-ansible-package-and-version-to-install
+[cloud-init]: https://cloud-init.io/
 [packer]: https://www.packer.io
 [packer-examples-for-vsphere]: https://github.com/vmware-samples/packer-examples-for-vsphere
 [packer-install]: https://developer.hashicorp.com/packer/tutorials/docker-get-started/get-started-install-cli
