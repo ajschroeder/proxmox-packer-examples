@@ -33,10 +33,32 @@ data "git-repository" "cwd" {}
 //  Defines the local variables.
 
 locals {
+
+  bios_boot_command = [
+    "<up><wait>",
+    "<tab><wait>",
+    " text ${local.data_source_command}",
+    "<enter><wait>"
+  ]
+
+  uefi_boot_command = [
+    // This sends the "up arrow" key, typically used to navigate through boot menu options.
+    "<up>",
+    // This sends the "e" key. In the GRUB boot loader, this is used to edit the selected boot menu option.
+    "e",
+    // This sends two "down arrow" keys, followed by the "end" key, and then waits. This is used to navigate to a specific line in the boot menu option's configuration.
+    "<down><down><end><wait>",
+    // This types the string "text" followed by the value of the 'data_source_command' local variable.
+    // This is used to modify the boot menu option's configuration to boot in text mode and specify the kickstart data source configured in the common variables.
+    "text ${local.data_source_command}",
+    // This sends the "enter" key, waits, turns on the left control key, sends the "x" key, and then turns off the left control key. This is used to save the changes and exit the boot menu option's configuration, and then continue the boot process.
+    "<enter><wait><leftCtrlOn>x<leftCtrlOff>"
+  ]  
+
   build_by          = "Built by: HashiCorp Packer ${packer.version}"
   build_date        = formatdate("DD-MM-YYYY hh:mm ZZZ", "${timestamp()}" )
   build_version     = data.git-repository.cwd.head
-  build_description = "Version: ${local.build_version}\nBuilt on: ${local.build_date}\n${local.build_by}\nCloud-Init: ${var.vm_cloud_init_enable}"
+  build_description = "Version: ${local.build_version}\nBuilt on: ${local.build_date}\n${local.build_by}\nCloud-Init: ${var.vm_cloudinit}"
   vm_disk_type      = var.vm_disk_type == "virtio" ? "vda" : "sda"
   manifest_date     = formatdate("YYYY-MM-DD hh:mm:ss", timestamp())
   manifest_path     = "${path.cwd}/manifests/"
@@ -50,6 +72,13 @@ locals {
       vm_os_language           = var.vm_os_language
       vm_os_keyboard           = var.vm_os_keyboard
       vm_os_timezone           = var.vm_os_timezone
+      network = templatefile("${abspath(path.root)}/data/network.pkrtpl.hcl", {
+        device  = var.vm_bridge_interface
+        ip      = var.vm_ip_address
+        netmask = var.vm_ip_netmask
+        gateway = var.vm_ip_gateway
+        dns     = var.vm_dns_list
+      })
       common_data_source       = var.common_data_source
       # lvm needs to be here so late commands can access vg names
       lvm                      = var.vm_disk_lvm
@@ -60,10 +89,12 @@ locals {
         lvm                    = var.vm_disk_lvm
         vm_bios                = var.vm_bios
       })
+      additional_packages = join(" ", var.additional_packages)
     })
   }
   data_source_command = var.common_data_source == "http" ? "inst.ks=http://{{.HTTPIP}}:{{.HTTPPort}}/ks.cfg" : "inst.ks=/cdrom/ks.cfg"
   vm_name = "${var.vm_os_family}-${var.vm_os_name}-${var.vm_os_version}"
+  boot_command = var.vm_bios == "ovmf" ? local.uefi_boot_command : local.bios_boot_command
   vm_bios = var.vm_bios == "ovmf" ? var.vm_firmware_path : null
 }
 
@@ -128,12 +159,7 @@ source "proxmox-iso" "linux-centos-stream" {
   http_port_max     = var.common_data_source == "http" ? var.common_http_port_max : null
   boot              = var.vm_boot
   boot_wait         = var.vm_boot_wait
-  boot_command = [
-    "<up><wait>",
-    "<tab><wait>",
-    " text ${local.data_source_command}",
-    "<enter><wait>"
-  ]
+  boot_command      = local.boot_command
 
   dynamic "additional_iso_files" {
     for_each = var.common_data_source == "disk" ? [1] : []
@@ -148,8 +174,8 @@ source "proxmox-iso" "linux-centos-stream" {
   template_description = "${local.build_description}"
 
   # VM Cloud Init Settings
-  cloud_init              = var.vm_cloud_init_enable
-  cloud_init_storage_pool = var.vm_cloud_init_enable == true ? var.vm_storage_pool : null
+  cloud_init              = var.vm_cloudinit
+  cloud_init_storage_pool = var.vm_cloudinit == true ? var.vm_storage_pool : null
 
 }
 
@@ -158,19 +184,22 @@ build {
   sources = ["source.proxmox-iso.linux-centos-stream"]
 
   provisioner "ansible" {
-    user          = "${var.build_username}"
-    playbook_file = "${path.cwd}/ansible/main.yml"
-    roles_path    = "${path.cwd}/ansible/roles"
+    user                   = "${var.build_username}"
+    galaxy_file            = "${path.cwd}/ansible/linux-requirements.yml"
+    galaxy_force_with_deps = true
+    playbook_file          = "${path.cwd}/ansible/linux-playbook.yml"
+    roles_path             = "${path.cwd}/ansible/roles"
     ansible_env_vars = [
-      "ANSIBLE_CONFIG=${path.cwd}/ansible/ansible.cfg"
+      "ANSIBLE_CONFIG=${path.cwd}/ansible/ansible.cfg",
+      "ANSIBLE_PYTHON_INTERPRETER=/usr/libexec/platform-python"
     ]
     extra_arguments = [
       "--extra-vars", "display_skipped_hosts=false",
-      "--extra-vars", "BUILD_USERNAME=${var.build_username}",
-      "--extra-vars", "BUILD_SECRET='${var.build_key}'",
-      "--extra-vars", "ANSIBLE_USERNAME=${var.ansible_username}",
-      "--extra-vars", "ANSIBLE_SECRET='${var.ansible_key}'",
-      "--extra-vars", "cloud_init='${var.vm_cloud_init_enable}'",
+      "--extra-vars", "build_username=${var.build_username}",
+      "--extra-vars", "build_key='${var.build_key}'",
+      "--extra-vars", "ansible_username=${var.ansible_username}",
+      "--extra-vars", "ansible_key='${var.ansible_key}'",
+      "--extra-vars", "enable_cloudinit='${var.vm_cloudinit}'",
     ]
   }
 
@@ -191,7 +220,7 @@ build {
       vm_os_type               = "${var.vm_os_type}"
       vm_mem_size              = "${var.vm_mem_size}"
       vm_network_card_model    = "${var.vm_network_card_model}"
-      vm_cloud_init_enable     = "${var.vm_cloud_init_enable}"
+      vm_cloudinit             = "${var.vm_cloudinit}"
     }
   }
 }

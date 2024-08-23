@@ -1,0 +1,26 @@
+---
+task_name: "Update the operating system and install additional packages."
+additional_packages:
+  Debian:
+    - bash-completion
+    - ca-certificates
+    - curl
+    - unzip
+    - wget
+  RedHat:
+    - ca-certificates
+    - curl
+    - unzip
+    - wget
+  Suse:
+    - bash-completion
+    - ca-certificates
+    - curl
+    - unzip
+    - wget
+  Ubuntu:
+    - bash-completion
+    - ca-certificates
+    - curl
+    - unzip
+    - wget

@@ -1,6 +1,6 @@
 /*
     DESCRIPTION:
-    CentOS Stream 8 storage variables used by the Packer Plugin for Proxmox (proxmox-iso).
+    Oracle Linux 9 storage variables used by the Packer Plugin for Proxmox (proxmox-iso).
 */
 
 // VM Storage Settings

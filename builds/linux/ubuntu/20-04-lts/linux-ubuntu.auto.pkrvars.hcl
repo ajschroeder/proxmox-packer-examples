@@ -13,9 +13,10 @@ vm_os_version    = "20.04-lts"
 
 // Virtual Machine Guest Operating System Setting
 vm_os_type       = "l26"
+vm_cloudinit     = false
 
 // Virtual Machine Hardware Settings
-vm_bios                 = "seabios"
+vm_bios                 = "ovmf"
 vm_cpu_count            = 1
 vm_cpu_sockets          = 1
 vm_cpu_type             = "kvm64"
@@ -23,16 +24,13 @@ vm_mem_size             = 2048
 vm_disk_type            = "virtio"
 vm_disk_size            = "32G"
 vm_disk_format          = "raw"
-vm_storage_pool         = "vm-data"
 vm_disk_controller_type = "virtio-scsi-pci"
 vm_network_card_model   = "virtio"
-vm_bridge_interface     = "vmbr0"
-vm_vlan_tag             = "102"
 
 // Removable Media Settings
 iso_path     = "iso"
-iso_file     = "ubuntu-20.04-live-server-amd64.iso"
-iso_checksum = "caf3fd69c77c439f162e2ba6040e9c320c4ff0d69aad1340a514319a9264df9f"
+iso_file     = "ubuntu-20.04.6-live-server-amd64.iso"
+iso_checksum = "file:https://releases.ubuntu.com/focal/SHA256SUMS"
 
 // Boot Settings
 vm_boot      = "order=virtio0;ide2;net0"
@@ -40,6 +38,3 @@ vm_boot_wait = "5s"
 
 // EFI Settings
 vm_firmware_path         = "./OVMF.fd"
-vm_efi_storage_pool      = "vm-data"
-vm_efi_pre_enrolled_keys = false
-vm_efi_type              = "4m"

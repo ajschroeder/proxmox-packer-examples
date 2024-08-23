@@ -1,6 +1,6 @@
 /*
     DESCRIPTION:
-    CentOS Stream 8 variables using the Packer Builder for Proxmox (proxmox-iso).
+    Ubuntu Server 24.04 LTS variables using the Packer Builder for Proxmox (proxmox-iso).
 */
 
 //  BLOCK: variable
@@ -80,7 +80,7 @@ variable "vm_os_type" {
 variable "vm_bios" {
   type        = string
   description = "The firmware type. Allowed values 'ovmf' or 'seabios'"
-  default     = "OVMF"
+  default     = "ovmf"
 
   validation {
     condition     = contains(["ovmf", "seabios"], var.vm_bios)
@@ -97,16 +97,19 @@ variable "vm_firmware_path" {
 variable "vm_efi_storage_pool" {
   type        = string
   description = "Set the UEFI disk storage location. (e.g. 'local-lvm')"
+  default     = "local-lvm"
 }
 
 variable "vm_efi_type" {
   type        = string
   description = "Specifies the version of the OVMF firmware to be used. (e.g. '4m')"
+  default     = "4m"
 }
 
 variable "vm_efi_pre_enrolled_keys" {
   type        = bool
   description = "Whether Microsoft Standard Secure Boot keys should be pre-loaded on the EFI disk. (e.g. false)"
+  default     = false
 }
 
 variable "vm_cpu_count" {
@@ -171,7 +174,7 @@ variable "vm_vlan_tag" {
 
 // Cloud-Init Settings
 
-variable "vm_cloud_init_enable" {
+variable "vm_cloudinit" {
   type        = bool
   description = "Enable or disable cloud-init drive in Proxmox. (e.g. false)"
   default     = false
@@ -295,3 +298,10 @@ variable "common_hcp_packer_registry_enabled" {
   default     = false
 }
 
+// Additional Settings
+
+variable "additional_packages" {
+  type        = list(string)
+  description = "Additional packages to install."
+  default     = []
+}

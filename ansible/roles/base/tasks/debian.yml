@@ -1,17 +1,21 @@
 ---
-- name: "Updating the guest operating system."
-  apt:
-    force_apt_get: true
-    name: "*"
-    state: latest     # noqa package-latest
-    update_cache: "yes"
 
-- name: "Installing additional packages."
-  apt:
-    name:
-      - bash-completion
-      - curl
-      - wget
-      - unzip
-      - ca-certificates
-    state: latest     # noqa package-latest
+- block:
+  - name: "Updating the guest operating system."
+    ansible.builtin.apt:
+      force_apt_get: true
+      name: "*"
+      state: latest     # noqa package-latest
+      update_cache: "yes"
+
+  - name: "Installing additional packages."
+    ansible.builtin.apt:
+      name: "{{ additional_packages[ansible_os_family] }}"
+      state: latest     # noqa package-latest
+
+  - name: "Installing cloud-init."
+    become: true
+    ansible.builtin.apt:
+      name: cloud-init
+      state: latest
+    when: enable_cloudinit == 'true' and ansible_distribution_version | int >= 11

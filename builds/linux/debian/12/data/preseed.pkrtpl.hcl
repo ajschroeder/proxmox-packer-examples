@@ -23,10 +23,7 @@ d-i grub-installer/only_debian boolean true
 ${storage}
 
 # Network configuration
-d-i netcfg/choose_interface select auto
-d-i netcfg/get_hostname string unassigned-hostname
-d-i netcfg/get_domain string unassigned-domain
-
+${network}
 
 ### Apt setup
 # Choose, if you want to scan additional installation media
@@ -63,7 +60,7 @@ d-i passwd/user-password-crypted password ${build_password_encrypted}
 
 # Package Configuration
 d-i pkgsel/run_tasksel boolean false
-d-i pkgsel/include string openssh-server qemu-guest-agent python3
+d-i pkgsel/include string openssh-server qemu-guest-agent python3-apt ${additional_packages}
 
 # You can choose, if your system will report back on what software you have
 # installed, and what software you use. The default is not to report back,

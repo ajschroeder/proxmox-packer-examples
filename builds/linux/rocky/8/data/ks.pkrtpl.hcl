@@ -3,7 +3,7 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# CentOS Stream 8
+# Rocky Linux 8
 
 ### Installs from the first attached CD-ROM/DVD on the system.
 cdrom
@@ -26,9 +26,7 @@ keyboard ${vm_os_keyboard}
 ### --device	  device to be activated and / or configured with the network command
 ### --bootproto	  method to obtain networking configuration for device (default dhcp)
 ### --noipv6	  disable IPv6 on this device
-###
-### network  --bootproto=static --ip=172.16.11.200 --netmask=255.255.255.0 --gateway=172.16.11.200 --nameserver=172.16.11.4 --hostname centos-linux-8
-network --bootproto=dhcp
+${network}
 
 ### Lock the root account.
 rootpw --lock
@@ -39,11 +37,11 @@ user --name=${build_username} --iscrypted --password=${build_password_encrypted}
 
 ### Configure firewall settings for the system.
 ### --enabled	reject incoming connections that are not in response to outbound requests
-### --ssh		allow sshd service through the firewall
+### --ssh	allow sshd service through the firewall
 firewall --enabled --ssh
 
 ### Sets up the authentication options for the system.
-### The SSDD profile sets sha512 to hash passwords. Passwords are shadowed by default
+### The SSSD profile sets sha512 to hash passwords. Passwords are shadowed by default
 ### See the manual page for authselect-profile for a complete list of possible options.
 authselect select sssd
 
@@ -75,6 +73,9 @@ dnf makecache
 dnf install epel-release -y
 dnf makecache
 dnf install -y sudo qemu-guest-tools
+%{ if additional_packages != "" ~}
+dnf install -y ${additional_packages}
+%{ endif ~}
 echo "${build_username} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers.d/${build_username}
 sed -i "s/^.*requiretty/#Defaults requiretty/" /etc/sudoers
 %end

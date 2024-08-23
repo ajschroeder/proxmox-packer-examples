@@ -18,13 +18,6 @@
         <product_dir>/</product_dir>
       </listentry>
       <listentry t="map">
-        <alias>repo-openh264</alias>
-        <media_url>http://codecs.opensuse.org/openh264/openSUSE_Leap/</media_url>
-        <name>Open H.264 Codec (openSUSE Leap)</name>
-        <priority t="integer">99</priority>
-        <product_dir/>
-      </listentry>
-      <listentry t="map">
         <alias>repo-sle-update</alias>
         <media_url>http://download.opensuse.org/update/leap/15.5/sle/</media_url>
         <name>Update repository with updates from SUSE Linux Enterprise 15</name>
@@ -54,14 +47,13 @@
       <gfxmode>auto</gfxmode>
       <hiddenmenu>false</hiddenmenu>
       <os_prober>true</os_prober>
-      <secure_boot>true</secure_boot>
+      <secure_boot>false</secure_boot>
       <terminal>gfxterm</terminal>
       <timeout t="integer">8</timeout>
       <trusted_grub>false</trusted_grub>
       <update_nvram>true</update_nvram>
       <xen_kernel_append>vga=gfx-1024x768x16</xen_kernel_append>
     </global>
-    <loader_type>grub2</loader_type>
   </bootloader>
   <kdump>
     <add_crash_kernel config:type="boolean">false</add_crash_kernel>
@@ -451,39 +443,7 @@
       </hosts_entry>
     </hosts>
   </host>
-  <networking t="map">
-    <dhcp_options t="map">
-      <dhclient_client_id/>
-      <dhclient_hostname_option>AUTO</dhclient_hostname_option>
-    </dhcp_options>
-    <dns t="map">
-      <dhcp_hostname t="boolean">true</dhcp_hostname>
-      <hostname>localhost</hostname>
-      <resolv_conf_policy>auto</resolv_conf_policy>
-    </dns>
-    <interfaces t="list">
-      <interface t="map">
-        <bootproto>dhcp</bootproto>
-        <name>eth0</name>
-        <startmode>auto</startmode>
-        <zone>public</zone>
-      </interface>
-    </interfaces>
-    <ipv6 t="boolean">true</ipv6>
-    <keep_install_network t="boolean">true</keep_install_network>
-    <managed t="boolean">false</managed>
-    <net-udev t="list">
-      <rule t="map">
-        <name>eth0</name>
-        <rule>ATTR{address}</rule>
-        <value>bc:24:11:b0:93:4b</value>
-      </rule>
-    </net-udev>
-    <routing t="map">
-      <ipv4_forward t="boolean">false</ipv4_forward>
-      <ipv6_forward t="boolean">false</ipv6_forward>
-    </routing>
-  </networking>
+${network}
   <ntp-client t="map">
     <ntp_policy>auto</ntp_policy>
     <ntp_servers t="list"/>

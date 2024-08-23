@@ -1,5 +1,56 @@
 ---
-- name: "Configure SSH for Public Key Authentication."
-  shell: |
-    sudo sed -i 's/.*PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
-    sudo sed -i 's/.*PubkeyAuthentication.*/PubkeyAuthentication yes/' /etc/ssh/sshd_config
+# Tasks for unregistering from Red Hat Subscription Manager.
+- name: "Unregistering from Red Hat Subscription Manager."
+  community.general.redhat_subscription:
+    state: absent
+  when: ansible_distribution == 'RedHat'
+  
+# Tasks for configuring SSH for public key authentication.
+- name: "Configuring SSH for Public Key Authentication."
+  block:
+    - ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PermitRootLogin'
+        line: 'PermitRootLogin no'
+    - ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PubkeyAuthentication'
+        line: 'PubkeyAuthentication yes'
+
+# Tasks for setting the hostname.
+- name: "Setting the hostname."
+  ansible.builtin.hostname:
+    name: "localhost"
+
+# Tasks for disabling SELinux.
+- name: "Disabling SELinux."
+  ansible.builtin.selinux:
+    state: disabled
+    policy: targeted
+
+# Tasks for configuring cloud-init.
+- block:
+    - name: "Message: Configuring cloud-init"
+      ansible.builtin.debug:
+        msg: "Configuring cloud-init"
+    - name: "Add Proxmox datasource"
+      ansible.builtin.copy:
+        content: "datasource_list: [ NoCloud, ConfigDrive ]"
+        dest: /etc/cloud/cloud.cfg.d/99_pve.cfg
+    - name: Enable cloud-init services
+      ansible.builtin.service:
+        name: "{{ item }}"
+        enabled: true
+      loop:
+        - cloud-config
+        - cloud-init
+        - cloud-init-local
+        - cloud-final
+  when: enable_cloudinit == 'true'
+
+# Tasks for restarting the SSH daemon.
+- name: "Restarting the SSH daemon."
+  ansible.builtin.systemd:
+    name: sshd
+    state: restarted
+    daemon_reload: true

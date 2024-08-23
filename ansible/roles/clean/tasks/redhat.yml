@@ -1,59 +1,92 @@
 ---
-
-- name: "Cleaning all audit logs."
-  shell: |
-    if [ -f /var/log/audit/audit.log ]; then
-    cat /dev/null > /var/log/audit/audit.log
-    fi
-    if [ -f /var/log/wtmp ]; then
-    cat /dev/null > /var/log/wtmp
-    fi
-    if [ -f /var/log/lastlog ]; then
-    cat /dev/null > /var/log/lastlog
-    fi
-
-- name: "Cleaning persistent udev rules."
-  shell: |
-    if [ -f /etc/udev/rules.d/70-persistent-net.rules ]; then
-    rm /etc/udev/rules.d/70-persistent-net.rules
-    fi
-
-- name: "Cleaning the /tmp directories"
-  shell: |
-    rm -rf /tmp/*
-    rm -rf /var/tmp/*
-    rm -rf /var/cache/dnf/*
-
+# Tasks to clean the Red Hat Subscription Manager logs.
 - name: "Cleaning the Red Hat Subscription Manager logs."
-  shell: |
-    rm -rf /var/log/rhsm/*
-  when: "ansible_facts['distribution'] == 'RedHat'"
+  ansible.builtin.file:
+    path: /var/log/rhsm
+    state: absent
+  when: ansible_distribution == 'RedHat'
 
+# Tasks to clean the audit logs.
+- name: "Cleaning the audit logs."
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /var/log/audit/audit.log
+    - /var/log/btmp
+    - /var/log/boot.log
+    - /var/log/cron
+    - /var/log/dnf.log
+    - /var/log/lastlog
+    - /var/log/maillog
+    - /var/log/messages
+    - /var/log/secure
+    - /var/log/wtmp
+    - /var/log/yum.log
+
+# Tasks to clean the persistent udev rules.
+- name: "Cleaning persistent udev rules."
+  ansible.builtin.file:
+    path: /etc/udev/rules.d/70-persistent-net.rules
+    state: absent
+
+# Tasks to find the /tmp directories.
+- name: "Finding the /tmp directories."
+  ansible.builtin.find:
+    paths:
+      - /tmp
+      - /var/tmp
+    file_type: any
+  register: find_tmp_directories
+
+# Tasks to clean the /tmp directories.
+- name: "Cleaning the /tmp directories."
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ find_tmp_directories.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+
+# Tasks to find the SSH host keys.
+- name: "Finding the SSH host keys."
+  ansible.builtin.find:
+    paths: /etc/ssh
+    patterns: 'ssh_host_*'
+  register: find_ssh_host_keys
+
+# Tasks to clean the SSH host keys.
 - name: "Cleaning the SSH host keys."
-  shell: |
-    rm -f /etc/ssh/ssh_host_*
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ find_ssh_host_keys.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+
+# Tasks to clean the machine-id.
+- name: "Emptying the /etc/machine-id."
+  community.general.filesize:
+    path: /etc/machine-id
+    size: 0
 
 - name: "Cleaning the machine-id."
-  when: 'ansible_facts[''distribution_major_version''] <= "8"'
-  shell: |
-    truncate -s 0 /etc/machine-id
-    rm /var/lib/dbus/machine-id
-    ln -s /etc/machine-id /var/lib/dbus/machine-id
+  block:
+    - name: "Removing /var/lib/dbus/machine-id."
+      ansible.builtin.file:
+        path: /var/lib/dbus/machine-id
+        state: absent
+    - name: "Creating a symbolic link to /etc/machine-id."
+      ansible.builtin.file:
+        src: /etc/machine-id
+        dest: /var/lib/dbus/machine-id
+        state: link
+  when: ansible_distribution_major_version | int <= 8
 
-- name: "Cleaning the machine-id."
-  when: 'ansible_facts[''distribution_major_version''] >= "9"'
-  shell: |
-    truncate -s 0 /etc/machine-id
-
+# Tasks to clean the shell history.
 - name: "Cleaning the shell history."
-  shell: |
-    unset HISTFILE
-    history -cw
-    echo > ~/.bash_history
-    rm -fr /root/.bash_history
-
-- name: "Running a sync."
-  shell: |
-    sync && sync
-
-...
+  block:
+  - name: "Cleaning the shell history."
+    ansible.builtin.file:
+      path: "{{ ansible_env.HOME }}/.bash_history"
+      state: absent
