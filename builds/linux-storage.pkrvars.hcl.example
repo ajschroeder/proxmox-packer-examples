@@ -8,9 +8,14 @@
     - Use a size value of -1 to use all remaining space on disk.
 */
 
-/*
 //  This section is an example when you want to build a VM with the BIOS bootloader
 //  using a single partition that consumes the entire VM disk.
+
+// BIOS doesn't need EFI settings, but Packer does
+// VM EFI Settings
+vm_efi_storage_pool      = ""
+vm_efi_type              = ""
+vm_efi_pre_enrolled_keys = false
 
 // VM Storage Settings
 vm_disk_device     = "vda"
@@ -30,7 +35,6 @@ vm_disk_partitions = [
     volume_group = "",
   },
 ]
-*/
 
 /*
 //  This section is an example when you want to build a VM with the UEFI bootloader

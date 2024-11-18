@@ -10,6 +10,7 @@ additional_packages:
   RedHat:
     - ca-certificates
     - curl
+    - python3
     - unzip
     - wget
   Suse:
