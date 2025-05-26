@@ -12,3 +12,4 @@ proxmox_insecure_connection = false
 
 // Proxmox Settings
 proxmox_node = "<proxmox node name>"
+proxmox_hostname = "<proxmox hostname>"
