@@ -1,2 +1,6 @@
 ---
 enable_cloudinit: false
+
+base_chocolatey_packages:
+  - firefox
+  - putty
