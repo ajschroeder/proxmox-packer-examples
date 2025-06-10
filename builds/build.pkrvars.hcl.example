@@ -6,7 +6,7 @@
 */
 
 // Default Account Credentials
-build_username           = "ubuntu"
-build_password           = "ubuntu"
-build_password_encrypted = "$6$Gg0b6uacy6apqKTP$OIvG1n8YUNpiDpsQgS02PgGgGY0egsYM0lqQq1lvOLKCAhMQcrY6SXq2K6ynt6RI8GVvmiagbKkcN6YXRzQtb1"
+build_username           = "deploy"
+build_password           = "deploy"
+build_password_encrypted = "$6$MsfTs/5vjdnlgqEt$pkl1uGs645Y1NLpzQu7R/coOohkyzksn2YkY2EgjOuXkA6Tnrr3Yag8LYeotfYaiiyIzn3MyYCWdeqM.2VKAz1"
 build_key                = "Your public SSH key goes here"
