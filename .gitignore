@@ -1,3 +1,6 @@
+# Ansible and ansible-lint
+**/.ansible
+
 !**/template_*
 **/credentials*
 
