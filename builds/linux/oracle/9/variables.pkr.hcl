@@ -215,6 +215,12 @@ variable "common_http_bind_address" {
   default     = null
 }
 
+variable "common_http_interface" {
+  type        = string
+  description = "Name of the network interface that Packer gets HTTPIP from. Defaults to the first non loopback interface."
+  default     = null
+}
+
 variable "common_http_port_min" {
   type        = number
   description = "The start of the HTTP port range."
@@ -250,7 +256,7 @@ variable "common_shutdown_timeout" {
 variable "build_username" {
   type        = string
   description = "The username to login to the guest operating system. (e.g. 'ubuntu')"
-#  sensitive   = true  
+#  sensitive   = true
 }
 
 variable "build_password" {
