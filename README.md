@@ -27,18 +27,20 @@ The following builds are available:
 | :---             | :---      | :---:                 | :---:              | :---:              | :---:              |
 | AlmaLinux        | 9         | &check;               | &check;            | &check;            |                    |
 | AlmaLinux        | 8         | &check;               | &check;            | &check;            |                    |
-| CentOS Stream    | 9         | &check;               | &check;            |                    |                    |
-| Debian           | 12        | &check;               |                    |                    |                    |
-| Debian           | 11        | &check;               |                    |                    |                    |
-| Oracle Linux     | 9         | &check;               |                    |                    |                    |
-| Oracle Linux     | 8         | &check;               |                    |                    |                    |
-| Rocky Linux      | 9         | &check;               |                    |                    |                    |
-| Rocky Linux      | 8         | &check;               |                    |                    |                    |
-| OpenSUSE Leap    | 15.6      | &check;               |                    |                    |                    |
-| OpenSUSE Leap    | 15.5      | &check;               |                    |                    |                    |
-| Ubuntu Server    | 24.04 LTS | &check;               |                    |                    |                    |
-| Ubuntu Server    | 22.04 LTS | &check;               |                    |                    |                    |
+| CentOS Stream    | 10        | &check;               | &check;            | &check;            | &check;            |
+| CentOS Stream    | 9         | &check;               | &check;            | &check;            | &check;            |
+| Debian           | 12        | &check;               | &check;            | &check;            | &check;            |
+| Debian           | 11        | &check;               | &check;            | &check;            | &check;            |
+| OpenSUSE Leap    | 15.6      | &check;               | &check;            | &check;            | &check;            |
+| OpenSUSE Leap    | 15.5      | &check;               | &check;            | &check;            | &check;            |
+| Oracle Linux     | 9         | &check;               | &check;            | &check;            | &check;            |
+| Oracle Linux     | 8         | &check;               | &check;            | &check;            | &check;            |
+| Rocky Linux      | 9         | &check;               | &check;            | &check;            | &check;            |
+| Rocky Linux      | 8         | &check;               | &check;            | &check;            | &check;            |
+| Ubuntu Server    | 24.04 LTS | &check;               | &check;            | &check;            | &check;            |
+| Ubuntu Server    | 22.04 LTS | &check;               | &check;            | &check;            | &check;            |
 | Ubuntu Server    | 20.04 LTS | &check;               | &check;            | &check;            | &check;            |
+| Windows Desktop  | 11        |                       |                    | &check;            | N/A                |
 
 ## Requirements
 
@@ -52,7 +54,7 @@ Operating systems and versions tested with the project:
 
 **Packer**:
 
-- HashiCorp [Packer][packer-install] 1.11.0 or higher.
+- HashiCorp [Packer][packer-install] 1.12.0 or higher.
 
   > **Note**
   >
@@ -121,12 +123,12 @@ Operating systems and versions tested with the project:
   >
   > Required plugins are automatically downloaded and initialized when using `./build.sh`. For dark sites, you may download the plugins and place these same directory as your Packer executable `/usr/local/bin` or `$HOME/.packer.d/plugins`.
 
-  - HashiCorp [Packer Plugin for Proxmox][packer-plugin-proxmox] 1.1.8 or later.
   - [Packer Plugin for Git][packer-plugin-git] 0.6.2 or later - a community plugin for HashiCorp Packer.
+  - HashiCorp [Packer Plugin for Proxmox-ISO][packer-plugin-proxmox] version 1.2.1 - the plugin for HashiCorp Packer to communicate with Proxmox VE. This needs to be pinned to version 1.2.1 at this time due to a [CPU bug](https://github.com/hashicorp/packer-plugin-proxmox/issues/307).
 
 **Ansible**:
 
-- [Ansible][ansible] [Core][ansible-core] version 2.10 or higher.
+- [Ansible][ansible] [Core][ansible-core] version 2.14 or higher.
 
   > **Note**
   >
@@ -165,12 +167,12 @@ Operating systems and versions tested with the project:
   - <details>
       <summary>CentOS Stream 9</summary>
 
-    It is recommended that you install ansible-core using your system's package manager instead of via pip.
+    It is recommended that you install ansible using your system's package manager instead of via pip.
 
     Install.
 
     ```shell
-    dnf -y install ansible-core
+    dnf -y install ansible
     ```
     </details>
 
@@ -263,7 +265,7 @@ You will need to generate a SHA-512 encrypted password for the `build_password_e
 Run the following command to generate a SHA-512 encrypted password:
 
 ```shell
-mkpasswd -m sha512
+mkpasswd -m sha512crypt
 ```
 
 The following output is displayed:
@@ -315,12 +317,13 @@ Edit the `config/common.pkrvars.hcl` file to configure the following common vari
 common_iso_storage = "<Proxmox Storage Location>"
 
 // Boot and Provisioning Settings
-common_data_source      = "http"
-common_http_ip          = null
-common_http_port_min    = 8000
-common_http_port_max    = 8099
-common_ip_wait_timeout  = "20m"
-common_shutdown_timeout = "15m"
+common_data_source       = "http"
+common_http_interface    = null
+common_http_bind_address = null
+common_http_port_min     = 8000
+common_http_port_max     = 8099
+common_ip_wait_timeout   = "20m"
+common_shutdown_timeout  = "15m"
 
 // HCP Packer
 common_hcp_packer_registry_enabled = false
@@ -359,21 +362,42 @@ common_data_source = "disk"
 
 The Packer plugin's `cd_content` option is used when selecting `disk` unless the distribution does not support a secondary CD-ROM.
 
-#### HTTP Binding
+#### HTTP Interface
 
-If you need to define a specific IPv4 address from your host for Packer's built-in HTTP server, modify the `common_http_ip` variable from `null` to a `string` value that matches an IP address on your Packer host.
+Name of the network interface that Packer gets `HTTPIP` from. Defaults to the first non loopback interface.
 
 ```hcl title="config/common.pkrvars.hcl"
-common_http_ip = "172.16.11.254"
+common_http_interface = "eth2"
+```
+
+#### HTTP Bind Address
+
+IP address on the build server to bind the Packer HTTP instance to. Must be an interface that is reachable from the Proxmox server.
+```hcl title="config/common.pkrvars.hcl"
+common_http_bind_address = 172.16.15.97"
 ```
 
 ### Network Variables
 
-Configuring a static IP address under the `configs/network.pkrvars.hcl` file is supported. If you want to use DHCP for the templates then leave these variables commented out. The default is DHCP.
-
 Edit the `config/network.pkrvars.hcl` file to configure the following:
 
-- Static IP address settings
+#### Proxmox Specific Network Variables for VM Templates
+These variables are used by Packer to configure the network interface for the VM template. These are specific to your environment. For example, to use the default `vmbr0` interface and the tag for VLAN 102, you would set it as follows:
+
+```hcl title="config/network.pkrvars.hcl"
+// Proxmox settings for VM templates
+vm_bridge_interface  = "vmbr0"
+vm_vlan_tag          = "102"
+```
+
+Configuring a static IP address under the `configs/network.pkrvars.hcl` file is supported. If you want to use DHCP for the templates then leave these variables commented out. The default is DHCP.
+
+> **Note**
+>
+> - These settings are site specific for each Proxmox host and are going to be needed regardless if you use DHCP or static IP addresses.
+
+#### Static IP address settings
+The Packer build templates default to using DHCP, however, you can use static IP addressing for your VM templates. Simply uncomment the following vars and configure to your specific requirements:
 
 ```hcl title="config/network.pkrvars.hcl"
 vm_ip_address = "192.168.101.100"
@@ -381,6 +405,10 @@ vm_ip_netmask = 24
 vm_ip_gateway = "192.168.101.1"
 vm_dns_list   = [ "8.8.8.8", "8.8.4.4" ]
 ```
+
+> **Note**
+>
+> - If you need/want to go back to using DHCP, just comment these variables out again and the templates should go back to using DHCP.
 
 ### Proxmox Variables
 
@@ -390,13 +418,13 @@ Edit the `config/proxmox.pkrvars.hcl` file to configure the following:
 
 ```hcl title="config/proxmox.pkrvars.hcl"
 // Proxmox Credentials
-proxmox_api_url             = "<FQDN or IP of proxmox server>"
 proxmox_api_token_id        = "name@realm!token"
 proxmox_api_token_secret    = "<token secret>"
 proxmox_insecure_connection = false
 
-// Proxmox Settings
-proxmox_node = "<proxmox node name>"
+// Proxmox Specific Settings
+proxmox_hostname = "<FQDN or IP of proxmox server>"
+proxmox_node     = "<proxmox node name>"
 ```
 
 The `proxmox_api_token_id` variable uses a specific format and, as the time of this writing, needs to be assigned to the `PVEAdmin` role. One of the to-do's is to document a least-privilege method of creating the Proxmox API token.
