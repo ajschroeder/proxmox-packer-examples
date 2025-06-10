@@ -8,7 +8,7 @@
 //  The Packer configuration.
 
 packer {
-  required_version = ">= 1.11.0"
+  required_version = ">= 1.12.0"
   required_plugins {
     ansible = {
       source  = "github.com/hashicorp/ansible"
@@ -19,7 +19,7 @@ packer {
       source  = "github.com/ethanmdavidson/git"
     }
     proxmox = {
-      version = ">= 1.2.2"
+      version = "= 1.2.1"
       source  = "github.com/hashicorp/proxmox"
     }
   }
@@ -125,11 +125,11 @@ source "proxmox-iso" "windows-desktop-pro" {
       "autounattend.xml" = templatefile("${abspath(path.root)}/data/autounattend.pkrtpl.hcl", {
         build_username       = var.build_username
         build_password       = var.build_password
-        vm_inst_os_eval      = var.vm_inst_os_eval // Does not support evaluation.
+        vm_inst_os_eval      = var.vm_inst_os_eval
         vm_inst_os_language  = var.vm_inst_os_language
         vm_inst_os_keyboard  = var.vm_inst_os_keyboard
         vm_inst_os_image     = var.vm_inst_os_image_pro
-        vm_inst_os_key       = var.vm_inst_os_key_pro // Does not support evaluation.
+        vm_inst_os_key       = var.vm_inst_os_key_pro
         vm_guest_os_language = var.vm_os_language
         vm_guest_os_keyboard = var.vm_os_keyboard
         vm_guest_os_timezone = var.vm_os_timezone
@@ -141,6 +141,8 @@ source "proxmox-iso" "windows-desktop-pro" {
   }
 
   // Boot and Provisioning Settings
+  http_interface    = var.common_http_interface
+  http_bind_address = var.common_http_bind_address
   http_port_min     = var.common_http_port_min
   http_port_max     = var.common_http_port_max
   boot_wait         = var.vm_boot_wait
@@ -235,11 +237,11 @@ source "proxmox-iso" "windows-desktop-ent" {
       "autounattend.xml" = templatefile("${abspath(path.root)}/data/autounattend.pkrtpl.hcl", {
         build_username       = var.build_username
         build_password       = var.build_password
-        vm_inst_os_eval      = var.vm_inst_os_eval // Does not support evaluation.
+        vm_inst_os_eval      = var.vm_inst_os_eval
         vm_inst_os_language  = var.vm_inst_os_language
         vm_inst_os_keyboard  = var.vm_inst_os_keyboard
         vm_inst_os_image     = var.vm_inst_os_image_ent
-        vm_inst_os_key       = var.vm_inst_os_key_ent // Does not support evaluation.
+        vm_inst_os_key       = var.vm_inst_os_key_ent
         vm_guest_os_language = var.vm_os_language
         vm_guest_os_keyboard = var.vm_os_keyboard
         vm_guest_os_timezone = var.vm_os_timezone
@@ -251,6 +253,8 @@ source "proxmox-iso" "windows-desktop-ent" {
   }
 
   // Boot and Provisioning Settings
+  http_interface    = var.common_http_interface
+  http_bind_address = var.common_http_bind_address
   http_port_min     = var.common_http_port_min
   http_port_max     = var.common_http_port_max
   boot_wait         = var.vm_boot_wait
@@ -272,7 +276,8 @@ source "proxmox-iso" "windows-desktop-ent" {
 
 build {
   sources = [
-    "source.proxmox-iso.windows-desktop-ent"
+    "source.proxmox-iso.windows-desktop-pro",
+    "source.proxmox-iso.windows-desktop-ent",
   ]
 
   provisioner "ansible" {

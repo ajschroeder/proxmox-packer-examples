@@ -114,19 +114,16 @@ variable "vm_os_name" {
 variable "vm_os_version" {
   type        = string
   description = "The guest operating system version. Used for naming."
-  default     = "11"
 }
 
 variable "vm_os_edition_pro" {
   type        = string
   description = "The guest operating system edition. Used for naming."
-  default     = "pro"
 }
 
 variable "vm_os_edition_ent" {
   type        = string
   description = "The guest operating system edition. Used for naming."
-  default     = "ent"
 }
 
 variable "vm_os_type" {
@@ -297,6 +294,12 @@ variable "common_http_bind_address" {
   default     = null
 }
 
+variable "common_http_interface" {
+  type        = string
+  description = "Name of the network interface that Packer gets HTTPIP from. Defaults to the first non loopback interface."
+  default     = null
+}
+
 variable "common_http_port_min" {
   type        = number
   description = "The start of the HTTP port range."
@@ -307,10 +310,10 @@ variable "common_http_port_max" {
   description = "The end of the HTTP port range."
 }
 
-// variable "vm_boot_order" {
-//   type        = string
-//   description = "The boot order for virtual machines devices."
-// }
+variable "vm_boot_order" {
+  type        = string
+  description = "The boot order for virtual machines devices."
+}
 
 variable "vm_boot_wait" {
   type        = string
