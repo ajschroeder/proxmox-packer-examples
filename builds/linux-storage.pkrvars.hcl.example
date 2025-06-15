@@ -8,6 +8,7 @@
     - Use a size value of -1 to use all remaining space on disk.
 */
 
+/*
 //  This section is an example when you want to build a VM with the BIOS bootloader
 //  using a single partition that consumes the entire VM disk.
 
@@ -35,6 +36,7 @@ vm_disk_partitions = [
     volume_group = "",
   },
 ]
+*/
 
 /*
 //  This section is an example when you want to build a VM with the UEFI bootloader
@@ -244,7 +246,6 @@ vm_disk_lvm = [
 ]
 */
 
-/*
 //  This section is an example when you want to build a VM with the EFI firmware
 //  using LVM with a volume layout that follows CIS hardening guidelines.
 
@@ -415,4 +416,3 @@ vm_disk_lvm = [
     ],
   }
 ]
-*/

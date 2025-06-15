@@ -7,18 +7,18 @@
 //  The Packer configuration.
 
 packer {
-  required_version = ">= 1.9.1"
+  required_version = ">= 1.12.0"
   required_plugins {
     ansible = {
       source  = "github.com/hashicorp/ansible"
       version = "~> 1"
     }
     git = {
-      version = ">= 0.4.2"
+      version = ">= 0.6.2"
       source  = "github.com/ethanmdavidson/git"
     }
     proxmox = {
-      version = ">= 1.0.6"
+      version = "= 1.2.1"
       source  = "github.com/hashicorp/proxmox"
     }
   }
@@ -110,7 +110,7 @@ locals {
 //  Defines the builder configuration blocks.
 
 source "proxmox-iso" "ubuntu" {
- 
+
   // Proxmox Connection Settings and Credentials
   proxmox_url              = "https://${var.proxmox_hostname}:8006/api2/json"
   username                 = "${var.proxmox_api_token_id}"
@@ -129,12 +129,14 @@ source "proxmox-iso" "ubuntu" {
   memory          = "${var.vm_mem_size}"
   os              = "${var.vm_os_type}"
   scsi_controller = "${var.vm_disk_controller_type}"
+
   disks {
     disk_size     = "${var.vm_disk_size}"
     type          = "${var.vm_disk_type}"
     storage_pool  = "${var.vm_storage_pool}"
     format        = "${var.vm_disk_format}"
   }
+
   dynamic "efi_config" {
     for_each = var.vm_bios == "ovmf" ? [1] : []
     content {
@@ -143,13 +145,11 @@ source "proxmox-iso" "ubuntu" {
       pre_enrolled_keys = var.vm_bios == "ovmf" ? var.vm_efi_pre_enrolled_keys : null
     }
   }
-  unmount_iso     = true
+
   ssh_username    = "${var.build_username}"
   ssh_password    = "${var.build_password}"
   ssh_timeout     = "${var.timeout}"
   ssh_port        = "22"
-  iso_file        = "${var.common_iso_storage}:${var.iso_path}/${var.iso_file}"
-  iso_checksum    = "${var.iso_checksum}"
   qemu_agent      = true
 
   network_adapters {
@@ -162,12 +162,19 @@ source "proxmox-iso" "ubuntu" {
   http_content = "${var.common_data_source}" == "http" ? "${local.data_source_content}" : null
 
   // Boot and Provisioning Settings
+  http_interface    = var.common_data_source == "http" ? var.common_http_interface : null
   http_bind_address = var.common_data_source == "http" ? var.common_http_bind_address : null
   http_port_min     = var.common_data_source == "http" ? var.common_http_port_min : null
   http_port_max     = var.common_data_source == "http" ? var.common_http_port_max : null
   boot              = var.vm_boot
   boot_wait         = var.vm_boot_wait
   boot_command      = local.boot_command
+
+  boot_iso {
+    iso_file      = "${var.common_iso_storage}:${var.iso_path}/${var.iso_file}"
+    unmount       = true
+    iso_checksum  = "${var.iso_checksum}"
+  }
 
   dynamic "additional_iso_files" {
     for_each = var.common_data_source == "disk" ? [1] : []

@@ -1,0 +1,18 @@
+---
+# Microsoft Windows specific tasks.
+
+# Tasks for updating the operating system and installing additional packages.
+- name: Getting guest operating system information
+  ansible.builtin.debug:
+    msg: "OS: {{ ansible_os_name }}"
+
+- name: Install latest version of Chocolatey
+  chocolatey.chocolatey.win_chocolatey:
+    name: chocolatey
+    state: latest
+
+- name: Installing additional packages using Chocolatey
+  chocolatey.chocolatey.win_chocolatey:
+    name: "{{ item }}"
+    state: latest
+  loop: "{{ base_chocolatey_packages }}"
