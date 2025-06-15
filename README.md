@@ -724,7 +724,7 @@ vm_disk_lvm = [
 
 ## Packer Machine Image Builds
 
-Edit the `*.auto.pkrvars.hcl` file in each `builds/<type>/<build>` directory to configure the following virtual machine hardware settings, as required:
+Edit the `<build type>.pkrvars.hcl` file in the `config` directory for each type of build to set the following virtual machine hardware settings, as required:
 
 - CPUs `(int)`
 - CPU Cores `(int)`
@@ -733,7 +733,7 @@ Edit the `*.auto.pkrvars.hcl` file in each `builds/<type>/<build>` directory to 
 - .iso Path `(string)`
 - .iso File `(string)`
 
-```hcl title="builds/linux/debian/11/linux-debian.auto.pkrvars.hcl"
+```hcl title="config/linux-ubuntu-22-04-lts.pkrvars.hcl"
 // Guest Operating System Metadata
 vm_os_language   = "en_US"
 vm_os_keyboard   = "us"
@@ -774,23 +774,41 @@ vm_firmware_path         = "./OVMF.fd"
 
 > **Note**
 >
->   All `variables.auto.pkrvars.hcl` default to using:
+>   All `config/<build type>.pkrvars.hcl` default to using:
 >   - VirtIO SCSI storage device
 >   - VirtIO (paravirtualized) network card device
->   - BIOS boot firmware
+>   - UEFI boot firmware
 
 The defaults use VirtIO to balance out performance, compatibility, and ease of use. Feel free to change the storage and network controllers to suit your needs. However, if you change the storage or network controllers and run into issues you should change them back to defaults and try the builds again. I won't support any builds that don't use the VirtIO drivers.
 
-Both UEFI and BIOS booting are supported for builds. Inside the `*.auto.pkrvars.hcl` file specific to the build, you can set the `vm_bios` variable to either `seabios` for BIOS or `ovmf` for UEFI booting. The storage layouts are different for each bootloader type so you'll need to configure the storage layouts accordingly.
+Both UEFI and BIOS booting are supported for builds. Inside the `<build type>.pkrvars.hcl` file specific to the build, you can set the `vm_bios` variable to either `seabios` for BIOS or `ovmf` for UEFI booting.
 
-If you are interested in more detail - when I first started testing these packer builds in my home lab I was using `ovmf` (UEFI) firmware. During my initial testing the ZFS pool where I housed my VMs cratered and I had to rebuild the pool and restore all my VMs from backups. During the recovery of my storage pool, I changed over to LVM and had to migrate VMs between storage pools several times and each VM that had EFI disks had to be shutdown, migrated, and then powered on. Offline migration isn't *that* much of an inconvenience, however at the time I was trying to figure out my VM storage and recover all my VMs it was just one more annoyance. All that said, I think Proxmox should support live migration regardless of VM firmware type. Maybe this will be addressed in a future release of Proxmox?
+> **Note**
+>
+>   The storage layouts are different for each bootloader type so you'll need to configure the storage layouts accordingly.
 
 ### Cloud-Init
-All builds for operating systems that support [cloud-init][cloud-init] now have the option to enable it. This can be done on a per-build basis inside the `*.auto.pkrvars.hcl` files in the `builds/linux/<distro>/<version>/` directory. The default setting is `true`.
+All builds for operating systems that support [cloud-init][cloud-init] now have the option to enable it. This can be done on a per-build basis inside the `<build type>.pkrvars.hcl` files in the `config` directory. The default setting is `true`.
 
-If a particular linux distribution ships with cloud-init (e.g. Ubuntu) and cloud-init is set to `false` in the `*.auto.pkrvars.hcl` packer file for the build, then cloud-init will be disabled in the operating system **and** within Proxmox for that specific template.
+If a particular linux distribution ships with cloud-init (e.g. Ubuntu) and cloud-init is set to `false` in the `config/<build type>.pkrvars.hcl` file for the build, then cloud-init will be disabled in the operating system **and** within Proxmox for that specific template.
 
 # Known Issues
+
+## Windows Builds
+For obvious reasons, product keys and actual ISO names are not provided for any of the Windows builds in this repository. For example, if you wanted to build a Windows 11 template VM, the Windows 11 build uses the Windows 11 Enterprise Eval ISO. By default packer will build the Windows 11 Enterprise Eval whether you choose the Pro or Enterprise build when running `build.sh`. Also, this build by default should not require any interventions by a human.
+
+If you have a valid product key and want to build a Windows 11 Pro or Enterprise template VM, you will need to change the following variables (if building Pro you don't need to change Enterprise vars and vice versa):
+
+```hcl title="config/windows-desktop-11.pkrvars.hcl"
+vm_inst_os_image_pro = "Windows 11 Enterprise Evaluation"   <-- If building Professional with a valid key, you will need to enter in whatever the name of the Operating System is when the Windows install prompts you
+vm_inst_os_key_pro   = "XXXXX-XXXXX-XXXXX-XXXXX-XXXXX"
+vm_inst_os_image_ent = "Windows 11 Enterprise Evaluation"   <-- If building Enterprise with a valid key, you can remove the Evaluation from this string
+vm_inst_os_key_ent   = "XXXXX-XXXXX-XXXXX-XXXXX-XXXXX"
+...
+iso_file             = "Name-of-Windows-11-Non-Evaluation-DVD.iso"  <-- This is the name of the real Windows 11 DVD
+```
+
+If your template build hangs or times out, re-run it and then open the console of the template VM and see if Windows is waiting for you to select an Operating System. Select the Operating System version and then click Next and the build should work hands-off the rest of the way. If you want this to be completely hands-off, just change the `vm_inst_os_image_pro` and/or `vm_inst_os_image_ent` vars to match the Operating System selection entry exactly. Then the next time you execute the particular Windows template build, it shouldn't get stuck waiting for input.
 
 # Unsupported Features
 
