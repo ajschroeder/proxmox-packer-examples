@@ -49,6 +49,43 @@ if [ "$debug_mode" = true ]; then
 fi
 
 menu_option_1() {
+  INPUT_PATH="$SCRIPT_PATH"/builds/linux/almalinux/10/
+  BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
+  BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
+
+  echo -e "\nCONFIRM: Build a AlmaLinux 10 Template for Proxmox?"
+  echo -e "\nContinue? (y/n)"
+  read -r REPLY
+  if [[ ! $REPLY =~ ^[Yy]$ ]]
+  then
+    exit 1
+  fi
+
+  ### Build a AlmaLinux 10 Template for Proxmox. ###
+  echo "Building a AlmaLinux 10 Template for Proxmox..."
+
+  ### Initialize HashiCorp Packer and required plugins. ###
+  echo "Initializing HashiCorp Packer and required plugins..."
+  packer init "$INPUT_PATH"
+
+  ### Start the Build. ###
+  echo "Starting the build...."
+  echo "packer build -force -on-error=ask $debug_option"
+  packer build -force -on-error=ask $debug_option \
+      -var-file="$CONFIG_PATH/ansible.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/build.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/common.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/linux-storage.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/network.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/proxmox.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/$BUILD_VARS" \
+      "$INPUT_PATH"
+
+  ### All done. ###
+  echo "Done."
+}
+
+menu_option_2() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/almalinux/9/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -85,7 +122,7 @@ menu_option_1() {
   echo "Done."
 }
 
-menu_option_2() {
+menu_option_3() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/almalinux/8/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -122,7 +159,7 @@ menu_option_2() {
   echo "Done."
 }
 
-menu_option_3() {
+menu_option_4() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/centos/10-stream/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -159,7 +196,7 @@ menu_option_3() {
   echo "Done."
 }
 
-menu_option_4() {
+menu_option_5() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/centos/9-stream/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -196,7 +233,7 @@ menu_option_4() {
   echo "Done."
 }
 
-menu_option_5() {
+menu_option_6() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/debian/12/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -233,7 +270,7 @@ menu_option_5() {
   echo "Done."
 }
 
-menu_option_6() {
+menu_option_7() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/debian/11/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -270,7 +307,7 @@ menu_option_6() {
   echo "Done."
 }
 
-menu_option_7() {
+menu_option_8() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/opensuse/leap-15-6/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -307,7 +344,7 @@ menu_option_7() {
   echo "Done."
 }
 
-menu_option_8() {
+menu_option_9() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/opensuse/leap-15-5/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -344,7 +381,7 @@ menu_option_8() {
   echo "Done."
 }
 
-menu_option_9() {
+menu_option_10() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/oracle/9/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -381,7 +418,7 @@ menu_option_9() {
   echo "Done."
 }
 
-menu_option_10() {
+menu_option_11() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/oracle/8/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -418,7 +455,44 @@ menu_option_10() {
   echo "Done."
 }
 
-menu_option_11() {
+menu_option_12() {
+  INPUT_PATH="$SCRIPT_PATH"/builds/linux/rocky/10/
+  BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
+  BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
+
+  echo -e "\nCONFIRM: Build a Rocky Linux 10 Template for Proxmox?"
+  echo -e "\nContinue? (y/n)"
+  read -r REPLY
+  if [[ ! $REPLY =~ ^[Yy]$ ]]
+  then
+    exit 1
+  fi
+
+  ### Build a Rocky Linux 10 for Proxmox. ###
+  echo "Building a Rocky Linux 10 for Proxmox..."
+
+  ### Initialize HashiCorp Packer and required plugins. ###
+  echo "Initializing HashiCorp Packer and required plugins..."
+  packer init "$INPUT_PATH"
+
+  ### Start the Build. ###
+  echo "Starting the build...."
+  echo "packer build -force -on-error=ask $debug_option"
+  packer build -force -on-error=ask $debug_option \
+      -var-file="$CONFIG_PATH/ansible.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/build.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/common.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/linux-storage.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/network.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/proxmox.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/$BUILD_VARS" \
+      "$INPUT_PATH"
+
+  ### All done. ###
+  echo "Done."
+}
+
+menu_option_13() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/rocky/9/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -455,7 +529,7 @@ menu_option_11() {
   echo "Done."
 }
 
-menu_option_12() {
+menu_option_14() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/rocky/8/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -492,7 +566,7 @@ menu_option_12() {
   echo "Done."
 }
 
-menu_option_13() {
+menu_option_15() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/ubuntu/24-04-lts/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -529,7 +603,7 @@ menu_option_13() {
   echo "Done."
 }
 
-menu_option_14() {
+menu_option_16() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/ubuntu/22-04-lts/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -566,7 +640,7 @@ menu_option_14() {
   echo "Done."
 }
 
-menu_option_15() {
+menu_option_17() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/ubuntu/20-04-lts/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -603,7 +677,7 @@ menu_option_15() {
   echo "Done."
 }
 
-menu_option_16() {
+menu_option_18() {
   INPUT_PATH="$SCRIPT_PATH"/builds/windows/desktop/11/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -639,7 +713,7 @@ menu_option_16() {
   echo "Done."
 }
 
-menu_option_17() {
+menu_option_19() {
   INPUT_PATH="$SCRIPT_PATH"/builds/windows/desktop/11/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -676,7 +750,7 @@ menu_option_17() {
   echo "Done."
 }
 
-menu_option_18() {
+menu_option_20() {
   INPUT_PATH="$SCRIPT_PATH"/builds/windows/desktop/11/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -745,24 +819,26 @@ until [ "$selection" = "0" ]; do
   echo ""
   echo "      Linux Distribution:"
   echo ""
-  echo "       1  -  AlmaLinux 9"
-  echo "       2  -  AlmaLinux 8"
-  echo "       3  -  CentOS 10 Stream"
-  echo "       4  -  CentOS 9 Stream"
-  echo "       5  -  Debian 12"
-  echo "       6  -  Debian 11"
-  echo "       7  -  OpenSUSE Leap 15.6"
-  echo "       8  -  OpenSUSE Leap 15.5"
-  echo "       9  -  Oracle Linux 9"
-  echo "       10 -  Oracle Linux 8"
-  echo "       11 -  Rocky Linux 9"
-  echo "       12 -  Rocky Linux 8"
-  echo "       13 -  Ubuntu Server 24.04 LTS"
-  echo "       14 -  Ubuntu Server 22.04 LTS"
-  echo "       15 -  Ubuntu Server 20.04 LTS"
-  echo "       16 -  Windows 11 - All"
-  echo "       17 -  Windows 11 - Enterprise Only"
-  echo "       18 -  Windows 11 - Professional Only"
+  echo "       1  -  AlmaLinux 10"
+  echo "       2  -  AlmaLinux 9"
+  echo "       3  -  AlmaLinux 8"
+  echo "       4  -  CentOS 10 Stream"
+  echo "       5  -  CentOS 9 Stream"
+  echo "       6  -  Debian 12"
+  echo "       7  -  Debian 11"
+  echo "       8  -  OpenSUSE Leap 15.6"
+  echo "       9  -  OpenSUSE Leap 15.5"
+  echo "       10 -  Oracle Linux 9"
+  echo "       11 -  Oracle Linux 8"
+  echo "       12 -  Rocky Linux 10"
+  echo "       13 -  Rocky Linux 9"
+  echo "       14 -  Rocky Linux 8"
+  echo "       15 -  Ubuntu Server 24.04 LTS"
+  echo "       16 -  Ubuntu Server 22.04 LTS"
+  echo "       17 -  Ubuntu Server 20.04 LTS"
+  echo "       18 -  Windows 11 - All"
+  echo "       19 -  Windows 11 - Enterprise Only"
+  echo "       20 -  Windows 11 - Professional Only"
   echo ""
   echo "      Other:"
   echo ""
@@ -790,6 +866,8 @@ until [ "$selection" = "0" ]; do
     16) clear ; menu_option_16 ; press_enter ;;
     17) clear ; menu_option_17 ; press_enter ;;
     18) clear ; menu_option_18 ; press_enter ;;
+    19) clear ; menu_option_19 ; press_enter ;;
+    20) clear ; menu_option_20 ; press_enter ;;
     [Ii] ) clear ; info ; press_enter ;;
     [Qq] ) clear ; exit ;;
     * ) clear ; incorrect_selection ; press_enter ;;

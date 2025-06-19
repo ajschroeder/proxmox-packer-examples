@@ -16,6 +16,7 @@ SCRIPT_PATH=$(realpath "$(dirname "$(follow_link "$0")")")
 CONFIG_PATH=$(realpath "${1:-${SCRIPT_PATH}/config}")
 
 INPUT_PATHS=(
+  "$SCRIPT_PATH/builds/linux/almalinux/10/"
   "$SCRIPT_PATH/builds/linux/almalinux/9/"
   "$SCRIPT_PATH/builds/linux/almalinux/8/"
   "$SCRIPT_PATH/builds/linux/centos/10-stream/"
@@ -26,6 +27,7 @@ INPUT_PATHS=(
   "$SCRIPT_PATH/builds/linux/opensuse/leap-15-5/"
   "$SCRIPT_PATH/builds/linux/oracle/9/"
   "$SCRIPT_PATH/builds/linux/oracle/8/"
+  "$SCRIPT_PATH/builds/linux/rocky/10/"
   "$SCRIPT_PATH/builds/linux/rocky/9/"
   "$SCRIPT_PATH/builds/linux/rocky/8/"
   "$SCRIPT_PATH/builds/linux/ubuntu/24-04-lts/"
@@ -60,6 +62,8 @@ validate_packer() {
       "$CONFIG_PATH/$current_build_vars"
     )
   else
+    current_build_path=${input_path#"${SCRIPT_PATH}/builds/"}
+    current_build_vars="$(echo "${current_build_path%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
     VAR_FILES=(
       "$CONFIG_PATH/ansible.pkrvars.hcl"
       "$CONFIG_PATH/build.pkrvars.hcl"
@@ -68,6 +72,7 @@ validate_packer() {
       "$CONFIG_PATH/network.pkrvars.hcl"
       "$CONFIG_PATH/proxmox.pkrvars.hcl"
       "$CONFIG_PATH/proxy.pkrvars.hcl"
+      "$CONFIG_PATH/$current_build_vars"
     )
   fi
 
