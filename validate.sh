@@ -27,6 +27,7 @@ INPUT_PATHS=(
   "$SCRIPT_PATH/builds/linux/opensuse/leap-15-5/"
   "$SCRIPT_PATH/builds/linux/oracle/9/"
   "$SCRIPT_PATH/builds/linux/oracle/8/"
+  "$SCRIPT_PATH/builds/linux/rocky/10/"
   "$SCRIPT_PATH/builds/linux/rocky/9/"
   "$SCRIPT_PATH/builds/linux/rocky/8/"
   "$SCRIPT_PATH/builds/linux/ubuntu/24-04-lts/"

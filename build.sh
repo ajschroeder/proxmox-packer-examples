@@ -456,6 +456,43 @@ menu_option_11() {
 }
 
 menu_option_12() {
+  INPUT_PATH="$SCRIPT_PATH"/builds/linux/rocky/10/
+  BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
+  BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
+
+  echo -e "\nCONFIRM: Build a Rocky Linux 10 Template for Proxmox?"
+  echo -e "\nContinue? (y/n)"
+  read -r REPLY
+  if [[ ! $REPLY =~ ^[Yy]$ ]]
+  then
+    exit 1
+  fi
+
+  ### Build a Rocky Linux 10 for Proxmox. ###
+  echo "Building a Rocky Linux 10 for Proxmox..."
+
+  ### Initialize HashiCorp Packer and required plugins. ###
+  echo "Initializing HashiCorp Packer and required plugins..."
+  packer init "$INPUT_PATH"
+
+  ### Start the Build. ###
+  echo "Starting the build...."
+  echo "packer build -force -on-error=ask $debug_option"
+  packer build -force -on-error=ask $debug_option \
+      -var-file="$CONFIG_PATH/ansible.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/build.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/common.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/linux-storage.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/network.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/proxmox.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/$BUILD_VARS" \
+      "$INPUT_PATH"
+
+  ### All done. ###
+  echo "Done."
+}
+
+menu_option_13() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/rocky/9/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -492,7 +529,7 @@ menu_option_12() {
   echo "Done."
 }
 
-menu_option_13() {
+menu_option_14() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/rocky/8/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -529,7 +566,7 @@ menu_option_13() {
   echo "Done."
 }
 
-menu_option_14() {
+menu_option_15() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/ubuntu/24-04-lts/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -566,7 +603,7 @@ menu_option_14() {
   echo "Done."
 }
 
-menu_option_15() {
+menu_option_16() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/ubuntu/22-04-lts/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -603,7 +640,7 @@ menu_option_15() {
   echo "Done."
 }
 
-menu_option_16() {
+menu_option_17() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/ubuntu/20-04-lts/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -640,7 +677,7 @@ menu_option_16() {
   echo "Done."
 }
 
-menu_option_17() {
+menu_option_18() {
   INPUT_PATH="$SCRIPT_PATH"/builds/windows/desktop/11/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -676,7 +713,7 @@ menu_option_17() {
   echo "Done."
 }
 
-menu_option_18() {
+menu_option_19() {
   INPUT_PATH="$SCRIPT_PATH"/builds/windows/desktop/11/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -713,7 +750,7 @@ menu_option_18() {
   echo "Done."
 }
 
-menu_option_19() {
+menu_option_20() {
   INPUT_PATH="$SCRIPT_PATH"/builds/windows/desktop/11/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -793,14 +830,15 @@ until [ "$selection" = "0" ]; do
   echo "       9  -  OpenSUSE Leap 15.5"
   echo "       10 -  Oracle Linux 9"
   echo "       11 -  Oracle Linux 8"
-  echo "       12 -  Rocky Linux 9"
-  echo "       13 -  Rocky Linux 8"
-  echo "       14 -  Ubuntu Server 24.04 LTS"
-  echo "       15 -  Ubuntu Server 22.04 LTS"
-  echo "       16 -  Ubuntu Server 20.04 LTS"
-  echo "       17 -  Windows 11 - All"
-  echo "       18 -  Windows 11 - Enterprise Only"
-  echo "       19 -  Windows 11 - Professional Only"
+  echo "       12 -  Rocky Linux 10"
+  echo "       13 -  Rocky Linux 9"
+  echo "       14 -  Rocky Linux 8"
+  echo "       15 -  Ubuntu Server 24.04 LTS"
+  echo "       16 -  Ubuntu Server 22.04 LTS"
+  echo "       17 -  Ubuntu Server 20.04 LTS"
+  echo "       18 -  Windows 11 - All"
+  echo "       19 -  Windows 11 - Enterprise Only"
+  echo "       20 -  Windows 11 - Professional Only"
   echo ""
   echo "      Other:"
   echo ""
@@ -829,6 +867,7 @@ until [ "$selection" = "0" ]; do
     17) clear ; menu_option_17 ; press_enter ;;
     18) clear ; menu_option_18 ; press_enter ;;
     19) clear ; menu_option_19 ; press_enter ;;
+    20) clear ; menu_option_20 ; press_enter ;;
     [Ii] ) clear ; info ; press_enter ;;
     [Qq] ) clear ; exit ;;
     * ) clear ; incorrect_selection ; press_enter ;;
