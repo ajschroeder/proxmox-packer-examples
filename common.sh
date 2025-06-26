@@ -1,3 +1,4 @@
+# shellcheck shell=sh
 follow_link() {
 	FILE="$1"
 	while [ -h "$FILE" ]; do
