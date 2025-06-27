@@ -29,3 +29,6 @@ manifests/*.json
 plugin.hwm
 plugin.pwd
 plugin.pwi
+
+# ignore logfiles but create folder
+logs/*
