@@ -200,6 +200,9 @@ The following table describes the directory structure.
 | **`builds`**    | Contains the templates, variables, and configuration files for the machine image builds. |
 | **`manifests`** | Manifests created after the completion of the machine image builds.                      |
 
+# Logging
+
+  > Packer Debug Logging is enabled, logs are stored in ./logs/packerlogs-<build type>-$(date +"%d-%m-%Y-%H%M")".txt for each run
 
 # Configuration
 
@@ -742,6 +745,7 @@ vm_os_timezone   = "UTC"
 vm_os_family     = "linux"
 vm_os_name       = "ubuntu"
 vm_os_version    = "22.04-lts"
+vm_id            = "10002"
 
 // Virtual Machine Guest Operating System Setting
 vm_os_type       = "l26"
@@ -779,6 +783,7 @@ vm_firmware_path         = "./OVMF.fd"
 >   - VirtIO SCSI storage device
 >   - VirtIO (paravirtualized) network card device
 >   - UEFI boot firmware
+>   - template vm ID per OS 10000-10018
 
 The defaults use VirtIO to balance out performance, compatibility, and ease of use. Feel free to change the storage and network controllers to suit your needs. However, if you change the storage or network controllers and run into issues you should change them back to defaults and try the builds again. I won't support any builds that don't use the VirtIO drivers.
 
