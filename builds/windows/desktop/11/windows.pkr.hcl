@@ -72,6 +72,7 @@ source "proxmox-iso" "windows-desktop-pro" {
   os              = var.vm_os_type
   qemu_agent      = true
   scsi_controller = var.vm_disk_controller_type
+  vm_id           = var.vm_id_number
 
   disks {
     disk_size     = var.vm_disk_size

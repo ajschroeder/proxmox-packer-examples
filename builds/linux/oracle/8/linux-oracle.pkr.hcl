@@ -122,6 +122,7 @@ source "proxmox-iso" "linux-oracle" {
   memory          = "${var.vm_mem_size}"
   os              = "${var.vm_os_type}"
   scsi_controller = "${var.vm_disk_controller_type}"
+  vm_id           = var.vm_id_number
 
   disks {
     disk_size     = "${var.vm_disk_size}"

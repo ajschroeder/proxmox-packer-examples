@@ -88,6 +88,12 @@ variable "vm_bios" {
   }
 }
 
+variable "vm_id_number" {
+  type        = string
+  description = "standardized template number."
+  default = "10014"
+}  
+
 variable "vm_firmware_path" {
   type        = string
   description = "The firmware file to be used. Needed for EFI"

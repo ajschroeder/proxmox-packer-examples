@@ -26,6 +26,7 @@ vm_disk_size            = "32G"
 vm_disk_format          = "raw"
 vm_disk_controller_type = "virtio-scsi-pci"
 vm_network_card_model   = "virtio"
+vm_id                   = "10009"
 
 // Removable Media Settings
 iso_path     = "iso"
