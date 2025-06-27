@@ -204,7 +204,7 @@ The following table describes the directory structure.
 
 - Packer Debug Logging is enabled, logs are stored in ./logs/packerlogs-<build type>-$(date +"%d-%m-%Y-%H%M")".txt for each run
 
-  > to disable, comment out line 45 `export PACKER_LOG=1` or change the `1` to a `0`
+  > to disable, comment out line 45 `export PACKER_LOG=1` or change the `1` to a `0` in ./build.sh
 
 # Configuration
 
