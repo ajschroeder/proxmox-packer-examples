@@ -94,6 +94,12 @@ variable "vm_firmware_path" {
   default     = "/usr/share/ovmf/OVMF.fd"
 }
 
+variable "vm_id_number" {
+  type        = string
+  description = "standardized template number."
+  default = "10002"
+}
+
 variable "vm_efi_storage_pool" {
   type        = string
   description = "Set the UEFI disk storage location. (e.g. 'local-lvm')"

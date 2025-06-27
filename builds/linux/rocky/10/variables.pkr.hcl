@@ -311,3 +311,9 @@ variable "additional_packages" {
   description = "Additional packages to install."
   default     = []
 }
+
+variable "vm_id_number" {
+  type        = string
+  description = "standardized template number."
+  default = "10004"
+}

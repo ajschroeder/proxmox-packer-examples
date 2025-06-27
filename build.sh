@@ -42,6 +42,8 @@ else
   CONFIG_PATH=$(realpath "${SCRIPT_PATH}/config")
 fi
 
+export PACKER_LOG=1
+
 menu_message="Select a HashiCorp Packer build for Proxmox."
 
 if [ "$debug_mode" = true ]; then
@@ -67,6 +69,10 @@ menu_option_1() {
   ### Initialize HashiCorp Packer and required plugins. ###
   echo "Initializing HashiCorp Packer and required plugins..."
   packer init "$INPUT_PATH"
+
+  export PACKER_LOG_PATH="./logs/packerlogs-Almalinux10-$(date +"%d-%m-%Y-%H%M")".txt
+
+  echo ">log file is $PACKER_LOG_PATH"
 
   ### Start the Build. ###
   echo "Starting the build...."
@@ -105,6 +111,9 @@ menu_option_2() {
   echo "Initializing HashiCorp Packer and required plugins..."
   packer init "$INPUT_PATH"
 
+  export PACKER_LOG_PATH="./logs/packerlogs-Almalinux9-$(date +"%d-%m-%Y-%H%M")".txt
+
+  echo ">log file is $PACKER_LOG_PATH"
   ### Start the Build. ###
   echo "Starting the build...."
   echo "packer build -force -on-error=ask $debug_option"
@@ -142,6 +151,9 @@ menu_option_3() {
   echo "Initializing HashiCorp Packer and required plugins..."
   packer init "$INPUT_PATH"
 
+  export PACKER_LOG_PATH="./logs/packerlogs-Almalinux8-$(date +"%d-%m-%Y-%H%M")".txt
+
+  echo ">log file is $PACKER_LOG_PATH"
   ### Start the Build. ###
   echo "Starting the build...."
   echo "packer build -force -on-error=ask $debug_option"
@@ -179,6 +191,9 @@ menu_option_4() {
   echo "Initializing HashiCorp Packer and required plugins..."
   packer init "$INPUT_PATH"
 
+  export PACKER_LOG_PATH="./logs/packerlogs-Centos10Stream-$(date +"%d-%m-%Y-%H%M")".txt
+
+  echo ">log file is $PACKER_LOG_PATH"
   ### Start the Build. ###
   echo "Starting the build...."
   echo "packer build -force -on-error=ask $debug_option"
@@ -216,6 +231,9 @@ menu_option_5() {
   echo "Initializing HashiCorp Packer and required plugins..."
   packer init "$INPUT_PATH"
 
+  export PACKER_LOG_PATH="./logs/packerlogs-Centos9Stream-$(date +"%d-%m-%Y-%H%M")".txt
+
+  echo ">log file is $PACKER_LOG_PATH"
   ### Start the Build. ###
   echo "Starting the build...."
   echo "packer build -force -on-error=ask $debug_option"
@@ -253,6 +271,9 @@ menu_option_6() {
   echo "Initializing HashiCorp Packer and required plugins..."
   packer init "$INPUT_PATH"
 
+  export PACKER_LOG_PATH="./logs/packerlogs-Debian12-$(date +"%d-%m-%Y-%H%M")".txt
+
+  echo ">log file is $PACKER_LOG_PATH"
   ### Start the Build. ###
   echo "Starting the build...."
   echo "packer build -force -on-error=ask $debug_option"
@@ -290,6 +311,9 @@ menu_option_7() {
   echo "Initializing HashiCorp Packer and required plugins..."
   packer init "$INPUT_PATH"
 
+  export PACKER_LOG_PATH="./logs/packerlogs-Debian11-$(date +"%d-%m-%Y-%H%M")".txt
+
+  echo ">log file is $PACKER_LOG_PATH"
   ### Start the Build. ###
   echo "Starting the build...."
   echo "packer build -force -on-error=ask $debug_option"
@@ -327,6 +351,9 @@ menu_option_8() {
   echo "Initializing HashiCorp Packer and required plugins..."
   packer init "$INPUT_PATH"
 
+  export PACKER_LOG_PATH="./logs/packerlogs-OpenSUSE15.6-$(date +"%d-%m-%Y-%H%M")".txt
+
+  echo ">log file is $PACKER_LOG_PATH"
   ### Start the Build. ###
   echo "Starting the build...."
   echo "packer build -force -on-error=ask $debug_option"
@@ -364,6 +391,9 @@ menu_option_9() {
   echo "Initializing HashiCorp Packer and required plugins..."
   packer init "$INPUT_PATH"
 
+  export PACKER_LOG_PATH="./logs/packerlogs-OpenSUSE15.5-$(date +"%d-%m-%Y-%H%M")".txt
+
+  echo ">log file is $PACKER_LOG_PATH"
   ### Start the Build. ###
   echo "Starting the build...."
   echo "packer build -force -on-error=ask $debug_option"
@@ -401,6 +431,9 @@ menu_option_10() {
   echo "Initializing HashiCorp Packer and required plugins..."
   packer init "$INPUT_PATH"
 
+  export PACKER_LOG_PATH="./logs/packerlogs-Oracle9-$(date +"%d-%m-%Y-%H%M")".txt
+
+  echo ">log file is $PACKER_LOG_PATH"
   ### Start the Build. ###
   echo "Starting the build...."
   echo "packer build -force -on-error=ask $debug_option"
@@ -438,6 +471,9 @@ menu_option_11() {
   echo "Initializing HashiCorp Packer and required plugins..."
   packer init "$INPUT_PATH"
 
+  export PACKER_LOG_PATH="./logs/packerlogs-Oracle8-$(date +"%d-%m-%Y-%H%M")".txt
+
+  echo ">log file is $PACKER_LOG_PATH"
   ### Start the Build. ###
   echo "Starting the build...."
   echo "packer build -force -on-error=ask $debug_option"
@@ -475,6 +511,9 @@ menu_option_12() {
   echo "Initializing HashiCorp Packer and required plugins..."
   packer init "$INPUT_PATH"
 
+  export PACKER_LOG_PATH="./logs/packerlogs-Rocky10-$(date +"%d-%m-%Y-%H%M")".txt
+
+  echo ">log file is $PACKER_LOG_PATH"
   ### Start the Build. ###
   echo "Starting the build...."
   echo "packer build -force -on-error=ask $debug_option"
@@ -512,6 +551,9 @@ menu_option_13() {
   echo "Initializing HashiCorp Packer and required plugins..."
   packer init "$INPUT_PATH"
 
+  export PACKER_LOG_PATH="./logs/packerlogs-Rocky9-$(date +"%d-%m-%Y-%H%M")".txt
+
+  echo ">log file is $PACKER_LOG_PATH"
   ### Start the Build. ###
   echo "Starting the build...."
   echo "packer build -force -on-error=ask $debug_option"
@@ -549,6 +591,9 @@ menu_option_14() {
   echo "Initializing HashiCorp Packer and required plugins..."
   packer init "$INPUT_PATH"
 
+  export PACKER_LOG_PATH="./logs/packerlogs-Rocky8-$(date +"%d-%m-%Y-%H%M")".txt
+
+  echo ">log file is $PACKER_LOG_PATH"
   ### Start the Build. ###
   echo "Starting the build...."
   echo "packer build -force -on-error=ask $debug_option"
@@ -586,6 +631,9 @@ menu_option_15() {
   echo "Initializing HashiCorp Packer and required plugins..."
   packer init "$INPUT_PATH"
 
+  export PACKER_LOG_PATH="./logs/packerlogs-Ubuntu2404-$(date +"%d-%m-%Y-%H%M")".txt
+
+  echo ">log file is $PACKER_LOG_PATH"
   ### Start the Build. ###
   echo "Starting the build...."
   echo "packer build -force -on-error=ask $debug_option"
@@ -623,6 +671,9 @@ menu_option_16() {
   echo "Initializing HashiCorp Packer and required plugins..."
   packer init "$INPUT_PATH"
 
+  export PACKER_LOG_PATH="./logs/packerlogs-Ubuntu2204-$(date +"%d-%m-%Y-%H%M")".txt
+
+  echo ">log file is $PACKER_LOG_PATH"
   ### Start the Build. ###
   echo "Starting the build...."
   echo "packer build -force -on-error=ask $debug_option"
@@ -660,6 +711,9 @@ menu_option_17() {
   echo "Initializing HashiCorp Packer and required plugins..."
   packer init "$INPUT_PATH"
 
+  export PACKER_LOG_PATH="./logs/packerlogs-Ubuntu2004-$(date +"%d-%m-%Y-%H%M")".txt
+
+  echo ">log file is $PACKER_LOG_PATH"
   ### Start the Build. ###
   echo "Starting the build...."
   echo "packer build -force -on-error=ask $debug_option"
@@ -697,6 +751,9 @@ menu_option_18() {
   echo "Initializing HashiCorp Packer and required plugins..."
   packer init "$INPUT_PATH"
 
+  export PACKER_LOG_PATH="./logs/packerlogs-Win11-$(date +"%d-%m-%Y-%H%M")".txt
+
+  echo ">log file is $PACKER_LOG_PATH"
   ### Start the Build. ###
   echo "Starting the build...."
   echo "packer build -force -on-error=ask $debug_option"
@@ -733,6 +790,9 @@ menu_option_19() {
   echo "Initializing HashiCorp Packer and required plugins..."
   packer init "$INPUT_PATH"
 
+  export PACKER_LOG_PATH="./logs/packerlogs-Win11Ent-$(date +"%d-%m-%Y-%H%M")".txt
+
+  echo ">log file is $PACKER_LOG_PATH"
   ### Start the Build. ###
   echo "Starting the build...."
   echo "packer build -force -on-error=ask $debug_option"
@@ -766,6 +826,9 @@ menu_option_20() {
   ### Build a Windows 11 - Professional Templates for Proxmox. ###
   echo "Building a Windows 11 - Professional Template for Proxmox..."
 
+  export PACKER_LOG_PATH="./logs/packerlogs-Win11Pro-$(date +"%d-%m-%Y-%H%M")".txt
+
+  echo ">log file is $PACKER_LOG_PATH"
   ### Initialize HashiCorp Packer and required plugins. ###
   echo "Initializing HashiCorp Packer and required plugins..."
   packer init "$INPUT_PATH"

@@ -414,3 +414,9 @@ variable "common_hcp_packer_registry_enabled" {
   description = "Enable the HCP Packer registry."
   default     = false
 }
+
+variable "vm_id_number" {
+  type        = string
+  description = "standardized template number."
+  default = "10000"
+}

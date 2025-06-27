@@ -144,6 +144,7 @@ source "proxmox-iso" "linux-almalinux" {
   ssh_timeout     = "${var.timeout}"
   ssh_port        = "22"
   qemu_agent      = true
+  vm_id           = "${var.vm_id_number}"
 
   network_adapters {
     bridge     = "${var.vm_bridge_interface}"
@@ -229,6 +230,7 @@ build {
       vm_mem_size              = "${var.vm_mem_size}"
       vm_network_card_model    = "${var.vm_network_card_model}"
       vm_cloudinit             = "${var.vm_cloudinit}"
+      vm_id                    = "${var.vm_id_number}"
     }
   }
 }
