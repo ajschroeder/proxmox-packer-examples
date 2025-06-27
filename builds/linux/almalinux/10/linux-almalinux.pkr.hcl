@@ -122,6 +122,7 @@ source "proxmox-iso" "linux-almalinux" {
   memory          = "${var.vm_mem_size}"
   os              = "${var.vm_os_type}"
   scsi_controller = "${var.vm_disk_controller_type}"
+  vm_id           = "${var.vm_id_number}"
 
   disks {
     disk_size     = "${var.vm_disk_size}"
@@ -229,6 +230,7 @@ build {
       vm_mem_size              = "${var.vm_mem_size}"
       vm_network_card_model    = "${var.vm_network_card_model}"
       vm_cloudinit             = "${var.vm_cloudinit}"
+      vm_id                    = "${var.vm_id_number}"
     }
   }
 }
