@@ -39,6 +39,7 @@ The following builds are available:
 | Rocky Linux      | 10        | &check;               | &check;            | &check;            | &check;            |
 | Rocky Linux      | 9         | &check;               | &check;            | &check;            | &check;            |
 | Rocky Linux      | 8         | &check;               | &check;            | &check;            | &check;            |
+| Ubuntu Server    | 25.04 LTS | &check;               | &check;            | &check;            | &check;            |
 | Ubuntu Server    | 24.04 LTS | &check;               | &check;            | &check;            | &check;            |
 | Ubuntu Server    | 22.04 LTS | &check;               | &check;            | &check;            | &check;            |
 | Ubuntu Server    | 20.04 LTS | &check;               | &check;            | &check;            | &check;            |

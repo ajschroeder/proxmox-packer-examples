@@ -30,6 +30,7 @@ INPUT_PATHS=(
   "$SCRIPT_PATH/builds/linux/rocky/10/"
   "$SCRIPT_PATH/builds/linux/rocky/9/"
   "$SCRIPT_PATH/builds/linux/rocky/8/"
+  "$SCRIPT_PATH/builds/linux/ubuntu/25-04-lts/"
   "$SCRIPT_PATH/builds/linux/ubuntu/24-04-lts/"
   "$SCRIPT_PATH/builds/linux/ubuntu/22-04-lts/"
   "$SCRIPT_PATH/builds/linux/ubuntu/20-04-lts/"
