@@ -1,7 +1,0 @@
----
-
-- name: "{{ task_name }}"
-  include_tasks: linux.yml
-  when: ansible_os_family in ['Debian', 'RedHat', 'Suse']
-
-...

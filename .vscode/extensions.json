@@ -1,7 +1,0 @@
-{
-    "recommendations": [
-        "hashicorp.hcl", // HCL
-        "redhat.ansible", // Ansible
-        "vscode.json-language-features" // JSON
-    ]
-}

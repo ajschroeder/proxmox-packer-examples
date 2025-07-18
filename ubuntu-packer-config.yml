@@ -1,0 +1,38 @@
+###############################
+## /ubuntu-packer-config.yml ##
+###############################
+#
+# Ansible playbook to be ran against hosts after Packer provisioning.
+
+---
+- hosts: all
+  gather_facts: yes
+  become: yes
+  tasks:
+    - name: Create ubuntu user
+      user:
+        name: pirate
+        state: present
+        # generate_ssh_key: yes
+        home: /home/pirate
+        create_home: true
+
+    - name: Grant ubuntu Sudo Permissions
+      lineinfile:
+        path: /etc/sudoers
+        state: present
+        line: 'pirate ALL=(ALL) ALL'
+        validate: 'visudo -cf %s'
+
+    - name: Set ubuntu user password - be sure to do this last!
+      user:
+        name: pirate
+        state: present
+        password: "{{ '12qwaszx!@QWASZX' | password_hash('sha512') }}"
+    
+    - name: Add key to ssh_authorized_keys
+      authorized_key:
+        user: pirate
+        state: present
+        key: "{{ lookup('file', '/home/pirate/.ssh/id_ed25519.pub') }}"
+

@@ -1,0 +1,11 @@
+proxmox_api_url             = "https://192.168.1.1:8006/api2/json"
+proxmox_api_token_id        = "root@pam!packer"
+proxmox_api_token_secret    = ""
+proxmox_node                = "pve"
+ssh_user                    = "ubuntu"
+ssh_pass                    = "SUPERsecretpassword"
+ssh_private_key_file        = "~/.ssh/id_rsa"
+storage                     = "local-lvm"
+vlan_tag                    = "" # keep blank for no vlan
+build_key                   = "~/.ssh/id_rsa"
+build_passwd_local          = "SUPERsecretpassword"
