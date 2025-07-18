@@ -1,4 +1,4 @@
 Ubuntu24/http/user-data
-Ubuntu24/logs/*
+Ubuntu24/logs/packerlogs*
 Ubuntu24/vars.pkvars.hcl
 Ubuntu24/ubuntu_personal_config.yml
