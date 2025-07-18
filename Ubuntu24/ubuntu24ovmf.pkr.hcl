@@ -56,7 +56,7 @@ variable "build_passwd_local" {
 
 variable "ansible_provisioner_playbook_path" {
     type = string
-    default = "ubuntu-packer-config.yml"
+    default = "files/ubuntu-docker-install.yml"
 }
 variable "storage" {
     type = string
@@ -76,7 +76,7 @@ locals {
   data_source_command = "ds=\"nocloud;seedfrom=http://{{.HTTPIP}}:{{.HTTPPort}}/\""
 }
 
-source "proxmox-iso" "ubuntu-tpl" {
+source "proxmox-iso" "ubuntu-server-noble-docker" {
 
     proxmox_url = "${var.proxmox_api_url}"
     insecure_skip_tls_verify = true
@@ -105,10 +105,10 @@ source "proxmox-iso" "ubuntu-tpl" {
     cloud_init_storage_pool = "${var.storage}"  
 
     qemu_agent = true
-    # tpm_config {
-    #   tpm_version 	    = "v2.0"
-    #   tpm_storage_pool  = "${var.storage}"
-    # }
+    tpm_config {
+      tpm_version 	    = "v2.0"
+      tpm_storage_pool  = "${var.storage}"
+    }
     cpu_type = "host"
     cores = "2"
     memory = "4096"
@@ -126,7 +126,9 @@ source "proxmox-iso" "ubuntu-tpl" {
     }
     communicator        = "ssh"
     ssh_username        = "${var.ssh_user}"
-    ssh_private_key_file = "${var.ssh_private_key_file}"
+    # ssh_private_key_file = "${var.ssh_private_key_file}"
+    ssh_password        = "${var.ssh_pass}"
+    ssh_port            = 22
     ssh_timeout         = "30m"
     ssh_handshake_attempts = "1000"
     boot_command        = [
@@ -139,17 +141,19 @@ source "proxmox-iso" "ubuntu-tpl" {
 }
 
 build {
-    sources = ["source.proxmox-iso.ubuntu-tpl"]
+    sources = ["source.proxmox-iso.ubuntu-server-noble-docker"]
 
-    # provisioner "ansible" {
-    # user          = var.ssh_user
-    # playbook_file = "${path.cwd}/${var.ansible_provisioner_playbook_path}"
-    # extra_arguments = [ "--scp-extra-args", "'-O'" ]
-    # ansible_env_vars = [
-    #   "ANSIBLE_CONFIG=${path.cwd}/ansible.cfg",
-    #   "ANSIBLE_PYTHON_INTERPRETER=/usr/bin/python3"
-    # ]
-  # }
+    provisioner "ansible" {
+    user          = var.ssh_user
+    playbook_file = "${var.ansible_provisioner_playbook_path}"
+    extra_arguments = [ "--scp-extra-args", "'-O'" ]
+    galaxy_file = "files/ansiblerequirements.yml"
+    ansible_env_vars = [
+      "ANSIBLE_CONFIG=${path.cwd}/ansible.cfg",
+      "ANSIBLE_PYTHON_INTERPRETER=/usr/bin/python3"
+
+    ]
+  }
     provisioner "shell" {
       inline = [
           "while [ ! -f /var/lib/cloud/instance/boot-finished ]; do echo 'Waiting for cloud-init...'; sleep 1; done",
@@ -163,12 +167,5 @@ build {
           "sudo sync"
       ]
   }
-    provisioner "shell" {
-        inline = [
-            "sudo apt-get install -y ca-certificates curl gnupg lsb-release",
-            "curl -s 'https://raw.githubusercontent.com/traefikturkey/onvoy/master/ubuntu/bash/docker_server_setup.sh?$(date +%s)' | /bin/bash -s | tee ~/docker_build.log'"
-        ]
-    }
-
 }
 

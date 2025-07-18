@@ -10,12 +10,11 @@ By default, the machine image artifacts are converted to templates within Proxmo
        command:  `cp Ubuntu24/vars.pkvars.pkr.hcl.example Ubuntu24/vars.pkvars.pkr.hcl`
 2. Copy the user-data file and fill it in with your appropriate information
        command: `cp Ubuntu24/http/user-data.example Ubuntu24/http/user-data`
-3. run Ubuntu24/build.sh, the default is for a UEFI based image
-       For a seabios based template, run `Ubuntu24/build.sh bios`
-       Otherwise, just run `Ubuntu24/build.sh`
+3. cd into the Ubuntu24 directory `cd Ubuntu24/` 
+4. run Ubuntu24/build.sh, the default is for a UEFI based image
+       For a seabios based template, run `build.sh bios`
+       Otherwise, just run `build.sh`
 
 ## Opinionated selections
-This image install Docker via the [Onvoy Ubuntu Docker install script]("https://raw.githubusercontent.com/traefikturkey/onvoy/master/ubuntu/bash/docker_server_setup.sh) as well as the option to confirgure via ansible provisioner.
-
-
+This image install Docker via the [Traefikturkey Onramp Docker install playbook](https://github.com/traefikturkey/onramp/blob/master/ansible/install-docker.yml)
 
