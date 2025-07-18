@@ -20,5 +20,8 @@ These templates are specifically built for usage with Terraform deployments via 
 ## Opinionated selections
 This image install Docker via the [Traefikturkey Onramp Docker install playbook](https://github.com/traefikturkey/onramp/blob/master/ansible/install-docker.yml)
 
+## Terraform example
+A working Terraform example is provided for a uefi based clone of the OFMF/UEFI template
+
 ## Upcoming
 Refer to [Issues](https://github.com/traefikturkey/proxmox-packer-examples/issues) for bugs, upcoming features, etc.
