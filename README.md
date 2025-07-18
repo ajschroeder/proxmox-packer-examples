@@ -15,4 +15,7 @@ By default, the machine image artifacts are converted to templates within Proxmo
        Otherwise, just run `Ubuntu24/build.sh`
 
 ## Opinionated selections
+This image install Docker via the [Onvoy Ubuntu Docker install script]("https://raw.githubusercontent.com/traefikturkey/onvoy/master/ubuntu/bash/docker_server_setup.sh) as well as the option to confirgure via ansible provisioner.
+
+
 

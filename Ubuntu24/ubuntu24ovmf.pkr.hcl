@@ -149,7 +149,7 @@ build {
     #   "ANSIBLE_CONFIG=${path.cwd}/ansible.cfg",
     #   "ANSIBLE_PYTHON_INTERPRETER=/usr/bin/python3"
     # ]
-  }
+  # }
     provisioner "shell" {
       inline = [
           "while [ ! -f /var/lib/cloud/instance/boot-finished ]; do echo 'Waiting for cloud-init...'; sleep 1; done",
