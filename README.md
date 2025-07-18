@@ -4,6 +4,8 @@ This repository provides opinionated infrastructure-as-code examples to automate
 
 By default, the machine image artifacts are converted to templates within Proxmox after a virtual machine is built and configured according to the individual templates.
 
+These templates are specifically built for usage with Terraform deployments via cloud-init.
+
 ## Instructions
 
 1. Copy the variables file and fill it in with your appropriate information
@@ -18,3 +20,5 @@ By default, the machine image artifacts are converted to templates within Proxmo
 ## Opinionated selections
 This image install Docker via the [Traefikturkey Onramp Docker install playbook](https://github.com/traefikturkey/onramp/blob/master/ansible/install-docker.yml)
 
+## Upcoming
+Refer to [Issues](https://github.com/traefikturkey/proxmox-packer-examples/issues) for bugs, upcoming features, etc.
