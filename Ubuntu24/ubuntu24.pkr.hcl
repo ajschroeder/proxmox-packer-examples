@@ -128,6 +128,15 @@ build {
     name = "ubuntu-server-noble-docker"
     sources = ["source.proxmox-iso.ubuntu-server-noble-docker"]
 
+    # provisioner "ansible" {
+    # user          = var.ssh_user
+    # playbook_file = "${path.cwd}/${var.ansible_provisioner_playbook_path}"
+    # extra_arguments = [ "--scp-extra-args", "'-O'" ]
+    # ansible_env_vars = [
+    #   "ANSIBLE_CONFIG=${path.cwd}/ansible.cfg",
+    #   "ANSIBLE_PYTHON_INTERPRETER=/usr/bin/python3"
+    # ]
+
     # Provisioning the VM Template for Cloud-Init Integration in Proxmox #1
     provisioner "shell" {
         inline = [

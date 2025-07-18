@@ -141,14 +141,14 @@ source "proxmox-iso" "ubuntu-tpl" {
 build {
     sources = ["source.proxmox-iso.ubuntu-tpl"]
 
-    provisioner "ansible" {
-    user          = var.ssh_user
-    playbook_file = "${path.cwd}/${var.ansible_provisioner_playbook_path}"
-    extra_arguments = [ "--scp-extra-args", "'-O'" ]
-    ansible_env_vars = [
-      "ANSIBLE_CONFIG=${path.cwd}/ansible.cfg",
-      "ANSIBLE_PYTHON_INTERPRETER=/usr/bin/python3"
-    ]
+    # provisioner "ansible" {
+    # user          = var.ssh_user
+    # playbook_file = "${path.cwd}/${var.ansible_provisioner_playbook_path}"
+    # extra_arguments = [ "--scp-extra-args", "'-O'" ]
+    # ansible_env_vars = [
+    #   "ANSIBLE_CONFIG=${path.cwd}/ansible.cfg",
+    #   "ANSIBLE_PYTHON_INTERPRETER=/usr/bin/python3"
+    # ]
   }
     provisioner "shell" {
       inline = [
