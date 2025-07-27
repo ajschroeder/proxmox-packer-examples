@@ -1,0 +1,40 @@
+#cloud-config
+autoinstall:
+  version: 1
+  early-commands:
+    # keeps Packer from timin gout
+    - sudo systemctl stop ssh
+  locale: en_US
+  keyboard:
+    layout: us
+  timezone: America/Chicago # TZ Identifier from: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  ssh:
+    install-server: yes
+    allow-pw: yes
+    ssh_authorized_keys:
+      - ssh-ed25519 
+  packages:
+    [
+      apt-transport-https,
+      ca-certificates,
+      software-properties-common,
+      qemu-guest-agent,
+      cloud-init,
+    ]
+  storage:
+    layout:
+      name: lvm
+  user-data:
+    users:
+      - name: ubuntu
+        gecos: "User Name"
+        # Get the hash of your password with `echo 'PASSWORD' | mkpasswd -m sha-512 -s`
+        passwd: "$6$N7rPV1DVrYX/T/03$Tgde5be.iWWi8MGObTn2XUnT6izIOXGemX7H5xpZqM3Y4SpKhq3dr89whe9jYchBZyI7xHykBMmmB47Cn0xiz/"
+        groups: users, sudo
+        shell: /bin/bash
+        lock_passwd: False
+  late-commands:
+    - echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/ubuntu
+    - curtin in-target --target=/target -- chmod 440 /etc/sudoers.d/ubuntu
+    - sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config #Optional
+    - sudo systemctl restart ssh

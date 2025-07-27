@@ -1,31 +1,4 @@
-# Ansible and ansible-lint
-**/.ansible
-
-!**/template_*
-**/credentials*
-
-# Configurations
-# Ignore default config directory.
-config/
-
-# Manifests
-# Ignore manifests directory.
-manifests/*.json
-
-# MacOS
-# Ignore desktop services files.
-**/.DS_Store
-
-# Certificates and Keys
-# Ignore certificates files.
-**/*.cer
-**/*.crt
-**/*.p7b
-
-# Ignore public key files
-**/*.pub
-
-# Ignore packer plugin files
-plugin.hwm
-plugin.pwd
-plugin.pwi
+Ubuntu24/http/user-data
+Ubuntu24/logs/packerlogs*
+Ubuntu24/vars.pkvars.hcl
+Ubuntu24/ubuntu-personal*
