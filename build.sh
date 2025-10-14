@@ -567,11 +567,11 @@ menu_option_14() {
 }
 
 menu_option_15() {
-  INPUT_PATH="$SCRIPT_PATH"/builds/linux/ubuntu/25-04-lts/
+  INPUT_PATH="$SCRIPT_PATH"/builds/linux/ubuntu/25-04/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
 
-  echo -e "\nCONFIRM: Build a Ubuntu Server 25.04 LTS Template for Proxmox?"
+  echo -e "\nCONFIRM: Build a Ubuntu Server 25.04 Template for Proxmox?"
   echo -e "\nContinue? (y/n)"
   read -r REPLY
   if [[ ! $REPLY =~ ^[Yy]$ ]]
@@ -579,8 +579,8 @@ menu_option_15() {
     exit 1
   fi
 
-  ### Build a Ubuntu Server 25.04 LTS Template for Proxmox. ###
-  echo "Building a Ubuntu Server 25.04 LTS Template for Proxmox..."
+  ### Build a Ubuntu Server 25.04 Template for Proxmox. ###
+  echo "Building a Ubuntu Server 25.04 Template for Proxmox..."
 
   ### Initialize HashiCorp Packer and required plugins. ###
   echo "Initializing HashiCorp Packer and required plugins..."
@@ -873,7 +873,7 @@ until [ "$selection" = "0" ]; do
   echo "       12 -  Rocky Linux 10"
   echo "       13 -  Rocky Linux 9"
   echo "       14 -  Rocky Linux 8"
-  echo "       15 -  Ubuntu Server 25.04 LTS"
+  echo "       15 -  Ubuntu Server 25.04"
   echo "       16 -  Ubuntu Server 24.04 LTS"
   echo "       17 -  Ubuntu Server 22.04 LTS"
   echo "       18 -  Ubuntu Server 20.04 LTS"
