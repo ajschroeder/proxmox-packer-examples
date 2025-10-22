@@ -567,6 +567,43 @@ menu_option_14() {
 }
 
 menu_option_15() {
+  INPUT_PATH="$SCRIPT_PATH"/builds/linux/ubuntu/25-04/
+  BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
+  BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
+
+  echo -e "\nCONFIRM: Build a Ubuntu Server 25.04 Template for Proxmox?"
+  echo -e "\nContinue? (y/n)"
+  read -r REPLY
+  if [[ ! $REPLY =~ ^[Yy]$ ]]
+  then
+    exit 1
+  fi
+
+  ### Build a Ubuntu Server 25.04 Template for Proxmox. ###
+  echo "Building a Ubuntu Server 25.04 Template for Proxmox..."
+
+  ### Initialize HashiCorp Packer and required plugins. ###
+  echo "Initializing HashiCorp Packer and required plugins..."
+  packer init "$INPUT_PATH"
+
+  ### Start the Build. ###
+  echo "Starting the build...."
+  echo "packer build -force -on-error=ask $debug_option"
+  packer build -force -on-error=ask $debug_option \
+      -var-file="$CONFIG_PATH/ansible.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/build.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/common.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/linux-storage.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/network.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/proxmox.pkrvars.hcl" \
+      -var-file="$CONFIG_PATH/$BUILD_VARS" \
+      "$INPUT_PATH"
+
+  ### All done. ###
+  echo "Done."
+}
+
+menu_option_16() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/ubuntu/24-04-lts/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -603,7 +640,8 @@ menu_option_15() {
   echo "Done."
 }
 
-menu_option_16() {
+
+menu_option_17() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/ubuntu/22-04-lts/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -640,7 +678,7 @@ menu_option_16() {
   echo "Done."
 }
 
-menu_option_17() {
+menu_option_18() {
   INPUT_PATH="$SCRIPT_PATH"/builds/linux/ubuntu/20-04-lts/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -677,7 +715,7 @@ menu_option_17() {
   echo "Done."
 }
 
-menu_option_18() {
+menu_option_19() {
   INPUT_PATH="$SCRIPT_PATH"/builds/windows/desktop/11/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -713,7 +751,7 @@ menu_option_18() {
   echo "Done."
 }
 
-menu_option_19() {
+menu_option_20() {
   INPUT_PATH="$SCRIPT_PATH"/builds/windows/desktop/11/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -750,7 +788,7 @@ menu_option_19() {
   echo "Done."
 }
 
-menu_option_20() {
+menu_option_21() {
   INPUT_PATH="$SCRIPT_PATH"/builds/windows/desktop/11/
   BUILD_PATH=${INPUT_PATH#"${SCRIPT_PATH}/builds/"}
   BUILD_VARS="$(echo "${BUILD_PATH%/}" | tr -s '/' | tr '/' '-').pkrvars.hcl"
@@ -810,6 +848,8 @@ until [ "$selection" = "0" ]; do
   echo ""
   echo "    ____                __                  ____                                             "
   echo "   / __ \ ____ _ _____ / /__ ___   _____   / __ \ _____ ____   _  __ ____ ___   ____   _  __ "
+# Don't want to expand this non-expression, it's just ANSI art
+# shellcheck disable=SC2016
   echo '  / /_/ // __ `// ___// //_// _ \ / ___/  / /_/ // ___// __ \ | |/_// __ `__ \ / __ \ | |/_/ '
   echo " / ____// /_/ // /__ / ,<  /  __// /     / ____// /   / /_/ /_>  < / / / / / // /_/ /_>  <   "
   echo '/_/     \__,_/ \___//_/|_| \___//_/     /_/    /_/    \____//_/|_|/_/ /_/ /_/ \____//_/|_|   '
@@ -833,12 +873,13 @@ until [ "$selection" = "0" ]; do
   echo "       12 -  Rocky Linux 10"
   echo "       13 -  Rocky Linux 9"
   echo "       14 -  Rocky Linux 8"
-  echo "       15 -  Ubuntu Server 24.04 LTS"
-  echo "       16 -  Ubuntu Server 22.04 LTS"
-  echo "       17 -  Ubuntu Server 20.04 LTS"
-  echo "       18 -  Windows 11 - All"
-  echo "       19 -  Windows 11 - Enterprise Only"
-  echo "       20 -  Windows 11 - Professional Only"
+  echo "       15 -  Ubuntu Server 25.04"
+  echo "       16 -  Ubuntu Server 24.04 LTS"
+  echo "       17 -  Ubuntu Server 22.04 LTS"
+  echo "       18 -  Ubuntu Server 20.04 LTS"
+  echo "       19 -  Windows 11 - All"
+  echo "       20 -  Windows 11 - Enterprise Only"
+  echo "       21 -  Windows 11 - Professional Only"
   echo ""
   echo "      Other:"
   echo ""
@@ -868,6 +909,7 @@ until [ "$selection" = "0" ]; do
     18) clear ; menu_option_18 ; press_enter ;;
     19) clear ; menu_option_19 ; press_enter ;;
     20) clear ; menu_option_20 ; press_enter ;;
+    21) clear ; menu_option_21 ; press_enter ;;
     [Ii] ) clear ; info ; press_enter ;;
     [Qq] ) clear ; exit ;;
     * ) clear ; incorrect_selection ; press_enter ;;

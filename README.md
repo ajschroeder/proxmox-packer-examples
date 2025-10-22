@@ -39,6 +39,7 @@ The following builds are available:
 | Rocky Linux      | 10        | &check;               | &check;            | &check;            | &check;            |
 | Rocky Linux      | 9         | &check;               | &check;            | &check;            | &check;            |
 | Rocky Linux      | 8         | &check;               | &check;            | &check;            | &check;            |
+| Ubuntu Server    | 25.04     | &check;               | &check;            | &check;            | &check;            |
 | Ubuntu Server    | 24.04 LTS | &check;               | &check;            | &check;            | &check;            |
 | Ubuntu Server    | 22.04 LTS | &check;               | &check;            | &check;            | &check;            |
 | Ubuntu Server    | 20.04 LTS | &check;               | &check;            | &check;            | &check;            |
@@ -188,8 +189,8 @@ Operating systems and versions tested with the project:
 After installing the required software, the quickest way to get building is to clone this repository.
 
 ```shell
-git clone https://github.com/ajschroeder/packer-examples-for-proxmox.git
-cd packer-examples-for-proxmox
+git clone https://github.com/ajschroeder/proxmox-packer-examples.git
+cd proxmox-packer-examples
 ```
 
 The following table describes the directory structure.
