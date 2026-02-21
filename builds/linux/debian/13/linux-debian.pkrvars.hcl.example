@@ -1,6 +1,6 @@
 /*
     DESCRIPTION:
-    Debian 12 variables used by the Packer Plugin for Proxmox (proxmox-iso).
+    Debian 13 variables used by the Packer Plugin for Proxmox (proxmox-iso).
 */
 
 // Guest Operating System Metadata
@@ -9,7 +9,7 @@ vm_os_keyboard   = "us"
 vm_os_timezone   = "UTC"
 vm_os_family     = "linux"
 vm_os_name       = "debian"
-vm_os_version    = "12"
+vm_os_version    = "13"
 
 // Virtual Machine Guest Operating System Setting
 vm_os_type       = "l26"
@@ -29,8 +29,8 @@ vm_network_card_model   = "virtio"
 
 // Removable Media Settings
 iso_path     = "iso"
-iso_file     = "debian-12.12.0-amd64-netinst.iso"
-iso_checksum = "file:https://cdimage.debian.org/images/archive/12.12.0/amd64/iso-cd/SHA512SUMS"
+iso_file     = "debian-13.2.0-amd64-netinst.iso"
+iso_checksum = "file:https://cdimage.debian.org/debian-cd/13.2.0/amd64/iso-cd/SHA512SUMS"
 
 // Boot Settings
 vm_boot      = "order=virtio0;ide2;net0"
