@@ -141,7 +141,6 @@ source "proxmox-iso" "linux-centos-stream" {
   ssh_username    = "${var.build_username}"
   ssh_password    = "${var.build_password}"
   ssh_timeout     = "${var.timeout}"
-  ssh_port        = "22"
   qemu_agent      = true
 
   network_adapters {
