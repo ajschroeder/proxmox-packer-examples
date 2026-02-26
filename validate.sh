@@ -21,6 +21,7 @@ INPUT_PATHS=(
   "$SCRIPT_PATH/builds/linux/almalinux/8/"
   "$SCRIPT_PATH/builds/linux/centos/10-stream/"
   "$SCRIPT_PATH/builds/linux/centos/9-stream/"
+  "$SCRIPT_PATH/builds/linux/debian/13/"
   "$SCRIPT_PATH/builds/linux/debian/12/"
   "$SCRIPT_PATH/builds/linux/debian/11/"
   "$SCRIPT_PATH/builds/linux/opensuse/leap-15-6/"
