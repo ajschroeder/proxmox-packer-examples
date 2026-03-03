@@ -14,27 +14,47 @@
 
 // BIOS doesn't need EFI settings, but Packer does
 // VM EFI Settings
-vm_efi_storage_pool      = ""
-vm_efi_type              = ""
-vm_efi_pre_enrolled_keys = false
+vm_firmware              = "seabios"
 
 // VM Storage Settings
 vm_disk_device     = "vda"
-vm_disk_use_swap   = true
-vm_disk_partitions = [
-  {
-    name = "root"
-    size = -1,
-    format = {
-      label  = "ROOTFS",
-      fstype = "ext4",
-    },
-    mount = {
-      path    = "/",
-      options = "",
-    },
-    volume_group = "",
+vm_disk_layout = [
+   {
+    name    = "grub"
+    size    = 1
+    role    = "bios_grub"
+    vg_name = ""
+    filesystem = {
+      fstype  = "bios_grub"
+      label   = "GRUBFS"
+      mount   = ""
+      options = ""
+    }
   },
+   {
+    name    = "swap"
+    size    = 1024
+    role    = "swap"
+    vg_name = ""
+    filesystem = {
+      fstype  = "swap"
+      label   = "SWAPFS"
+      mount   = ""
+      options = ""
+    }
+  },
+  {
+    name    = "root"
+    size    = -1
+    role    = "filesystem"
+    vg_name = ""
+    filesystem = {
+      fstype  = "ext4"
+      label   = "ROOTFS"
+      mount   = "/"
+      options = ""
+    }
+  }
 ]
 */
 
@@ -44,208 +64,216 @@ vm_disk_partitions = [
 //  fills up the rest of the space on the VM disk.
 
 // VM EFI Settings
+vm_firmware              = "ovmf"
 vm_efi_storage_pool      = "pool0"
 vm_efi_type              = "4m"
 vm_efi_pre_enrolled_keys = false
 
 // VM Storage Settings
 vm_disk_device     = "vda"
-vm_disk_use_swap   = true
-vm_disk_partitions = [
+vm_disk_layout = [
   {
-    name = "efi"
-    size = 1024,
-    format = {
-      label  = "EFIFS",
-      fstype = "fat32",
-    },
-    mount = {
-      path    = "/boot/efi",
-      options = "",
-    },
-    volume_group = "",
+    name    = "efi"
+    size    = 1024
+    role    = "efi"
+    vg_name = ""
+    filesystem = {
+      fstype  = "fat32"
+      label   = "EFIFS"
+      mount   = "/boot/efi"
+      options = ""
+    }
   },
   {
-    name = "boot"
-    size = 1024,
-    format = {
-      label  = "BOOTFS",
-      fstype = "ext4",
-    },
-    mount = {
-      path    = "/boot",
-      options = "",
-    },
-    volume_group = "",
+    name    = "boot"
+    size    = 1024
+    role    = "filesystem"
+    vg_name = ""
+    filesystem = {
+      fstype  = "ext4"
+      label   = "BOOTFS"
+      mount   = "/boot"
+      options = ""
+    }
   },
   {
-    name = "root"
-    size = -1,
-    format = {
-      label  = "ROOTFS",
-      fstype = "ext4",
-    },
-    mount = {
-      path    = "/",
-      options = "",
-    },
-    volume_group = "",
-  },
-]
-*/
-
-/*
-//  This section is an example when you want to build a VM with the BIOS bootloader
-//  using LVM with a volume layout that follows CIS hardening guidelines.
-
-// VM Storage Settings
-vm_disk_device     = "vda"
-vm_disk_use_swap   = true
-vm_disk_partitions = [
-  {
-    name = "boot"
-    size = 1024,
-    format = {
-      label  = "BOOTFS",
-      fstype = "ext4",
-    },
-    mount = {
-      path    = "/boot",
-      options = "",
-    },
-    volume_group = "",
+    name    = "swap"
+    size    = 1024
+    role    = "swap"
+    vg_name = ""
+    filesystem = {
+      fstype  = "swap"
+      label   = "SWAPFS"
+      mount   = ""
+      options = ""
+    }
   },
   {
-    name = "sysvg"
-    size = -1,
-    format = {
-      label  = "",
-      fstype = "",
-    },
-    mount = {
-      path    = "",
-      options = "",
-    },
-    volume_group = "sysvg",
-  },
-]
-vm_disk_lvm = [
-  {
-    name: "sysvg",
-    partitions: [
-      {
-        name = "lv_swap",
-        size = 1024,
-        format = {
-          label  = "SWAPFS",
-          fstype = "swap",
-        },
-        mount = {
-          path    = "",
-          options = "",
-        },
-      },
-      {
-        name = "lv_root",
-        size = 10240,
-        format = {
-          label  = "ROOTFS",
-          fstype = "ext4",
-        },
-        mount = {
-          path    = "/",
-          options = "",
-        },
-      },
-      {
-        name = "lv_home",
-        size = 4096,
-        format = {
-          label  = "HOMEFS",
-          fstype = "ext4",
-        },
-        mount = {
-          path    = "/home",
-          options = "nodev,nosuid",
-        },
-      },
-      {
-        name = "lv_opt",
-        size = 2048,
-        format = {
-          label  = "OPTFS",
-          fstype = "ext4",
-        },
-        mount = {
-          path    = "/opt",
-          options = "nodev",
-        },
-      },
-      {
-        name = "lv_tmp",
-        size = 4096,
-        format = {
-          label  = "TMPFS",
-          fstype = "ext4",
-        },
-        mount = {
-          path    = "/tmp",
-          options = "nodev,noexec,nosuid",
-        },
-      },
-      {
-        name = "lv_var",
-        size = 2048,
-        format = {
-          label  = "VARFS",
-          fstype = "ext4",
-        },
-        mount = {
-          path    = "/var",
-          options = "nodev",
-        },
-      },
-      {
-        name = "lv_var_tmp",
-        size = 1000,
-        format = {
-          label  = "VARTMPFS",
-          fstype = "ext4",
-        },
-        mount = {
-          path    = "/var/tmp",
-          options = "nodev,noexec,nosuid",
-        },
-      },
-      {
-        name = "lv_var_log",
-        size = 4096,
-        format = {
-          label  = "VARLOGFS",
-          fstype = "ext4",
-        },
-        mount = {
-          path    = "/var/log",
-          options = "nodev,noexec,nosuid",
-        },
-      },
-      {
-        name = "lv_var_audit",
-        size = 500,
-        format = {
-          label  = "AUDITFS",
-          fstype = "ext4",
-        },
-        mount = {
-          path    = "/var/log/audit",
-          options = "nodev,noexec,nosuid",
-        },
-      },
-    ],
+    name    = "root"
+    size    = -1
+    role    = "filesystem"
+    vg_name = ""
+    filesystem = {
+      fstype  = "ext4"
+      label   = "ROOTFS"
+      mount   = "/"
+      options = ""
+    }
   }
 ]
 */
 
+
+//  This section is an example when you want to build a VM with the BIOS bootloader
+//  using LVM with a volume layout that follows CIS hardening guidelines.
+
+// VM EFI Settings
+vm_firmware              = "seabios"
+
+// VM Storage Settings
+vm_disk_device     = "vda"
+vm_disk_layout = [
+   {
+    name    = "grub"
+    size    = 1
+    role    = "bios_grub"
+    vg_name = ""
+    filesystem = {
+      fstype  = "bios_grub"
+      label   = "GRUBFS"
+      mount   = ""
+      options = ""
+    }
+  },
+  {
+    name    = "boot"
+    size    = 1024
+    role    = "filesystem"
+    vg_name = ""
+    filesystem = {
+      fstype  = "ext4"
+      label   = "BOOTFS"
+      mount   = "/boot"
+      options = ""
+    }
+  },
+  {
+    name = "sysvg"
+    size = -1
+    role = "pv"
+    vg_name = "sysvg"
+    filesystem = {
+      fstype  = ""
+      label   = ""
+      mount   = ""
+      options = ""
+    }
+  }
+]
+vm_logical_volumes = [
+  {
+    vg_name = "sysvg"
+    name    = "lv_swap"
+    size    = 1024
+    filesystem = {
+      fstype  = "swap"
+      label   = "SWAPFS"
+      mount   = ""
+      options = ""
+    }
+  },
+  {
+    vg_name = "sysvg"
+    name    = "lv_root"
+    size    = 10240
+    filesystem = {
+      fstype  = "ext4"
+      label   = "ROOTFS"
+      mount   = "/"
+      options = ""
+    }
+  },
+  {
+    vg_name = "sysvg"
+    name    = "lv_home"
+    size    = 4096
+    filesystem = {
+      fstype  = "ext4"
+      label   = "HOMEFS"
+      mount   = "/home"
+      options = "nodev,nosuid"
+    }
+  },
+  {
+    vg_name = "sysvg"
+    name    = "lv_opt"
+    size    = 2048
+    filesystem = {
+      fstype  = "ext4"
+      label   = "OPTFS"
+      mount   = "/opt"
+      options = "nodev"
+    }
+  },
+  {
+    vg_name = "sysvg"
+    name    = "lv_tmp"
+    size    = 4096
+    filesystem = {
+      fstype  = "ext4"
+      label   = "TMPFS"
+      mount   = "/tmp"
+      options = "nodev,noexec,nosuid"
+    }
+  },
+  {
+    vg_name = "sysvg"
+    name    = "lv_var"
+    size    = 2048
+    filesystem = {
+      fstype  = "ext4"
+      label   = "VARFS"
+      mount   = "/var"
+      options = "nodev"
+    }
+  },
+  {
+    vg_name = "sysvg"
+    name    = "lv_var_tmp"
+    size    = 1000
+    filesystem = {
+      fstype  = "ext4"
+      label   = "VARTMPFS"
+      mount   = "/var/tmp"
+      options = "nodev,noexec,nosuid"
+    }
+  },
+  {
+    vg_name = "sysvg"
+    name    = "lv_var_log"
+    size    = 4096
+    filesystem = {
+      fstype  = "ext4"
+      label   = "VARLOGFS"
+      mount   = "/var/log"
+      options = "nodev,noexec,nosuid"
+    }
+  },
+  {
+    vg_name = "sysvg"
+    name    = "lv_var_audit"
+    size    = 500
+    filesystem = {
+      fstype  = "ext4"
+      label   = "AUDITFS"
+      mount   = "/var/log/audit"
+      options = "nodev,noexec,nosuid"
+    }
+  }
+]
+
+
+/*
 //  This section is an example when you want to build a VM with the EFI firmware
 //  using LVM with a volume layout that follows CIS hardening guidelines.
 
@@ -253,166 +281,149 @@ vm_disk_lvm = [
 //   NOTE: This requires the vm_bios to be set to 'ovmf'!
 
 //VM EFI Settings
+vm_firmware              = "ovmf"
 vm_efi_storage_pool      = "pool0"
 vm_efi_type              = "4m"
 vm_efi_pre_enrolled_keys = false
 
 // UEFI VM Storage Settings
 vm_disk_device     = "vda"
-vm_disk_use_swap   = true
-vm_disk_partitions = [
+vm_disk_layout = [
   {
-    name = "efi"
-    size = 1024,
-    format = {
-      label  = "EFIFS",
-      fstype = "fat32",
-    },
-    mount = {
-      path    = "/boot/efi",
-      options = "",
-    },
-    volume_group = "",
-  },
-  {
-    name = "boot"
-    size = 1024,
-    format = {
-      label  = "BOOTFS",
-      fstype = "ext4",
-    },
-    mount = {
-      path    = "/boot",
-      options = "",
-    },
-    volume_group = "",
+    name    = "efi"
+    size    = 1024
+    role    = "efi"
+    vg_name = ""
+    filesystem = {
+      fstype  = "fat32"
+      label   = "EFIFS"
+      mount   = "/boot/efi"
+      options = ""
+    }
   },
   {
     name = "sysvg"
-    size = -1,
-    format = {
-      label  = "",
-      fstype = "",
-    },
-    mount = {
-      path    = "",
-      options = "",
-    },
-    volume_group = "sysvg",
-  },
-]
-vm_disk_lvm = [
-  {
-    name: "sysvg",
-    partitions: [
-      {
-        name = "lv_swap",
-        size = 1024,
-        format = {
-          label  = "SWAPFS",
-          fstype = "swap",
-        },
-        mount = {
-          path    = "",
-          options = "",
-        },
-      },
-      {
-        name = "lv_root",
-        size = 10240,
-        format = {
-          label  = "ROOTFS",
-          fstype = "ext4",
-        },
-        mount = {
-          path    = "/",
-          options = "",
-        },
-      },
-      {
-        name = "lv_home",
-        size = 4096,
-        format = {
-          label  = "HOMEFS",
-          fstype = "ext4",
-        },
-        mount = {
-          path    = "/home",
-          options = "nodev,nosuid",
-        },
-      },
-      {
-        name = "lv_opt",
-        size = 2048,
-        format = {
-          label  = "OPTFS",
-          fstype = "ext4",
-        },
-        mount = {
-          path    = "/opt",
-          options = "nodev",
-        },
-      },
-      {
-        name = "lv_tmp",
-        size = 4096,
-        format = {
-          label  = "TMPFS",
-          fstype = "ext4",
-        },
-        mount = {
-          path    = "/tmp",
-          options = "nodev,noexec,nosuid",
-        },
-      },
-      {
-        name = "lv_var",
-        size = 2048,
-        format = {
-          label  = "VARFS",
-          fstype = "ext4",
-        },
-        mount = {
-          path    = "/var",
-          options = "nodev",
-        },
-      },
-      {
-        name = "lv_var_tmp",
-        size = 1000,
-        format = {
-          label  = "VARTMPFS",
-          fstype = "ext4",
-        },
-        mount = {
-          path    = "/var/tmp",
-          options = "nodev,noexec,nosuid",
-        },
-      },
-      {
-        name = "lv_var_log",
-        size = 4096,
-        format = {
-          label  = "VARLOGFS",
-          fstype = "ext4",
-        },
-        mount = {
-          path    = "/var/log",
-          options = "nodev,noexec,nosuid",
-        },
-      },
-      {
-        name = "lv_var_audit",
-        size = 500,
-        format = {
-          label  = "AUDITFS",
-          fstype = "ext4",
-        },
-        mount = {
-          path    = "/var/log/audit",
-          options = "nodev,noexec,nosuid",
-        },
-      },
-    ],
+    size = -1
+    role = "pv"
+    vg_name = "sysvg"
+    filesystem = {
+      fstype  = ""
+      label   = ""
+      mount   = ""
+      options = ""
+    }
   }
 ]
+vm_logical_volumes = [
+  {
+    vg_name = "sysvg"
+    name    = "lv_swap"
+    size    = 1024
+    filesystem = {
+      fstype  = "swap"
+      label   = "SWAPFS"
+      mount   = ""
+      options = ""
+    }
+  },
+  {
+    vg_name = "sysvg"
+    name    = "lv_boot"
+    size    = 1024
+    filesystem = {
+      fstype  = "ext4"
+      label   = "BOOTFS"
+      mount   = "/boot"
+      options = ""
+    }
+  },
+  {
+    vg_name = "sysvg"
+    name = "lv_root",
+    size = 10240,
+    filesystem = {
+      fstype = "ext4"
+      label  = "ROOTFS"
+      mount = "/"
+      options = ""
+    }
+  },
+  {
+    vg_name = "sysvg"
+    name = "lv_home"
+    size = 4096
+    filesystem = {
+      fstype = "ext4"
+      label  = "HOMEFS"
+      mount = "/home"
+      options = "nodev,nosuid"
+    }
+  },
+  {
+    vg_name = "sysvg"
+    name = "lv_opt"
+    size = 2048
+    filesystem = {
+      fstype = "ext4"
+      label  = "OPTFS"
+      mount  = "/opt"
+      options = "nodev"
+    }
+  },
+  {
+    vg_name = "sysvg"
+    name = "lv_tmp"
+    size = 4096
+    filesystem = {
+      fstype = "ext4"
+      label  = "TMPFS"
+      mount = "/tmp"
+      options = "nodev,noexec,nosuid"
+    }
+  },
+  {
+    vg_name = "sysvg"
+    name = "lv_var"
+    size = 2048
+    filesystem = {
+      fstype = "ext4"
+      label  = "VARFS"
+      mount = "/var"
+      options = "nodev"
+    }
+  },
+  {
+    vg_name = "sysvg"
+    name = "lv_var_tmp"
+    size = 1000,
+    filesystem = {
+      fstype = "ext4"
+      label  = "VARTMPFS"
+      mount  = "/var/tmp"
+      options = "nodev,noexec,nosuid"
+    }
+  },
+  {
+    vg_name = "sysvg"
+    name    = "lv_var_log"
+    size    = 4096
+    filesystem = {
+      fstype  = "ext4"
+      label   = "VARLOGFS"
+      mount   = "/var/log"
+      options = "nodev,noexec,nosuid"
+    }
+  },
+  {
+    vg_name = "sysvg"
+    name    = "lv_var_audit"
+    size    = 500
+    filesystem = {
+      fstype = "ext4"
+      label  = "AUDITFS"
+      mount  = "/var/log/audit"
+     options = "nodev,noexec,nosuid"
+    }
+  }
+]
+*/

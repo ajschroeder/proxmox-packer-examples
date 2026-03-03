@@ -77,14 +77,13 @@ variable "vm_os_type" {
   description = "The guest operating system type. (e.g. 'l26')"
 }
 
-variable "vm_bios" {
+variable "vm_firmware" {
   type        = string
   description = "The firmware type. Allowed values 'ovmf' or 'seabios'"
-  default     = "ovmf"
 
   validation {
-    condition     = contains(["ovmf", "seabios"], var.vm_bios)
-    error_message = "The vm_bios value must be 'ovmf' or 'seabios'."
+    condition     = contains(["ovmf", "seabios"], var.vm_firmware)
+    error_message = "The vm_firmware value must be 'ovmf' or 'seabios'."
   }
 }
 

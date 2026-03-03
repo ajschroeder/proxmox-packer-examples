@@ -83,8 +83,7 @@ d-i finish-install/reboot_in_progress note
 #  - Remove lv_delete volume group
 d-i preseed/late_command string \
     echo '${build_username} ALL=(ALL) NOPASSWD: ALL' > /target/etc/sudoers.d/${build_username} ; \
-    in-target chmod 440 /etc/sudoers.d/${build_username}%{ if length(lvm) != 0 ~} ; \
-    lvremove -f /dev/%{ for volume_group in lvm ~}${volume_group.name}%{ endfor ~}/lv_delete > /dev/null 2>&1%{ endif }
+    in-target chmod 440 /etc/sudoers.d/${build_username}
 
 %{ if common_data_source == "disk" ~}
 # Umount preseed media early

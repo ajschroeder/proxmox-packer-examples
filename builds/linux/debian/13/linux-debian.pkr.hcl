@@ -92,7 +92,7 @@ locals {
       vm_os_language           = var.vm_os_language
       vm_os_keyboard           = var.vm_os_keyboard
       vm_os_timezone           = var.vm_os_timezone
-      common_data_source       = var.common_data_source
+      vm_cloudinit             = var.vm_cloudinit
       network = templatefile("${abspath(path.root)}/data/network.pkrtpl.hcl", {
         device  = var.vm_network_device
         ip      = var.vm_ip_address
@@ -100,15 +100,8 @@ locals {
         gateway = var.vm_ip_gateway
         dns     = var.vm_dns_list
       })
-      # lvm needs to be here so late commands can access vg names
-      lvm                      = var.vm_disk_lvm
-      storage                  = templatefile("${abspath(path.root)}/data/storage.pkrtpl.hcl", {
-        device                 = var.vm_disk_device
-        swap                   = var.vm_disk_use_swap
-        partitions             = var.vm_disk_partitions
-        lvm                    = var.vm_disk_lvm
-        vm_bios                = var.vm_bios
-      })
+      common_data_source       = var.common_data_source
+      storage                  = local.rendered_storage
       additional_packages = join(" ", var.additional_packages)
     })
   }
@@ -116,8 +109,8 @@ locals {
   mount_cdrom_command = "<leftAltOn><f2><leftAltOff> <enter><wait> mount /dev/sr1 /media<enter> <leftAltOn><f1><leftAltOff>"
   mount_cdrom         = var.common_data_source == "http" ? " " : local.mount_cdrom_command
   vm_name = "${var.vm_os_family}-${var.vm_os_name}-${var.vm_os_version}"
-  boot_command = var.vm_bios == "ovmf" ? local.uefi_boot_command : local.bios_boot_command
-  vm_bios = var.vm_bios == "ovmf" ? var.vm_firmware_path : null
+  boot_command = var.vm_firmware == "ovmf" ? local.uefi_boot_command : local.bios_boot_command
+  vm_firmware = var.vm_firmware == "ovmf" ? var.vm_firmware_path : null
 }
 
 //  BLOCK: source
@@ -136,7 +129,7 @@ source "proxmox-iso" "debian" {
 
   // Virtual Machine Settings
   vm_name         = "${local.vm_name}"
-  bios            = "${var.vm_bios}"
+  bios            = "${var.vm_firmware}"
   sockets         = "${var.vm_cpu_sockets}"
   cores           = "${var.vm_cpu_count}"
   cpu_type        = "${var.vm_cpu_type}"
@@ -152,18 +145,17 @@ source "proxmox-iso" "debian" {
   }
 
   dynamic "efi_config" {
-    for_each = var.vm_bios == "ovmf" ? [1] : []
+    for_each = var.vm_firmware == "ovmf" ? [1] : []
     content {
-      efi_storage_pool  = var.vm_bios == "ovmf" ? var.vm_efi_storage_pool : null
-      efi_type          = var.vm_bios == "ovmf" ? var.vm_efi_type : null
-      pre_enrolled_keys = var.vm_bios == "ovmf" ? var.vm_efi_pre_enrolled_keys : null
+      efi_storage_pool  = var.vm_firmware == "ovmf" ? var.vm_efi_storage_pool : null
+      efi_type          = var.vm_firmware == "ovmf" ? var.vm_efi_type : null
+      pre_enrolled_keys = var.vm_firmware == "ovmf" ? var.vm_efi_pre_enrolled_keys : null
     }
   }
 
   ssh_username    = "${var.build_username}"
   ssh_password    = "${var.build_password}"
   ssh_timeout     = "${var.timeout}"
-  ssh_port        = "22"
   qemu_agent      = true
 
   network_adapters {
@@ -245,7 +237,7 @@ build {
       vm_cpu_sockets           = "${var.vm_cpu_sockets}"
       vm_cpu_count             = "${var.vm_cpu_count}"
       vm_disk_size             = "${var.vm_disk_size}"
-      vm_bios                  = "${var.vm_bios}"
+      vm_firmware              = "${var.vm_firmware}"
       vm_os_type               = "${var.vm_os_type}"
       vm_mem_size              = "${var.vm_mem_size}"
       vm_network_card_model    = "${var.vm_network_card_model}"
