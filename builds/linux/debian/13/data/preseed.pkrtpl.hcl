@@ -89,6 +89,6 @@ d-i preseed/late_command string \
 %{ if common_data_source == "disk" ~}
 # Umount preseed media early
 d-i preseed/early_command string \
-    umount /media && echo 1 > /sys/block/sr1/device/delete ;
+    umount /media || true ; \
+    echo 1 > /sys/block/sr1/device/delete || true ;
 %{ endif ~}
-
