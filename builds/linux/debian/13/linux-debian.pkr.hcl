@@ -84,7 +84,7 @@ locals {
   manifest_path     = "${path.cwd}/manifests/"
   manifest_output   = "${local.manifest_path}${local.manifest_date}.json"
   data_source_content = {
-    "/preseed.cfg" = templatefile("${abspath(path.root)}/data/preseed.pkrtpl.hcl", {
+    "preseed.cfg" = templatefile("${abspath(path.root)}/data/preseed.pkrtpl.hcl", {
       build_username           = var.build_username
       build_password           = var.build_password
       build_password_encrypted = var.build_password_encrypted
@@ -193,6 +193,8 @@ source "proxmox-iso" "debian" {
   dynamic "additional_iso_files" {
     for_each = var.common_data_source == "disk" ? [1] : []
     content {
+      # Debian on OVMF refuses to acknowledge 2 IDE drive.
+      type = "sata"
       cd_files = var.common_data_source == "disk" ? local.data_source_content : null
       cd_label = var.common_data_source == "disk" ? "cidata" : null
       iso_storage_pool = var.common_data_source == "disk" ? "local" : null
