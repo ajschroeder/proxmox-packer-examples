@@ -66,7 +66,7 @@ locals {
   build_version     = data.git-repository.cwd.head
   build_description = "Version: ${local.build_version}\nBuilt on: ${local.build_date}\n${local.build_by}\nCloud-Init: ${var.vm_cloudinit}"
   # For some reason 20.04 doesn't like quotes in the boot commands for BIOS machines
-  http_command      = var.vm_bios == "ovmf" ? "ds=\"nocloud-net;seedfrom=http://{{.HTTPIP}}:{{.HTTPPort}}/\"" : "ds=nocloud-net;seedfrom=http://{{.HTTPIP}}:{{.HTTPPort}}/"
+  http_command      = var.vm_firmware == "ovmf" ? "ds=\"nocloud-net;seedfrom=http://{{.HTTPIP}}:{{.HTTPPort}}/\"" : "ds=nocloud-net;seedfrom=http://{{.HTTPIP}}:{{.HTTPPort}}/"
   vm_disk_type      = var.vm_disk_type == "virtio" ? "vda" : "sda"
   manifest_date     = formatdate("YYYY-MM-DD hh:mm:ss", timestamp())
   manifest_path     = "${path.cwd}/manifests/"
@@ -89,21 +89,16 @@ locals {
         gateway                = var.vm_ip_gateway
         dns                    = var.vm_dns_list
       })
-      storage                  = templatefile("${abspath(path.root)}/data/storage.pkrtpl.hcl", {
-        device                 = var.vm_disk_device
-        swap                   = var.vm_disk_use_swap
-        partitions             = var.vm_disk_partitions
-        lvm                    = var.vm_disk_lvm
-        vm_bios                = var.vm_bios
-      })
-      additional_packages = var.additional_packages
+      common_data_source       = var.common_data_source
+      storage                  = local.rendered_storage
+      additional_packages      = var.additional_packages
     })
   }
 
   data_source_command = var.common_data_source == "http" ? "${local.http_command}" : "ds=nocloud"
   vm_name = "${var.vm_os_family}-${var.vm_os_name}-${var.vm_os_version}"
-  boot_command = var.vm_bios == "ovmf" ? local.uefi_boot_command : local.bios_boot_command
-  vm_bios = var.vm_bios == "ovmf" ? var.vm_firmware_path : null
+  boot_command = var.vm_firmware == "ovmf" ? local.uefi_boot_command : local.bios_boot_command
+  vm_firmware = var.vm_firmware == "ovmf" ? var.vm_firmware_path : null
 }
 
 //  BLOCK: source
@@ -122,7 +117,7 @@ source "proxmox-iso" "ubuntu" {
 
   // Virtual Machine Settings
   vm_name         = "${local.vm_name}"
-  bios            = "${var.vm_bios}"
+  bios            = "${var.vm_firmware}"
   sockets         = "${var.vm_cpu_sockets}"
   cores           = "${var.vm_cpu_count}"
   cpu_type        = "${var.vm_cpu_type}"
@@ -130,19 +125,22 @@ source "proxmox-iso" "ubuntu" {
   os              = "${var.vm_os_type}"
   scsi_controller = "${var.vm_disk_controller_type}"
 
-  disks {
-    disk_size     = "${var.vm_disk_size}"
-    type          = "${var.vm_disk_type}"
-    storage_pool  = "${var.vm_storage_pool}"
-    format        = "${var.vm_disk_format}"
+  dynamic "disks" {
+    for_each = local.proxmox_disks
+    content {
+      type            = disks.value.type
+      disk_size       = disks.value.disk_size
+      storage_pool    = disks.value.storage_pool
+      format          = disks.value.format
+    }
   }
 
   dynamic "efi_config" {
-    for_each = var.vm_bios == "ovmf" ? [1] : []
+    for_each = var.vm_firmware == "ovmf" ? [1] : []
     content {
-      efi_storage_pool  = var.vm_bios == "ovmf" ? var.vm_efi_storage_pool : null
-      efi_type          = var.vm_bios == "ovmf" ? var.vm_efi_type : null
-      pre_enrolled_keys = var.vm_bios == "ovmf" ? var.vm_efi_pre_enrolled_keys : null
+      efi_storage_pool  = var.vm_firmware == "ovmf" ? var.vm_efi_storage_pool : null
+      efi_type          = var.vm_firmware == "ovmf" ? var.vm_efi_type : null
+      pre_enrolled_keys = var.vm_firmware == "ovmf" ? var.vm_efi_pre_enrolled_keys : null
     }
   }
 
@@ -229,8 +227,8 @@ build {
       common_data_source       = "${var.common_data_source}"
       vm_cpu_sockets           = "${var.vm_cpu_sockets}"
       vm_cpu_count             = "${var.vm_cpu_count}"
-      vm_disk_size             = "${var.vm_disk_size}"
-      vm_bios                  = "${var.vm_bios}"
+      vm_disks                 = jsonencode(local.proxmox_disks)
+      vm_firmware              = "${var.vm_firmware}"
       vm_os_type               = "${var.vm_os_type}"
       vm_mem_size              = "${var.vm_mem_size}"
       vm_network_card_model    = "${var.vm_network_card_model}"

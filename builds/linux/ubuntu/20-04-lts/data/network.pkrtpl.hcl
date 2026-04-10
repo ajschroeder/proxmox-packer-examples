@@ -1,19 +1,18 @@
-  network:
-    network:
-      version: 2
-      ethernets:
+version: 2
+ethernets:
 %{ if ip != null ~}
-        ${device}:
-          dhcp4: false
-          addresses:
-            - ${ip}/${netmask}
-          gateway4: ${gateway}
-          nameservers:
-            addresses:
+  ${device}:
+    dhcp4: false
+    addresses:
+      - ${ip}/${netmask}
+    gateway4: ${gateway}
+    nameservers:
+      addresses:
 %{ for item in dns ~}
-              - ${item}
+        - ${item}
 %{ endfor ~}
 %{ else ~}
-        ${device}:
-          dhcp4: true
+  ${device}:
+    dhcp4: true
+    dhcp-identifier: mac
 %{ endif ~}

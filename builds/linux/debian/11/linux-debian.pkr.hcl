@@ -56,6 +56,7 @@ locals {
     " debconf/priority=critical",
     // This types the value of the 'data_source_command' local variable. This is used to specify the kickstart data source configured in the common variables.
     " ${local.data_source_command}",
+    " interface=auto netcfg/dhcp_timeout=120 netcfg/dhcpv4_timeout=120",
     // This types a string that sets the noprompt option and then sends the "enter" key. This is used to prevent the installer from pausing for user input.
     " noprompt --<enter>",
     // This types a command to load the initial RAM disk from the specified path and then sends the "enter" key.
@@ -136,11 +137,14 @@ source "proxmox-iso" "debian" {
   os              = "${var.vm_os_type}"
   scsi_controller = "${var.vm_disk_controller_type}"
 
-  disks {
-    disk_size     = "${var.vm_disk_size}"
-    type          = "${var.vm_disk_type}"
-    storage_pool  = "${var.vm_storage_pool}"
-    format        = "${var.vm_disk_format}"
+  dynamic "disks" {
+    for_each = local.proxmox_disks
+    content {
+      type            = disks.value.type
+      disk_size       = disks.value.disk_size
+      storage_pool    = disks.value.storage_pool
+      format          = disks.value.format
+    }
   }
 
   dynamic "efi_config" {
@@ -235,7 +239,7 @@ build {
       common_data_source       = "${var.common_data_source}"
       vm_cpu_sockets           = "${var.vm_cpu_sockets}"
       vm_cpu_count             = "${var.vm_cpu_count}"
-      vm_disk_size             = "${var.vm_disk_size}"
+      vm_disks                 = jsonencode(local.proxmox_disks)
       vm_firmware              = "${var.vm_firmware}"
       vm_os_type               = "${var.vm_os_type}"
       vm_mem_size              = "${var.vm_mem_size}"
