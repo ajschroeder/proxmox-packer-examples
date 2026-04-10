@@ -19,31 +19,40 @@ This repository provides opinionated infrastructure-as-code examples to automate
 
 By default, the machine image artifacts are converted to templates within Proxmox after a virtual machine is built and configured according to the individual templates.
 
+A key feature of this repository is the Storage API, which provides a consistent, validated way to define disk layouts across all supported Linux distributions.
+
+Instead of embedding storage logic inside OS-specific installers, storage is defined once, validated at plan time, and rendered deterministically.
+
 The following builds are available:
 
 ## Linux Distributions
 
-| Operating System | Version   | Custom Storage Config | Static IP Support  | UEFI Bootloader    | BIOS Bootloader    |
-| :---             | :---      | :---:                 | :---:              | :---:              | :---:              |
-| AlmaLinux        | 10        | &check;               | &check;            | &check;            | &check;            |
-| AlmaLinux        | 9         | &check;               | &check;            | &check;            | &check;            |
-| AlmaLinux        | 8         | &check;               | &check;            | &check;            | &check;            |
-| CentOS Stream    | 10        | &check;               | &check;            | &check;            | &check;            |
-| CentOS Stream    | 9         | &check;               | &check;            | &check;            | &check;            |
-| Debian           | 12        | &check;               | &check;            | &check;            | &check;            |
-| Debian           | 11        | &check;               | &check;            | &check;            | &check;            |
-| OpenSUSE Leap    | 15.6      | &check;               | &check;            | &check;            | &check;            |
-| OpenSUSE Leap    | 15.5      | &check;               | &check;            | &check;            | &check;            |
-| Oracle Linux     | 9         | &check;               | &check;            | &check;            | &check;            |
-| Oracle Linux     | 8         | &check;               | &check;            | &check;            | &check;            |
-| Rocky Linux      | 10        | &check;               | &check;            | &check;            | &check;            |
-| Rocky Linux      | 9         | &check;               | &check;            | &check;            | &check;            |
-| Rocky Linux      | 8         | &check;               | &check;            | &check;            | &check;            |
-| Ubuntu Server    | 25.04     | &check;               | &check;            | &check;            | &check;            |
-| Ubuntu Server    | 24.04 LTS | &check;               | &check;            | &check;            | &check;            |
-| Ubuntu Server    | 22.04 LTS | &check;               | &check;            | &check;            | &check;            |
-| Ubuntu Server    | 20.04 LTS | &check;               | &check;            | &check;            | &check;            |
-| Windows Desktop  | 11        |                       |                    | &check;            | N/A                |
+| Operating System | Version   | Storage API Compatibility | Static IP Support | UEFI Bootloader | BIOS Bootloader |
+| :---             | :---      | :---:                     | :---:             | :---:           | :---:           |
+| AlmaLinux        | 10        | &check;                   | &check;           | &check;         | &check;         |
+| AlmaLinux        | 9         | &check;                   | &check;           | &check;         | &check;         |
+| AlmaLinux        | 8         | &check;                   | &check;           | &check;         | &check;         |
+| CentOS Stream    | 10        | &check;                   | &check;           | &check;         | &check;         |
+| CentOS Stream    | 9         | &check;                   | &check;           | &check;         | &check;         |
+| Debian           | 13        | &check;                   | &check;           | &check;         | &check;         |
+| Debian           | 12        | &check;                   | &check;           | &check;         | &check;         |
+| Debian           | 11        | &check;                   | &check;           | &check;         | &check;         |
+| OpenSUSE Leap    | 15.6      | &check;                   | &check;           | &check;         | &check;         |
+| OpenSUSE Leap    | 15.5      | &check;                   | &check;           | &check;         | &check;         |
+| Oracle Linux     | 9         | &check;                   | &check;           | &check;         | &check;         |
+| Oracle Linux     | 8         | &check;                   | &check;           | &check;         | &check;         |
+| Rocky Linux      | 10        | &check;                   | &check;           | &check;         | &check;         |
+| Rocky Linux      | 9         | &check;                   | &check;           | &check;         | &check;         |
+| Rocky Linux      | 8         | &check;                   | &check;           | &check;         | &check;         |
+| Ubuntu Server    | 25.04     | :warning:                 | &check;           | &check;         | :x:             |
+| Ubuntu Server    | 24.04 LTS | :warning:                 | &check;           | &check;         | :x:             |
+| Ubuntu Server    | 22.04 LTS | :warning:                 | &check;           | &check;         | :x:             |
+| Ubuntu Server    | 20.04 LTS | :warning:                 | &check;           | &check;         | :x:             |
+| Windows Desktop  | 11        |                           |                   | &check;         | N/A             |
+
+> [!CAUTION]
+> Ubuntu BIOS Support: Due to limitations in the Subiquity installer's handling of GPT/LVM on non-UEFI systems, BIOS (SeaBIOS) is unsupported for Ubuntu builds.
+> All Ubuntu templates must be configured with UEFI (OVMF) to ensure Storage API compatibility.
 
 ## Requirements
 
@@ -216,26 +225,6 @@ Run the config script `./config.sh` to copy the `.pkrvars.hcl.example` files to 
 ./config.sh
 ./build.sh
 ```
-
-The `config` folder is the default folder. You can override the default by passing an alternate value as the first argument.
-
-For example:
-
-San Francisco: `us-west-1`
-
-```shell
-./config.sh us-west-1
-./build.sh us-west-1
-```
-
-Los Angeles: `us-west-2`
-
-```shell
-./config.sh us-west-2
-./build.sh us-west-2
-```
-
-This is useful for the purposes of running machine image builds for different environment.
 
 ## Configuration Variables
 
@@ -436,293 +425,29 @@ For more information, please see the [Proxmox documentation][proxmox-api-tokens]
 
 For Proxmox installs that use a self-signed certificate, you will want to set `proxmox_insecure_connection` to `true`.
 
-### Storage Variables
+### Storage Configuration
 
-Edit the `config/linux-storage.pkrvars.hcl` file to configure storage for VM templates.
+Linux templates use a normalized **Storage API** to define disk layouts.
 
-#### Disk Device
+Storage is configured in:
 
-```hcl
-// VM Storage Settings
-vm_disk_device     = "vda"
-```
+`config/linux-storage.pkr.hcl`
 
-`vm_disk_device`:`string` - This variable depends on the disk controller used inside of the specific `.auto.pkrvars.hcl` file. By default, the builds use the `virtio-scsi-pci` disk controller and that requires the use of `vda`. If you decide to use a non-virtio controller, then you'll have to change the `vm_disk_device` variable to the appropriate device.
+By default, this file contains a **baseline single-disk LVM layout** that works across all supported distributions.
 
-#### EFI Device
-```hcl
-vm_efi_storage_pool      = "pool0"
-vm_efi_type              = "4m"
-vm_efi_pre_enrolled_keys = false
-```
+You can customize storage by modifying this file or by using one of the predefined storage recipes.
 
-#### Disk Partitions
+👉 See: `docs/storage/`
 
-`vm_disk_partitions`:`list[dict]` - Use this list to define the primary partitions that will be created when a specific build runs. Each of the builds process this list in order, so the first partition defined in the list will be the first partition created, the second one listed will be the second one created, and so on.
+The Storage API provides:
+
+- consistent disk layouts across distributions
+- validation at plan time (before build)
+- support for multi-disk and LVM configurations
 
 > **Note**
 >
-> - All partition sizes are in MegaBytes (MB)
-> - If you want to have a partition consume all available free space, you can indicate that with `-1`
-
-##### Partitioning Examples
-
-<details>
-  <summary>Single Partition Example for BIOS bootloaders</summary>
-Below is an example of a partition layout for a VM template that boots with BIOS and uses a single partition for the OS.
-
-```hcl title="config/linux-storage.pkrvars.hcl"
-// VM Storage Settings
-vm_disk_device     = "vda"
-vm_disk_use_swap   = true
-vm_disk_partitions = [
-  {
-    name = "root"
-    size = -1,
-    format = {
-      label  = "ROOTFS",
-      fstype = "ext4",
-    },
-    mount = {
-      path    = "/",
-      options = "",
-    },
-    volume_group = "",
-  },
-]
-```
-</details>
-
-<details>
-  <summary>Single Partition Example for UEFI bootloaders</summary>
-This example is similar to the above example except that it has the extra partitions needed for the UEFI (OVMF) bootloader. Note the extra variables for the EFI settings.
-
-```hcl title="config/linux-storage.pkrvars.hcl"
-// VM EFI Settings
-vm_efi_storage_pool      = "pool0"
-vm_efi_type              = "4m"
-vm_efi_pre_enrolled_keys = false
-
-// VM Storage Settings
-vm_disk_device     = "vda"
-vm_disk_use_swap   = true
-vm_disk_partitions = [
-  {
-    name = "efi"
-    size = 1024,
-    format = {
-      label  = "EFIFS",
-      fstype = "fat32",
-    },
-    mount = {
-      path    = "/boot/efi",
-      options = "",
-    },
-    volume_group = "",
-  },
-  {
-    name = "boot"
-    size = 1024,
-    format = {
-      label  = "BOOTFS",
-      fstype = "ext4",
-    },
-    mount = {
-      path    = "/boot",
-      options = "",
-    },
-    volume_group = "",
-  },
-  {
-    name = "root"
-    size = -1,
-    format = {
-      label  = "ROOTFS",
-      fstype = "ext4",
-    },
-    mount = {
-      path    = "/",
-      options = "",
-    },
-    volume_group = "",
-  },
-]
-```
-</details>
-
-<details>
-  <summary>LVM Partitioning Example with CIS partitions for UEFI bootloaders</summary>
-This is a more complex example of a partition layout for a VM template that uses LVM and has volumes with mount options required by CIS for hardening a linux system.
-
-
-```hcl title="config/linux-storage.pkrvars.hcl"
-//VM EFI Settings
-vm_efi_storage_pool      = "pool0"
-vm_efi_type              = "4m"
-vm_efi_pre_enrolled_keys = false
-
-// UEFI VM Storage Settings
-vm_disk_device     = "vda"
-vm_disk_use_swap   = true
-vm_disk_partitions = [
-  {
-    name = "efi"
-    size = 1024,
-    format = {
-      label  = "EFIFS",
-      fstype = "fat32",
-    },
-    mount = {
-      path    = "/boot/efi",
-      options = "",
-    },
-    volume_group = "",
-  },
-  {
-    name = "boot"
-    size = 1024,
-    format = {
-      label  = "BOOTFS",
-      fstype = "ext4",
-    },
-    mount = {
-      path    = "/boot",
-      options = "",
-    },
-    volume_group = "",
-  },
-  {
-    name = "sysvg"
-    size = -1,
-    format = {
-      label  = "",
-      fstype = "",
-    },
-    mount = {
-      path    = "",
-      options = "",
-    },
-    volume_group = "sysvg",
-  },
-]
-vm_disk_lvm = [
-  {
-    name: "sysvg",
-    partitions: [
-      {
-        name = "lv_swap",
-        size = 1024,
-        format = {
-          label  = "SWAPFS",
-          fstype = "swap",
-        },
-        mount = {
-          path    = "",
-          options = "",
-        },
-      },
-      {
-        name = "lv_root",
-        size = 10240,
-        format = {
-          label  = "ROOTFS",
-          fstype = "ext4",
-        },
-        mount = {
-          path    = "/",
-          options = "",
-        },
-      },
-      {
-        name = "lv_home",
-        size = 4096,
-        format = {
-          label  = "HOMEFS",
-          fstype = "ext4",
-        },
-        mount = {
-          path    = "/home",
-          options = "nodev,nosuid",
-        },
-      },
-      {
-        name = "lv_opt",
-        size = 2048,
-        format = {
-          label  = "OPTFS",
-          fstype = "ext4",
-        },
-        mount = {
-          path    = "/opt",
-          options = "nodev",
-        },
-      },
-      {
-        name = "lv_tmp",
-        size = 4096,
-        format = {
-          label  = "TMPFS",
-          fstype = "ext4",
-        },
-        mount = {
-          path    = "/tmp",
-          options = "nodev,noexec,nosuid",
-        },
-      },
-      {
-        name = "lv_var",
-        size = 2048,
-        format = {
-          label  = "VARFS",
-          fstype = "ext4",
-        },
-        mount = {
-          path    = "/var",
-          options = "nodev",
-        },
-      },
-      {
-        name = "lv_var_tmp",
-        size = 1000,
-        format = {
-          label  = "VARTMPFS",
-          fstype = "ext4",
-        },
-        mount = {
-          path    = "/var/tmp",
-          options = "nodev,noexec,nosuid",
-        },
-      },
-      {
-        name = "lv_var_log",
-        size = 4096,
-        format = {
-          label  = "VARLOGFS",
-          fstype = "ext4",
-        },
-        mount = {
-          path    = "/var/log",
-          options = "nodev,noexec,nosuid",
-        },
-      },
-      {
-        name = "lv_var_audit",
-        size = 500,
-        format = {
-          label  = "AUDITFS",
-          fstype = "ext4",
-        },
-        mount = {
-          path    = "/var/log/audit",
-          options = "nodev,noexec,nosuid",
-        },
-      },
-    ],
-  }
-]
-```
-</details>
-
+> Storage configuration is only applied to Linux templates. Windows builds use a separate model.
 
 ## Packer Machine Image Builds
 
@@ -749,13 +474,11 @@ vm_os_type       = "l26"
 vm_cloudinit     = true
 
 // Virtual Machine Hardware Settings
-vm_bios                 = "ovmf"
 vm_cpu_count            = 1
 vm_cpu_sockets          = 1
 vm_cpu_type             = "kvm64"
 vm_mem_size             = 2048
 vm_disk_type            = "virtio"
-vm_disk_size            = "32G"
 vm_disk_format          = "raw"
 vm_disk_controller_type = "virtio-scsi-pci"
 vm_network_card_model   = "virtio"
@@ -781,9 +504,9 @@ vm_firmware_path         = "./OVMF.fd"
 >   - VirtIO (paravirtualized) network card device
 >   - UEFI boot firmware
 
-The defaults use VirtIO to balance out performance, compatibility, and ease of use. Feel free to change the storage and network controllers to suit your needs. However, if you change the storage or network controllers and run into issues you should change them back to defaults and try the builds again. I won't support any builds that don't use the VirtIO drivers.
+The defaults use VirtIO to balance out performance, compatibility, and ease of use. Feel free to change the storage and network controllers to suit your needs. However, if you change the storage or network controllers and run into issues you should change them back to defaults and try the builds again. Builds using non-VirtIO drivers are not supported.
 
-Both UEFI and BIOS booting are supported for builds. Inside the `<build type>.pkrvars.hcl` file specific to the build, you can set the `vm_bios` variable to either `seabios` for BIOS or `ovmf` for UEFI booting.
+Both UEFI and BIOS booting are supported for builds. Inside the `<build type>.pkrvars.hcl` file specific to the build, you can set the `vm_firmware` variable to either `seabios` for BIOS or `ovmf` for UEFI booting.
 
 > **Note**
 >
