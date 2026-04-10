@@ -1,6 +1,6 @@
 /*
     DESCRIPTION:
-    Debian Linux 11 network variables used by the Packer Plugin for VMware vSphere (vsphere-iso).
+    openSUSE Leap 15.5 network variables used by the Packer Plugin for VMware vSphere (vsphere-iso).
 */
 
 // VM Network Settings
