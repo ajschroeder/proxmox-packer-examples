@@ -60,6 +60,16 @@ variable "vm_storage" {
   })
 
   # -----------------------------------------
+  # Device naming (ADR-0002)
+  # -----------------------------------------
+  validation {
+    condition = alltrue([
+      for d in var.vm_storage.disks : can(regex("^vd[a-z]$", d.device))
+    ])
+    error_message = "Disk device names must follow VirtIO naming (vda, vdb, vdc...)."
+  }
+
+  # -----------------------------------------
   # Partition role validation
   # -----------------------------------------
   validation {
@@ -86,7 +96,7 @@ variable "vm_storage" {
   }
 
   # -----------------------------------------
-  # Only one grow partition (-1) per disk
+  # Grow partition and volume validation (ADR-0002)
   # -----------------------------------------
   validation {
     condition = alltrue([
@@ -97,9 +107,6 @@ variable "vm_storage" {
     error_message = "Each disk may have only one grow partition."
   }
 
-  # -----------------------------------------
-  # Single Grow LV per VG (ADR-0002)
-  # -----------------------------------------
   validation {
     condition = alltrue([
       for vg in var.vm_storage.volume_groups :
@@ -137,8 +144,13 @@ variable "vm_storage" {
   }
 
   # -----------------------------------------
-  # Only one EFI / BIOS GRUB partition
+  # EFI / BIOS GRUB partition validation
   # -----------------------------------------
+  validation {
+    condition = length([for p in flatten([for d in var.vm_storage.disks : d.partitions]) : p if p.role == "efi" || p.role == "bios_grub"]) >= 1
+    error_message = "ADR-0002 Compliance Error: You must define exactly one partition with role 'efi' (for OVMF/UEFI) or 'bios_grub' (for SeaBIOS/GPT)."
+  }
+
   validation {
     condition = length([
       for p in flatten([
@@ -159,19 +171,16 @@ variable "vm_storage" {
     error_message = "Only one bios_grub partition is allowed."
   }
 
-  # -----------------------------------------
-  # BIOS_GRUB can't be larger than 2MB
-  # -----------------------------------------
-  validation {
-    condition = alltrue(flatten([
-      for d in var.vm_storage.disks : [
-        for p in d.partitions :
-        p.role == "bios_grub" ? p.size <= 2 : true
-      ]
-    ]))
-    error_message = "BIOS_GRUB partitions (role 'bios_grub') must be 2MB or smaller."
-  }
-
+  // Currently not supporting BIOS on Ubuntu
+  // validation {
+  //   condition = alltrue(flatten([
+  //     for d in var.vm_storage.disks : [
+  //       for p in d.partitions :
+  //       p.role == "bios_grub" ? p.size <= 2 : true
+  //     ]
+  //   ]))
+  //   error_message = "BIOS_GRUB partitions (role 'bios_grub') must be 2MB or smaller."
+  // }
 
   # -----------------------------------------
   # Swap partition must use swap fs
@@ -255,6 +264,17 @@ variable "vm_storage" {
     error_message = "A bootloader helper partition (role 'efi' or 'bios_grub') must be defined."
   }
 
+  validation {
+    # Logic: Find any partition with role 'efi' and ensure size >= 100
+    # We use all() to ensure that IF an efi partition exists, it must meet the size.
+    condition = alltrue([
+      for d in var.vm_storage.disks : alltrue([
+        for p in d.partitions : p.size >= 100 if p.role == "efi"
+      ])
+    ])
+    error_message = "ADR-0002: EFI partitions must be at least 100MB. Recommended size is 512MB to ensure compatibility with modern bootloaders and kernel updates."
+  }
+
   # -----------------------------------------
   # Prevent duplicate mountpoints
   # -----------------------------------------
@@ -279,7 +299,7 @@ variable "vm_storage" {
   }
 
   # -----------------------------------------
-  # Every VG must have at least one PV
+  # Volume Group validations
   # -----------------------------------------
   validation {
     condition = alltrue([
@@ -298,9 +318,6 @@ variable "vm_storage" {
     error_message = "Each volume group referenced by a PV must have at least one PV partition."
   }
 
-  # -----------------------------------------
-  # Prevent VG references when no VG exist
-  # -----------------------------------------
   validation {
     condition = (
       length(var.vm_storage.volume_groups) > 0 ||
@@ -315,9 +332,6 @@ variable "vm_storage" {
     error_message = "Partitions cannot reference a volume group when none are defined."
   }
 
-  # -----------------------------------------
-  # Ensure defined VGs are used by a partition
-  # -----------------------------------------
   validation {
     condition = (
       length(var.vm_storage.volume_groups) == 0 ||
@@ -329,9 +343,6 @@ variable "vm_storage" {
     error_message = "Volume groups are defined but not used by any partition."
   }
 
-  # -----------------------------------------
-  # No duplicate VG names
-  # -----------------------------------------
   validation {
     condition = (
       length(distinct([
@@ -341,6 +352,31 @@ variable "vm_storage" {
     )
 
     error_message = "Volume group names must be unique."
+  }
+
+  # -----------------------------------------
+  # Multi-disk Validations (ADR-0002)
+  # -----------------------------------------
+  validation {
+    condition = alltrue([
+      for p in flatten([for d in var.vm_storage.disks : d.partitions]) :
+      p.role == "pv" ? contains([for vg in var.vm_storage.volume_groups : vg.name], p.vg) : true
+    ])
+    error_message = "PV partition references a volume group that does not exist in the volume_groups list."
+  }
+
+  validation {
+    # If disks > 1, then volume_groups must be > 0
+    condition = length(var.vm_storage.disks) > 1 ? length(var.vm_storage.volume_groups) > 0 : true
+
+    error_message = "ADR-0002 Multi-Disk Rule: Storage definitions with multiple disks must use LVM (Volume Groups) to ensure installer stability and consistent disk mapping."
+  }
+
+  validation {
+    condition = (
+      length(var.vm_storage.disks) == length(distinct([for d in var.vm_storage.disks : d.device]))
+    )
+    error_message = "ADR-0002: Duplicate device names detected in storage configuration. Each disk must have a unique 'device' identifier (e.g., vda, vdb)."
   }
 
 }

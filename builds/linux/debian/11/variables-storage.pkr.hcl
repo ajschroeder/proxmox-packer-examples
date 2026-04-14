@@ -1,6 +1,6 @@
 /*
   DESCRIPTION:
-   unified storage variables for Packer Plugin for Proxmox (proxmox-iso)
+  Debian 11 unified storage variables for Packer Plugin for Proxmox (proxmox-iso)
 */
 
 variable "vm_disk_controller_type" {
