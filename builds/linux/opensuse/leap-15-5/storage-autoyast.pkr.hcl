@@ -1,6 +1,6 @@
 /*
   DESCRIPTION:
-  OpenSUSE Leap AutoYaST Storage Translator.
+  openSUSE Leap 15.5 AutoYaST Storage Translator.
 
   PURPOSE:
   Converts the unified storage_data object into a valid AutoYaST

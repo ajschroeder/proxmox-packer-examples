@@ -84,8 +84,8 @@ locals {
         gateway = var.vm_ip_gateway
         dns     = var.vm_dns_list
       })
-      common_data_source       = var.common_data_source
-      storage                  = local.rendered_storage
+      common_data_source  = var.common_data_source
+      storage             = local.rendered_storage
       additional_packages = join(" ", var.additional_packages)
     })
   }
