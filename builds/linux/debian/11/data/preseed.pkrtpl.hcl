@@ -97,4 +97,3 @@ d-i preseed/late_command string \
 d-i preseed/early_command string \
     umount /media && echo 1 > /sys/block/sr1/device/delete ;
 %{ endif ~}
-
