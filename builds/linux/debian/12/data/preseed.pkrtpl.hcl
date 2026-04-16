@@ -4,11 +4,29 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 # Debian 12 (Bookworm) Preseed File
-# https://www.debian.org/releases/bullseye/amd64/
+# https://www.debian.org/releases/bookworm/amd64/
 
 # Locale and Keyboard
 d-i debian-installer/locale string ${vm_os_language}
 d-i keyboard-configuration/xkb-keymap select ${vm_os_keyboard}
+
+# Network configuration
+${network}
+
+# To set a different link detection timeout (default is 3 seconds).
+# Values are interpreted as seconds.
+d-i netcfg/link_wait_timeout string 10
+
+# If you have a slow dhcp server and the installer times out waiting for
+# it, this might be useful.
+d-i netcfg/dhcp_timeout string 60
+d-i netcfg/dhcpv6_timeout string 60
+
+# Mirror settings
+d-i mirror/country string manual
+d-i mirror/http/hostname string cdn-fastly.deb.debian.org
+d-i mirror/http/directory string /debian
+d-i mirror/http/proxy string
 
 # Clock and Timezone
 d-i clock-setup/utc boolean true
@@ -21,9 +39,6 @@ d-i grub-installer/only_debian boolean true
 
 # Partitioning
 ${storage}
-
-# Network configuration
-${network}
 
 ### Apt setup
 # Choose, if you want to scan additional installation media
@@ -38,19 +53,13 @@ d-i apt-setup/cdrom/set-first boolean false
 # entry for a DVD/BD installation image active in the installed system
 # (entries for netinst or CD images will be disabled anyway, regardless of
 # this setting).
-#d-i apt-setup/disable-cdrom-entries boolean true
+d-i apt-setup/disable-cdrom-entries boolean true
 # Uncomment this if you don't want to use a network mirror.
-#d-i apt-setup/use_mirror boolean false
+d-i apt-setup/use_mirror boolean true
 # Select which update services to use; define the mirrors to be used.
 # Values shown below are the normal defaults.
-#d-i apt-setup/services-select multiselect security, updates
-#d-i apt-setup/security_host string security.debian.org
-
-# Mirror settings
-d-i mirror/country string manual
-d-i mirror/http/hostname string cdn-fastly.deb.debian.org
-d-i mirror/http/directory string /debian
-d-i mirror/http/proxy string
+d-i apt-setup/services-select multiselect security, updates
+d-i apt-setup/security_host string security.debian.org
 
 # User Configuration
 d-i passwd/root-login boolean false
@@ -79,10 +88,8 @@ d-i grub-installer/only_debian boolean true
 d-i finish-install/reboot_in_progress note
 
 # Post-install script
-#  - Add User to Sudoers
-#  - Remove lv_delete volume group
 d-i preseed/late_command string \
-    echo '${build_username} ALL=(ALL) NOPASSWD: ALL' > /target/etc/sudoers.d/${build_username} ; \
+    in-target sh -c "echo '${build_username} ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/${build_username}"; \
     in-target chmod 440 /etc/sudoers.d/${build_username}
 
 %{ if common_data_source == "disk" ~}
@@ -90,4 +97,3 @@ d-i preseed/late_command string \
 d-i preseed/early_command string \
     umount /media && echo 1 > /sys/block/sr1/device/delete ;
 %{ endif ~}
-
