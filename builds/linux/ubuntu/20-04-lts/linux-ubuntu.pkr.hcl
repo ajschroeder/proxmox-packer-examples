@@ -46,7 +46,7 @@ locals {
   uefi_boot_command = [
     // This waits for 3 seconds, sends the "c" key, and then waits for another 3 seconds. In the GRUB boot loader, this is used to enter command line mode.
     "<esc><wait>",
-    // This types a command to load the Linux kernel fromthe specified path with the 'autoinstall' option and the value of the 'data_source_command' local variable.
+    // This types a command to load the Linux kernel from the specified path with the 'autoinstall' option and the value of the 'data_source_command' local variable.
     // The 'autoinstall' option is used to automate the installation process.
     // The 'data_source_command' local variable is used to specify the kickstart data source configured in the common variables.
     "linux /casper/vmlinuz autoinstall ${local.data_source_command} ---",
@@ -65,7 +65,6 @@ locals {
   build_date        = formatdate("DD-MM-YYYY hh:mm ZZZ", "${timestamp()}" )
   build_version     = data.git-repository.cwd.head
   build_description = "Version: ${local.build_version}\nBuilt on: ${local.build_date}\n${local.build_by}\nCloud-Init: ${var.vm_cloudinit}"
-  # For some reason 20.04 doesn't like quotes in the boot commands for BIOS machines
   http_command      = var.vm_firmware == "ovmf" ? "ds=\"nocloud-net;seedfrom=http://{{.HTTPIP}}:{{.HTTPPort}}/\"" : "ds=nocloud-net;seedfrom=http://{{.HTTPIP}}:{{.HTTPPort}}/"
   vm_disk_type      = var.vm_disk_type == "virtio" ? "vda" : "sda"
   manifest_date     = formatdate("YYYY-MM-DD hh:mm:ss", timestamp())
@@ -81,7 +80,6 @@ locals {
       vm_os_language           = var.vm_os_language
       vm_os_keyboard           = var.vm_os_keyboard
       vm_os_timezone           = var.vm_os_timezone
-
       network                  = templatefile("${abspath(path.root)}/data/network.pkrtpl.hcl", {
         device                 = var.vm_network_device
         ip                     = var.vm_ip_address
