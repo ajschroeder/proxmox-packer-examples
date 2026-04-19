@@ -24,7 +24,7 @@ autoinstall:
     allow_public_ssh_keys: true
   packages:
     - openssh-server
-    - qemu-guest-agent
+    - cloud-init
 %{ for package in additional_packages ~}
     - ${package}
 %{ endfor ~}
@@ -32,6 +32,8 @@ autoinstall:
     disable_root: false
     timezone: ${vm_os_timezone}
   late-commands:
-    - curtin in-target --target=/target -- sh -c "echo 'deploy ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/deploy"
-    - curtin in-target --target=/target -- chmod 440 /etc/sudoers.d/deploy
-    - curtin in-target --target=/target -- systemctl enable qemu-guest-agent
+    - curtin in-target -- sh -c "echo 'deploy ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/deploy"
+    - curtin in-target -- chmod 440 /etc/sudoers.d/deploy
+    - curtin in-target -- apt-get update
+    - curtin in-target -- apt-get install -y qemu-guest-agent
+    - curtin in-target -- systemctl enable qemu-guest-agent
