@@ -80,8 +80,8 @@ locals {
         gateway = var.vm_ip_gateway
         dns     = var.vm_dns_list
       })
-      common_data_source       = var.common_data_source
-      storage                  = local.rendered_storage
+      common_data_source  = var.common_data_source
+      storage             = local.rendered_storage
       additional_packages = join(" ", var.additional_packages)
     })
   }
@@ -222,7 +222,7 @@ build {
       vm_os_type               = "${var.vm_os_type}"
       vm_mem_size              = "${var.vm_mem_size}"
       vm_network_card_model    = "${var.vm_network_card_model}"
-      vm_cloud_init_enable     = "${var.vm_cloudinit}"
+      vm_cloudinit_enable      = "${var.vm_cloudinit}"
     }
   }
 }
