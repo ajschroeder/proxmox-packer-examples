@@ -25,15 +25,14 @@ Contributions via pull requests are appreciated. Before sending us a pull reques
 
 1. You [open a discussion](https://github.com/ajschroeder/proxmox-packer-examples/discussions) to discuss any significant work with the maintainer(s).
 1. You open an issue and link your pull request to the issue for context.
-1. You are working against the latest source on the `develop` branch.
-1. You check existing open, and recently merged, pull requests to make sure someone else hasn't already addressed
-   the problem.
+1. You are working against the latest source on the `main` branch.
+1. You check existing open, and recently merged, pull requests to make sure someone else hasn't already addressed the problem.
 
 To send us a pull request, please:
 
 1. Fork the repository.
 1. Modify the source; please focus on the **specific** change you are contributing.
-1. Ensure local tests pass.
+1. Ensure local tests pass. (e.g. `validate.sh`)
 1. Updated the documentation, if required.
 1. Commit to your fork [using a clear commit messages](http://chris.beams.io/posts/git-commit/). We ask you to
    lease use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
@@ -57,19 +56,19 @@ Example:
 
 ```shell
 git remote add upstream https://github.com/ajschroeder/proxmox-packer-examples.git
-git checkout -b feat/foo develop
+git checkout -b feat/foo main
 git commit -s -a
 git push origin feat/foo
 ```
 
 ### Staying In Sync With Upstream
 
-When your branch gets out of sync with the `proxmox-packer-examples/develop` branch, use the following to update:
+When your branch gets out of sync with the `proxmox-packer-examples/main` branch, use the following to update:
 
 ```shell
 git checkout feat/foo
 git fetch -a
-git pull --rebase upstream develop
+git pull --rebase upstream main
 git push --force-with-lease origin feat/foo
 ```
 
@@ -92,7 +91,7 @@ If you need to squash changes into an earlier commit, you can use:
 ```shell
 git add .
 git commit --fixup <commit>
-git rebase -i --autosquash develop
+git rebase -i --autosquash main
 git push --force-with-lease origin feat/foo
 ```
 
