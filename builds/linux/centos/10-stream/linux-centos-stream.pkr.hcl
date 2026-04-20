@@ -34,14 +34,7 @@ data "git-repository" "cwd" {}
 
 locals {
 
-  bios_boot_command = [
-    "<up><wait>",
-    "<tab><wait>",
-    " text ${local.data_source_command}",
-    "<enter><wait>"
-  ]
-
-  uefi_boot_command = [
+  boot_command = [
     // This sends the "up arrow" key, typically used to navigate through boot menu options.
     "<up>",
     // This sends the "e" key. In the GRUB boot loader, this is used to edit the selected boot menu option.
@@ -50,7 +43,7 @@ locals {
     "<down><down><end><wait>",
     // This types the string "text" followed by the value of the 'data_source_command' local variable.
     // This is used to modify the boot menu option's configuration to boot in text mode and specify the kickstart data source configured in the common variables.
-    "text ${local.data_source_command}",
+    " text ${local.data_source_command}",
     // This sends the "enter" key, waits, turns on the left control key, sends the "x" key, and then turns off the left control key. This is used to save the changes and exit the boot menu option's configuration, and then continue the boot process.
     "<enter><wait><leftCtrlOn>x<leftCtrlOff>"
   ]
@@ -72,30 +65,22 @@ locals {
       vm_os_language           = var.vm_os_language
       vm_os_keyboard           = var.vm_os_keyboard
       vm_os_timezone           = var.vm_os_timezone
+      vm_cloudinit             = var.vm_cloudinit
       network = templatefile("${abspath(path.root)}/data/network.pkrtpl.hcl", {
-        device  = var.vm_bridge_interface
+        device  = var.vm_network_device
         ip      = var.vm_ip_address
         netmask = var.vm_ip_netmask
         gateway = var.vm_ip_gateway
         dns     = var.vm_dns_list
       })
-      common_data_source       = var.common_data_source
-      # lvm needs to be here so late commands can access vg names
-      lvm                      = var.vm_disk_lvm
-      storage                  = templatefile("${abspath(path.root)}/data/storage.pkrtpl.hcl", {
-        device                 = var.vm_disk_device
-        swap                   = var.vm_disk_use_swap
-        partitions             = var.vm_disk_partitions
-        lvm                    = var.vm_disk_lvm
-        vm_bios                = var.vm_bios
-      })
+      common_data_source  = var.common_data_source
+      storage             = local.rendered_storage
       additional_packages = join(" ", var.additional_packages)
     })
   }
   data_source_command = var.common_data_source == "http" ? "inst.ks=http://{{.HTTPIP}}:{{.HTTPPort}}/ks.cfg" : "inst.ks=/cdrom/ks.cfg"
   vm_name = "${var.vm_os_family}-${var.vm_os_name}-${var.vm_os_version}"
-  boot_command = var.vm_bios == "ovmf" ? local.uefi_boot_command : local.bios_boot_command
-  vm_bios = var.vm_bios == "ovmf" ? var.vm_firmware_path : null
+  vm_firmware = var.vm_firmware == "ovmf" ? var.vm_firmware_path : null
 }
 
 //  BLOCK: source
@@ -114,7 +99,7 @@ source "proxmox-iso" "linux-centos-stream" {
 
   // Virtual Machine Settings
   vm_name         = "${local.vm_name}"
-  bios            = "${var.vm_bios}"
+  bios            = "${var.vm_firmware}"
   sockets         = "${var.vm_cpu_sockets}"
   cores           = "${var.vm_cpu_count}"
   cpu_type        = "${var.vm_cpu_type}"
@@ -122,19 +107,22 @@ source "proxmox-iso" "linux-centos-stream" {
   os              = "${var.vm_os_type}"
   scsi_controller = "${var.vm_disk_controller_type}"
 
-  disks {
-    disk_size     = "${var.vm_disk_size}"
-    type          = "${var.vm_disk_type}"
-    storage_pool  = "${var.vm_storage_pool}"
-    format        = "${var.vm_disk_format}"
+  dynamic "disks" {
+    for_each = local.proxmox_disks
+    content {
+      type            = disks.value.type
+      disk_size       = disks.value.disk_size
+      storage_pool    = disks.value.storage_pool
+      format          = disks.value.format
+    }
   }
 
   dynamic "efi_config" {
-    for_each = var.vm_bios == "ovmf" ? [1] : []
+    for_each = var.vm_firmware == "ovmf" ? [1] : []
     content {
-      efi_storage_pool  = var.vm_bios == "ovmf" ? var.vm_efi_storage_pool : null
-      efi_type          = var.vm_bios == "ovmf" ? var.vm_efi_type : null
-      pre_enrolled_keys = var.vm_bios == "ovmf" ? var.vm_efi_pre_enrolled_keys : null
+      efi_storage_pool  = var.vm_firmware == "ovmf" ? var.vm_efi_storage_pool : null
+      efi_type          = var.vm_firmware == "ovmf" ? var.vm_efi_type : null
+      pre_enrolled_keys = var.vm_firmware == "ovmf" ? var.vm_efi_pre_enrolled_keys : null
     }
   }
 
@@ -221,12 +209,12 @@ build {
       common_data_source       = "${var.common_data_source}"
       vm_cpu_sockets           = "${var.vm_cpu_sockets}"
       vm_cpu_count             = "${var.vm_cpu_count}"
-      vm_disk_size             = "${var.vm_disk_size}"
-      vm_bios                  = "${var.vm_bios}"
+      vm_disks                 = jsonencode(local.proxmox_disks)
+      vm_firmware              = "${var.vm_firmware}"
       vm_os_type               = "${var.vm_os_type}"
       vm_mem_size              = "${var.vm_mem_size}"
       vm_network_card_model    = "${var.vm_network_card_model}"
-      vm_cloudinit             = "${var.vm_cloudinit}"
+      vm_cloud_init_enable     = "${var.vm_cloudinit}"
     }
   }
 }

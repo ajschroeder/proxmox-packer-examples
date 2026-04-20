@@ -132,11 +132,6 @@ variable "vm_mem_size" {
   description = "The size for the virtual memory in MB. (e.g. '2048')"
 }
 
-variable "vm_disk_size" {
-  type        = string
-  description = "The size for the virtual disk in GB. (e.g. '32G')"
-}
-
 variable "vm_network_card_model" {
   type        = string
   description = "The model of the virtual network adapter to emulate. (e.g. 'virtio')"

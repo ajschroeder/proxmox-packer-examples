@@ -64,20 +64,22 @@ skipx
 ### Packages selection.
 %packages --ignoremissing --excludedocs
 @core
+sudo
+cloud-init
+qemu-guest-agent
+epel-release
 -iwl*firmware
 %end
 
 ### Post-installation commands.
 %post
 dnf makecache
-dnf install epel-release -y
-dnf makecache
-dnf install -y sudo qemu-guest-tools
 %{ if additional_packages != "" ~}
 dnf install -y ${additional_packages}
 %{ endif ~}
 echo "${build_username} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers.d/${build_username}
 sed -i "s/^.*requiretty/#Defaults requiretty/" /etc/sudoers
+systemctl enable qemu-guest-agent
 %end
 
 ### Reboot after the installation is complete.

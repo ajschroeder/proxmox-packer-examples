@@ -1,6 +1,6 @@
 /*
     DESCRIPTION:
-    Ubuntu Server 25.04 LTS variables used by the Packer Plugin for Proxmox (proxmox-iso).
+    Ubuntu Server 25.04 variables used by the Packer Plugin for Proxmox (proxmox-iso).
 */
 
 // Guest Operating System Metadata
@@ -9,20 +9,18 @@ vm_os_keyboard   = "us"
 vm_os_timezone   = "UTC"
 vm_os_family     = "linux"
 vm_os_name       = "ubuntu"
-vm_os_version    = "25.04-lts"
+vm_os_version    = "25.04"
 
 // Virtual Machine Guest Operating System Setting
 vm_os_type       = "l26"
 vm_cloudinit     = true
 
 // Virtual Machine Hardware Settings
-vm_bios                 = "ovmf"
 vm_cpu_count            = 1
 vm_cpu_sockets          = 1
 vm_cpu_type             = "x86-64-v3"
 vm_mem_size             = 2048
 vm_disk_type            = "virtio"
-vm_disk_size            = "32G"
 vm_disk_format          = "raw"
 vm_disk_controller_type = "virtio-scsi-pci"
 vm_network_card_model   = "virtio"

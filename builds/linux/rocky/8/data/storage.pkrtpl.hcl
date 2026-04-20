@@ -11,63 +11,19 @@ zerombr
 clearpart --all --initlabel
 
 ### Modify partition sizes for the virtual machine hardware.
-### Create primary system partitions.
-%{ for partition in partitions ~}
-part
-%{~ if partition.volume_group != "" ~}
- pv.${partition.volume_group}
-%{~ else ~}
-%{~ if partition.format.fstype == "swap" ~}
- swap
-%{~ else ~}
- ${partition.mount.path}
-%{~ endif ~}
-%{~ if partition.format.fstype != "" ~}
- --label=${partition.format.label}
-%{~ if partition.format.fstype == "fat32" ~}
- --fstype vfat
-%{~ else ~}
- --fstype ${partition.format.fstype}
-%{~ endif ~}
-%{~ endif ~}
-%{~ endif ~}
-%{~ if partition.mount.options != "" ~}
-  --fsoptions="${partition.mount.options}"
-%{~ endif ~}
-%{~ if partition.size != -1 ~}
- --size=${partition.size}
-%{~ else ~}
- --size=100 --grow
+### Physical partitions
+%{ for line in plan.partition_lines ~}
+${line}
+%{ endfor ~}
+
+### Volume group
+%{ if plan.lvm_enabled ~}
+%{ for line in plan.volgroup_lines ~}
+${line}
+%{ endfor ~}
 %{ endif ~}
 
-%{ endfor ~}
-### Create a logical volume management (LVM) group.
-%{ for index, volume_group in lvm ~}
-volgroup sysvg pv.${volume_group.name}
-
-### Modify logical volume sizes for the virtual machine hardware.
-### Create logical volumes.
-%{ for partition in volume_group.partitions ~}
-logvol
-%{~ if partition.format.fstype == "swap" ~}
- swap
-%{~ else ~}
- ${partition.mount.path}
-%{~ endif ~}
- --name=${partition.name} --vgname=${volume_group.name} --label=${partition.format.label}
-%{~ if partition.format.fstype == "fat32" ~}
- --fstype vfat
-%{~ else ~}
- --fstype ${partition.format.fstype}
-%{~ endif ~}
-%{~ if partition.mount.options != "" ~}
- --fsoptions="${partition.mount.options}"
-%{~ endif ~}
-%{~ if partition.size != -1 ~}
- --size=${partition.size}
-%{~ else ~}
- --size=100 --grow
-%{ endif ~}
-
-%{ endfor ~}
+### Logical volumes
+%{ for line in plan.logvol_lines ~}
+${line}
 %{ endfor ~}

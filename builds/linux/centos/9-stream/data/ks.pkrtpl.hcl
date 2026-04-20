@@ -37,11 +37,11 @@ user --name=${build_username} --iscrypted --password=${build_password_encrypted}
 
 ### Configure firewall settings for the system.
 ### --enabled	reject incoming connections that are not in response to outbound requests
-### --ssh		allow sshd service through the firewall
+### --ssh	allow sshd service through the firewall
 firewall --enabled --ssh
 
 ### Sets up the authentication options for the system.
-### The SSDD profile sets sha512 to hash passwords. Passwords are shadowed by default
+### The SSSD profile sets sha512 to hash passwords. Passwords are shadowed by default
 ### See the manual page for authselect-profile for a complete list of possible options.
 authselect select sssd
 
@@ -64,17 +64,22 @@ skipx
 ### Packages selection.
 %packages --ignoremissing --excludedocs
 @core
+sudo
+cloud-init
+qemu-guest-agent
+epel-release
 -iwl*firmware
 %end
 
 ### Post-installation commands.
 %post
 dnf makecache
-dnf install epel-release -y
-dnf makecache
-dnf install -y sudo qemu-guest-tools
+%{ if additional_packages != "" ~}
+dnf install -y ${additional_packages}
+%{ endif ~}
 echo "${build_username} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers.d/${build_username}
 sed -i "s/^.*requiretty/#Defaults requiretty/" /etc/sudoers
+systemctl enable qemu-guest-agent
 %end
 
 ### Reboot after the installation is complete.

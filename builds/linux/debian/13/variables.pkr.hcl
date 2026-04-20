@@ -131,31 +131,6 @@ variable "vm_mem_size" {
   description = "The size for the virtual memory in MB. (e.g. '2048')"
 }
 
-variable "vm_disk_controller_type" {
-  type        = string
-  description = "The SCSI controller model to emulate. (e.g. 'virtio-scsi-pci')"
-}
-
-variable "vm_disk_type" {
-  type        = string
-  description = "The type of disk to emulate. (e.g. 'virtio')"
-}
-
-variable "vm_storage_pool" {
-  type        = string
-  description = "The name of the Proxmox storage pool to store the VM template. (e.g. 'local-lvm')"
-}
-
-variable "vm_disk_size" {
-  type        = string
-  description = "The size for the virtual disk in GB. (e.g. '32G')"
-}
-
-variable "vm_disk_format" {
-  type        = string
-  description = "The format of the file backing the disk. (e.g. 'qcow2')"
-}
-
 variable "vm_network_card_model" {
   type        = string
   description = "The model of the virtual network adapter to emulate. (e.g. 'virtio')"
