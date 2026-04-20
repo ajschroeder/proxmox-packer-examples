@@ -1,6 +1,6 @@
 /*
     DESCRIPTION:
-    Debian Linux 11 network variables used by the Packer Plugin for VMware vSphere (vsphere-iso).
+    openSUSE Leap 15.6 network variables used by the Packer Plugin for Proxmox (proxmox-iso)
 */
 
 // VM Network Settings

@@ -77,14 +77,25 @@ variable "vm_os_type" {
   description = "The guest operating system type. (e.g. 'l26')"
 }
 
-variable "vm_bios" {
+variable "vm_firmware" {
   type        = string
-  description = "The firmware type. Allowed values 'ovmf' or 'seabios'"
-  default     = "ovmf"
+  description = "The firmware type. Only allowed value is 'ovmf'"
 
+  # ---------------------------------------------------------
+  # ADR-0002 Enforcement: Ubuntu BIOS Support Policy
+  # ---------------------------------------------------------
   validation {
-    condition     = contains(["ovmf", "seabios"], var.vm_bios)
-    error_message = "The vm_bios value must be 'ovmf' or 'seabios'."
+    # If the OS is Ubuntu (implied by this directory), BIOS is unsupported
+    condition     = var.vm_firmware != "seabios"
+    error_message = <<-EOF
+[ADR-0002 Violation]
+BIOS (seabios) is UNSUPPORTED for Ubuntu templates.
+The normalized Storage API requires UEFI (ovmf) to ensure
+reliable partitioning and LVM support on Subiquity.
+
+ACTION REQUIRED:
+Update your linux-storage.pkrvars.hcl to set: vm_firmware = "ovmf".
+EOF
   }
 }
 
@@ -130,31 +141,6 @@ variable "vm_cpu_type" {
 variable "vm_mem_size" {
   type        = number
   description = "The size for the virtual memory in MB. (e.g. '2048')"
-}
-
-variable "vm_disk_controller_type" {
-  type        = string
-  description = "The SCSI controller model to emulate. (e.g. 'virtio-scsi-pci')"
-}
-
-variable "vm_disk_type" {
-  type        = string
-  description = "The type of disk to emulate. (e.g. 'virtio')"
-}
-
-variable "vm_storage_pool" {
-  type        = string
-  description = "The name of the Proxmox storage pool to store the VM template. (e.g. 'local-lvm')"
-}
-
-variable "vm_disk_size" {
-  type        = string
-  description = "The size for the virtual disk in GB. (e.g. '32G')"
-}
-
-variable "vm_disk_format" {
-  type        = string
-  description = "The format of the file backing the disk. (e.g. 'qcow2')"
 }
 
 variable "vm_network_card_model" {

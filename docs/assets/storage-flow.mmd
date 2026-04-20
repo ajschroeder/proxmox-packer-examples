@@ -1,0 +1,17 @@
+flowchart TD
+    A["vm_storage\n(User Input)"] --> B["HCL Normalization"]
+    B --> C["storage_plan\n(Validated)"]
+    C --> D["Template Rendering\n(No Logic)"]
+    D --> E["OS Installer"]
+    E --> F["Final Disk Layout"]
+
+    subgraph Guarantees
+        G1["Deterministic"]
+        G2["Cross-Distro"]
+        G3["Validated Early"]
+    end
+
+    B --> G3
+    C --> G1
+    D --> G2
+

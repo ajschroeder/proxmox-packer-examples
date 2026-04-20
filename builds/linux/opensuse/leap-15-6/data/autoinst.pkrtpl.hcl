@@ -562,6 +562,15 @@ ${storage}
   </user_defaults>
   <users t="list">
     <user t="map">
+      <username>root</username>
+      <user_password>!</user_password>
+      <encrypted t="boolean">true</encrypted>
+      <uid>0</uid>
+      <gid>0</gid>
+      <home>/root</home>
+      <shell>/bin/bash</shell>
+    </user>
+    <user t="map">
       <authorized_keys t="list"/>
       <encrypted t="boolean">true</encrypted>
       <fullname>Build User</fullname>

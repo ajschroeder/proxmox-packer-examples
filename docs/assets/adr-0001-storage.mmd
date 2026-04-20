@@ -1,0 +1,13 @@
+flowchart TD
+    A["User Input (vm_storage)"] --> B["HCL Normalization"]
+    B --> C[Validation Layer]
+    C --> D[Normalized Storage Plan]
+
+    D --> E1["LVM Layout (PV → VG → LV)"]
+    D --> E2[Partition-only Layout]
+
+    E1 --> F["Installer Rendering Templates (Kickstart / Preseed / Autoinstall)"]
+    E2 --> F
+
+    F --> G[OS Disk Layout / Proxmox Provisioning]
+
