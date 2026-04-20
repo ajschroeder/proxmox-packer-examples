@@ -80,7 +80,6 @@ variable "vm_os_type" {
 variable "vm_firmware" {
   type        = string
   description = "The firmware type. Only allowed value is 'ovmf'"
-  default     = "ovmf"
 
   # ---------------------------------------------------------
   # ADR-0002 Enforcement: Ubuntu BIOS Support Policy
