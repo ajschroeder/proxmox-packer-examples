@@ -37,7 +37,6 @@ locals {
   build_date        = formatdate("DD-MM-YYYY hh:mm ZZZ", "${timestamp()}" )
   build_version     = data.git-repository.cwd.head
   build_description = "Version: ${local.build_version}\nBuilt on: ${local.build_date}\n${local.build_by}\nCloud-Init: ${var.vm_cloudinit}"
-  http_command      = var.vm_firmware == "ovmf" ? "ds=\"nocloud-net;seedfrom=http://{{.HTTPIP}}:{{.HTTPPort}}/\"" : "ds=nocloud-net;seedfrom=http://{{.HTTPIP}}:{{.HTTPPort}}/"
   vm_disk_type      = var.vm_disk_type == "virtio" ? "vda" : "sda"
   manifest_date     = formatdate("YYYY-MM-DD hh:mm:ss", timestamp())
   manifest_path     = "${path.cwd}/manifests/"
@@ -64,8 +63,7 @@ locals {
       additional_packages      = var.additional_packages
     })
   }
-
-  data_source_command = var.common_data_source == "http" ? "${local.http_command}" : "ds=nocloud"
+  data_source_command = var.common_data_source == "http" ? "ds=\"nocloud-net;seedfrom=http://{{.HTTPIP}}:{{.HTTPPort}}/\"" : "ds=nocloud"
   vm_name = "${var.vm_os_family}-${var.vm_os_name}-${var.vm_os_version}"
   vm_firmware = var.vm_firmware == "ovmf" ? var.vm_firmware_path : null
 }

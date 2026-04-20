@@ -33,39 +33,10 @@ data "git-repository" "cwd" {}
 //  Defines the local variables.
 
 locals {
-  bios_boot_command = [
-    "<esc><esc><esc>",
-    "<enter><wait>",
-    "/casper/vmlinuz ",
-    "root=/dev/sr0 ",
-    "initrd=/casper/initrd ",
-    "autoinstall ",
-    "${local.data_source_command}",
-    "<enter>"
-  ]
-  uefi_boot_command = [
-    // This waits for 3 seconds, sends the "c" key, and then waits for another 3 seconds. In the GRUB boot loader, this is used to enter command line mode.
-    "<esc><wait>",
-    // This types a command to load the Linux kernel from the specified path with the 'autoinstall' option and the value of the 'data_source_command' local variable.
-    // The 'autoinstall' option is used to automate the installation process.
-    // The 'data_source_command' local variable is used to specify the kickstart data source configured in the common variables.
-    "linux /casper/vmlinuz autoinstall ${local.data_source_command} ---",
-    // This sends the "enter" key and then waits. This is typically used to execute the command and give the system time to process it.
-    "<enter><wait>",
-    // This types a command to load the initial RAM disk from the specified path.
-    "initrd /casper/initrd",
-    // This sends the "enter" key and then waits. This is typically used to execute the command and give the system time to process it.
-    "<enter><wait>",
-    // This types the "boot" command. This starts the boot process using the loaded kernel and initial RAM disk.
-    "boot",
-    // This sends the "enter" key. This is typically used to execute the command.
-    "<enter>"
-  ]
   build_by          = "Built by: HashiCorp Packer ${packer.version}"
   build_date        = formatdate("DD-MM-YYYY hh:mm ZZZ", "${timestamp()}" )
   build_version     = data.git-repository.cwd.head
   build_description = "Version: ${local.build_version}\nBuilt on: ${local.build_date}\n${local.build_by}\nCloud-Init: ${var.vm_cloudinit}"
-  http_command      = var.vm_firmware == "ovmf" ? "ds=\"nocloud-net;seedfrom=http://{{.HTTPIP}}:{{.HTTPPort}}/\"" : "ds=nocloud-net;seedfrom=http://{{.HTTPIP}}:{{.HTTPPort}}/"
   vm_disk_type      = var.vm_disk_type == "virtio" ? "vda" : "sda"
   manifest_date     = formatdate("YYYY-MM-DD hh:mm:ss", timestamp())
   manifest_path     = "${path.cwd}/manifests/"
@@ -92,10 +63,8 @@ locals {
       additional_packages      = var.additional_packages
     })
   }
-
-  data_source_command = var.common_data_source == "http" ? "${local.http_command}" : "ds=nocloud"
+  data_source_command = var.common_data_source == "http" ? "ds=\"nocloud-net;seedfrom=http://{{.HTTPIP}}:{{.HTTPPort}}/\"" : "ds=nocloud"
   vm_name = "${var.vm_os_family}-${var.vm_os_name}-${var.vm_os_version}"
-  boot_command = var.vm_firmware == "ovmf" ? local.uefi_boot_command : local.bios_boot_command
   vm_firmware = var.vm_firmware == "ovmf" ? var.vm_firmware_path : null
 }
 
@@ -163,7 +132,24 @@ source "proxmox-iso" "ubuntu" {
   http_port_max     = var.common_data_source == "http" ? var.common_http_port_max : null
   boot              = var.vm_boot
   boot_wait         = var.vm_boot_wait
-  boot_command      = local.boot_command
+  boot_command = [
+    // This sends the `esc` key, then waits.
+    "<esc><wait>",
+    // This types a command to load the Linux kernel from the specified path with the 'autoinstall' option and the value of the 'data_source_command' local variable.
+    // The 'autoinstall' option is used to automate the installation process.
+    // The 'data_source_command' local variable is used to specify the kickstart data source configured in the common variables.
+    "linux /casper/vmlinuz --- autoinstall ${local.data_source_command}",
+    // This sends the "enter" key and then waits. This is typically used to execute the command and give the system time to process it.
+    "<enter><wait>",
+    // This types a command to load the initial RAM disk from the specified path.
+    "initrd /casper/initrd",
+    // This sends the "enter" key and then waits. This is typically used to execute the command and give the system time to process it.
+    "<enter><wait>",
+    // This types the "boot" command. This starts the boot process using the loaded kernel and initial RAM disk.
+    "boot",
+    // This sends the "enter" key. This is typically used to execute the command.
+    "<enter>"
+  ]
 
   boot_iso {
     iso_file      = "${var.common_iso_storage}:${var.iso_path}/${var.iso_file}"
