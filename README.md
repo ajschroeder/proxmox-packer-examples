@@ -56,6 +56,14 @@ The following builds are available:
 
 ## Requirements
 
+**Dev Container (Recommended)**:
+
+This repository includes a ready-to-use [VS Code Dev Container](.devcontainer/Dockerfile) with HashiCorp Packer, required Packer plugins (`proxmox` and `ansible`), Ansible, `xorriso`, and `mkpasswd` (`whois`) pre-installed.
+
+> **Note**
+>
+> When running builds from inside the Dev Container, set `common_data_source = "disk"` in `config/common.pkrvars.hcl` so Packer attaches the installer configuration via a `cidata` CD-ROM image instead of serving it over an internal container bridge IP.
+
 **Operating Systems**:
 
 Operating systems and versions tested with the project:
@@ -226,35 +234,41 @@ Run the config script `./config.sh` to copy the `.pkrvars.hcl.example` files to 
 ./build.sh
 ```
 
+> **Tip**
+>
+> Both `./config.sh` and `./build.sh` accept an optional `CONFIG_PATH` argument if you want to maintain separate configuration directories for multiple Proxmox hosts or environments (defaults to `config/`):
+>
+> ```shell
+> ./config.sh pve-lab
+> ./build.sh pve-lab
+> ```
+
 ## Configuration Variables
 
 ### Ansible Variables
 
-Edit the `config/ansible.pkrvars.hcl` file to configure the credentials for the Ansible account on Linux machine images.
+Edit the `config/ansible.pkrvars.hcl` file to configure the dedicated Ansible service account created on Linux machine images for Day-2 configuration management (after a VM is cloned from the template).
 
 ```hcl title="config/ansible.pkrvars.hcl"
 ansible_username = "ansible"
-ansible_key      = "<public_key>"
+ansible_key      = "ssh-ed25519 AAAA... <comment>"
 ```
 
-**Ansible User Password**
-
-A random password is auto-generated for the Ansible user.
+- **Ansible User Password**: Password login is locked (`!`) for the `ansible_username` account; it only accepts SSH public key authentication via `ansible_key` and is configured with passwordless `sudo`.
+- **Public Key Format**: Make sure `ansible_key` contains the full line from your `.pub` file, including the key type prefix (such as `ssh-ed25519 ` or `ssh-rsa `).
 
 ### Build Variables
 
-Edit the `config/build.pkrvars.hcl` file to configure the credentials for the default account on machine images.
+Edit the `config/build.pkrvars.hcl` file to configure the initial bootstrap account created by the guest OS installer. During the Packer build itself, Packer (and the Packer Ansible provisioner) connects to the VM using `build_username` and `build_password`.
 
 ```hcl title="config/build.pkrvars.hcl"
-build_username           = "example"
+build_username           = "deploy"
 build_password           = "<plaintext_password>"
 build_password_encrypted = "<sha512_encrypted_password>"
-build_key                = "<public_key>"
+build_key                = "ssh-ed25519 AAAA... <comment>"
 ```
 
-You will need to generate a SHA-512 encrypted password for the `build_password_encrypted` using tools like `mkpasswd`.
-
-Run the following command to generate a SHA-512 encrypted password:
+You will need to generate a SHA-512 encrypted password for `build_password_encrypted` (which must match `build_password`) using `mkpasswd`:
 
 ```shell
 mkpasswd -m sha512crypt
@@ -267,34 +281,32 @@ Password: ***************
 [password hash]
 ```
 
-Generate a public key for the `build_key` for public key authentication.
-
-Run the following command to generate a public key for the `build_key` for public key authentication.
+To generate an SSH key pair for `build_key` (or `ansible_key`), run:
 
 ```shell
-ssh-keygen -t ecdsa -b 512 -C "<name@example.com>"
+ssh-keygen -t ed25519 -C "<name@example.com>"
 ```
 
 The following output is displayed:
 
 ```shell
-Generating public/private ecdsa key pair.
-Enter file in which to save the key (/Users/example/.ssh/id_ecdsa):
+Generating public/private ed25519 key pair.
+Enter file in which to save the key (/home/example/.ssh/id_ed25519):
 Enter passphrase (empty for no passphrase): **************
 Enter same passphrase again: **************
-Your identification has been saved in /Users/example/.ssh/id_ecdsa.
-Your public key has been saved in /Users/example/.ssh/id_ecdsa.pub.
+Your identification has been saved in /home/example/.ssh/id_ed25519
+Your public key has been saved in /home/example/.ssh/id_ed25519.pub
 ```
 
-The content of the public key, `build_key`, is added the key to the `~/.ssh/authorized_keys` file of the `build_username` on the Linux guest operating systems.
+Copy the full contents of the `.pub` file (including the `ssh-ed25519` prefix) into `build_key`. During the build, Ansible adds `build_key` to `~/.ssh/authorized_keys` for `build_username` on Linux guest operating systems so you can log in with your private key after cloning a VM from the template.
 
 > [!IMPORTANT]
 >
-> Make sure to replace the example public keys and passwords!
+> Make sure to replace the placeholder public keys in both `config/ansible.pkrvars.hcl` and `config/build.pkrvars.hcl`, as well as the default passwords! The Ansible `users` role validates both keys during the build and will fail if placeholder text is left in place.
 >
 > By default, both Public Key Authentication and Password Authentication are enabled for Linux distributions.
 >
-> If you wish to disable Password Authentication and only use Public Key Authentication, comment or remove the portion of the associated Ansible `configure` role.
+> If you wish to disable Password Authentication and only use Public Key Authentication, you can configure that in the associated Ansible `configure` role.
 
 ### Common Variables
 
@@ -307,6 +319,9 @@ Edit the `config/common.pkrvars.hcl` file to configure the following common vari
 ```hcl title="config/common.pkrvars.hcl"
 // Removable Media Settings
 common_iso_storage = "<Proxmox Storage Location>"
+
+// Proxmox storage pool for Cloud-Init drives (Linux) and VM template disks (Windows)
+vm_storage_pool = "<Proxmox Storage Pool>"
 
 // Boot and Provisioning Settings
 common_data_source       = "http"
@@ -346,13 +361,17 @@ common_data_source = "http"
 >    firewall-cmd --reload
 >    ```
 
-You can change the `common_data_source` from `http` to `disk` to build supported Linux machine images without the need to use Packer's HTTP server. This is useful for environments that may not be able to route back to the system from which Packer is running. For example, building a machine image in VMware Cloud on AWS.
+You can change the `common_data_source` from `http` to `disk` to build supported Linux machine images without the need to use Packer's HTTP server. This is required when running Packer from inside a **Dev Container** (where the container uses an internal bridge IP unreachable from Proxmox), and is also useful when a firewall or VPN prevents the VM on Proxmox from routing back to the system running Packer.
 
 ```hcl title="config/common.pkrvars.hcl"
 common_data_source = "disk"
 ```
 
-The Packer plugin's `cd_content` option is used when selecting `disk` unless the distribution does not support a secondary CD-ROM.
+When `disk` is selected, Packer uses `xorriso` (or `mkisofs` / `genisoimage`) and the Proxmox plugin's `cd_content` option to generate a temporary `cidata` ISO containing the installer configuration (`ks.cfg`, `preseed.cfg`, `user-data`, etc.), upload it to `common_iso_storage` on Proxmox, and attach it as a secondary CD-ROM drive during installation.
+
+> **Note**
+>
+> When building **Debian** templates with `common_data_source = "disk"`, the Debian installer will briefly display a red **"Failed to retrieve the preconfiguration file"** screen for ~20–30 seconds after booting. **Do not cancel the build!** This is expected: the `boot_command` waits 30 seconds for the installer to initialize, then automatically switches to `tty2`, mounts the `cidata` CD-ROM drive (`/dev/sr1`) to `/media`, and reloads `/media/preseed.cfg` to continue the hands-off installation.
 
 #### HTTP Interface
 
@@ -427,17 +446,17 @@ For Proxmox installs that use a self-signed certificate, you will want to set `p
 
 ### Storage Configuration
 
-Linux templates use a normalized **Storage API** to define disk layouts.
+Linux templates use a normalized **Storage API** to define VM firmware/EFI settings and disk layouts.
 
 Storage is configured in:
 
-`config/linux-storage.pkr.hcl`
+`config/linux-storage.pkrvars.hcl`
 
-By default, this file contains a **baseline single-disk LVM layout** that works across all supported distributions.
+By default, this file is pre-populated with a **baseline single-disk LVM layout** (`docs/storage/recipes/01-baseline-lvm.md`) that works across all supported distributions. Make sure to update `vm_efi_storage_pool` and each disk's `storage_pool` in `config/linux-storage.pkrvars.hcl` to match your Proxmox storage pool.
 
-You can customize storage by modifying this file or by using one of the predefined storage recipes.
+You can customize storage by modifying `config/linux-storage.pkrvars.hcl` in place or by replacing its contents with one of the predefined storage recipes.
 
-👉 See: `docs/storage/`
+👉 See: [`docs/storage/`](docs/storage/README.md)
 
 The Storage API provides:
 
@@ -447,7 +466,10 @@ The Storage API provides:
 
 > **Note**
 >
-> Storage configuration is only applied to Linux templates. Windows builds use a separate model.
+> Storage configuration in `config/linux-storage.pkrvars.hcl` is only applied to Linux templates. Windows builds use a separate model:
+> - The main OS disk (`virtio0`) uses `vm_storage_pool` in `config/common.pkrvars.hcl` and `vm_disk_size` in `config/windows-desktop-11.pkrvars.hcl`.
+> - The EFI and TPM 2.0 state disks use `vm_efi_storage_pool` and `vm_tpm_storage_pool` in `config/windows-desktop-11.pkrvars.hcl`.
+> - Windows builds also require `virtio-win.iso` to be present in your `common_iso_storage` pool (`<common_iso_storage>:iso/virtio-win.iso`).
 
 ## Packer Machine Image Builds
 
@@ -456,7 +478,6 @@ Edit the `<build type>.pkrvars.hcl` file in the `config` directory for each type
 - CPUs `(int)`
 - CPU Cores `(int)`
 - Memory in MB `(int)`
-- Primary Disk in MB `(string)` (e.g. 32GB)
 - .iso Path `(string)`
 - .iso File `(string)`
 
@@ -492,9 +513,6 @@ iso_checksum = "file:https://releases.ubuntu.com/jammy/SHA256SUMS"
 // Boot Settings
 vm_boot      = "order=virtio0;ide2;net0"
 vm_boot_wait = "5s"
-
-// EFI Settings
-vm_firmware_path         = "./OVMF.fd"
 ```
 
 > **Note**
@@ -502,15 +520,15 @@ vm_firmware_path         = "./OVMF.fd"
 >   All `config/<build type>.pkrvars.hcl` default to using:
 >   - VirtIO SCSI storage device
 >   - VirtIO (paravirtualized) network card device
->   - UEFI boot firmware
+>   - UEFI boot firmware (configured via `config/linux-storage.pkrvars.hcl` for Linux builds)
 
 The defaults use VirtIO to balance out performance, compatibility, and ease of use. Feel free to change the storage and network controllers to suit your needs. However, if you change the storage or network controllers and run into issues you should change them back to defaults and try the builds again. Builds using non-VirtIO drivers are not supported.
 
-Both UEFI and BIOS booting are supported for builds. Inside the `<build type>.pkrvars.hcl` file specific to the build, you can set the `vm_firmware` variable to either `seabios` for BIOS or `ovmf` for UEFI booting.
+Both UEFI and BIOS booting are supported for non-Ubuntu Linux builds (Ubuntu requires UEFI per ADR-0002). Inside `config/linux-storage.pkrvars.hcl`, you can set the `vm_firmware` variable to either `ovmf` for UEFI or `seabios` for BIOS booting.
 
 > **Note**
 >
->   The storage layouts are different for each bootloader type so you'll need to configure the storage layouts accordingly.
+>   The storage layouts are different for each bootloader type so you'll need to configure `vm_storage` in `config/linux-storage.pkrvars.hcl` accordingly.
 
 ### Cloud-Init
 All builds for operating systems that support [cloud-init][cloud-init] now have the option to enable it. This can be done on a per-build basis inside the `<build type>.pkrvars.hcl` files in the `config` directory. The default setting is `true`.

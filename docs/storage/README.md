@@ -4,7 +4,7 @@
 This repository implements a normalized Storage API for building Linux VM templates with Packer and Proxmox.
 Rather than defining disk layouts inside OS-specific installers (Kickstart, Preseed, Autoinstall), storage is:
 
-- defined once via vm_storage (inside `$CONFIG_DIR/linux-storage.pkr.hcl`)
+- defined once via `vm_storage` (inside `config/linux-storage.pkrvars.hcl`)
 - validated and normalized in HCL
 - rendered consistently across all supported distributions
 
@@ -14,10 +14,10 @@ This document introduces **Storage Recipes** - predefined storage configurations
 
 If you're unsure where to begin:
 
-👉 Use: `01-baseline-lvm.md`
+👉 Use: [`recipes/01-baseline-lvm.md`](recipes/01-baseline-lvm.md)
 
 - Works across all distributions
-- Matches the default configuration
+- Pre-populated by default in `config/linux-storage.pkrvars.hcl` when you run `./config.sh`
 - Safe starting point
 
 ---
@@ -26,23 +26,23 @@ If you're unsure where to begin:
 
 ### General Purpose
 
-| Use Case                      | Recipe             | Description                         |
-| :---                          | :---               | :---                                |
-| Default / safe starting point | 01-baseline-lvm.md | Single disk, LVM, highly compatible |
-| Minimal system                | 02-no-lvm.md       | No LVM, simple partition layout     |
+| Use Case                      | Recipe                                                 | Description                         |
+| :---                          | :---                                                   | :---                                |
+| Default / safe starting point | [`01-baseline-lvm.md`](recipes/01-baseline-lvm.md)     | Single disk, LVM, highly compatible |
+| Minimal system                | [`02-no-lvm.md`](recipes/02-no-lvm.md)                 | No LVM, simple partition layout     |
 
 ### Data Separation
 
-| Use Case                | Recipe               | Description               |
-| :---                    | :---                 | :---                      |
-| OS + data disk          | 03-dual-disk-data.md | Separate disk for /data   |
-| Multi-disk storage pool | 04-multi-disk-vg.md  | Combine disks into one VG |
+| Use Case                | Recipe                                                     | Description               |
+| :---                    | :---                                                       | :---                      |
+| OS + data disk          | [`03-dual-disk-data.md`](recipes/03-dual-disk-data.md)     | Separate disk for /data   |
+| Multi-disk storage pool | [`04-multi-disk-vg.md`](recipes/04-multi-disk-vg.md)       | Combine disks into one VG |
 
 ### Dynamic / Flexible Storage
-| Use Case              | Recipe              | Description                   |
-| :---                  | :---                | :---                          |
-| Auto-expand root      | 05-grow-lvm.md      | Uses all available disk space |
-| Future disk expansion | 04-multi-disk-vg.md | Add disks to VG later         |
+| Use Case              | Recipe                                                 | Description                   |
+| :---                  | :---                                                   | :---                          |
+| Auto-expand root      | [`05-grow-lvm.md`](recipes/05-grow-lvm.md)             | Uses all available disk space |
+| Future disk expansion | [`04-multi-disk-vg.md`](recipes/04-multi-disk-vg.md)   | Add disks to VG later         |
 
 ### Advanced / Edge Cases
 
@@ -74,10 +74,14 @@ If you’re overthinking it, use this:
 
 ## 🔧 Using a Storage Recipe
 
-1. Open the recipe file
-1. Copy the `vm_storage` block
-1. Paste into your `$CONFIG_DIR/linux-storage.pkr.hcl`
-1. Modify as needed:
+> **Note:** Running `./config.sh` already populates `config/linux-storage.pkrvars.hcl` with [`01-baseline-lvm.md`](recipes/01-baseline-lvm.md). If you are using the baseline LVM layout, you only need to update `vm_efi_storage_pool` and `storage_pool` in `config/linux-storage.pkrvars.hcl` to match your Proxmox storage pool.
+
+To switch to a different recipe:
+
+1. Open the desired recipe file in [`docs/storage/recipes/`](recipes/)
+1. Copy the entire HCL block from the recipe's **Storage Definition** section (which includes both the `vm_firmware` / `vm_efi_*` settings and the `vm_storage` block)
+1. **Replace** the contents of `config/linux-storage.pkrvars.hcl` with the copied block
+1. Update `vm_efi_storage_pool` and each disk's `storage_pool` to match your Proxmox storage pool, and modify as needed:
    - disk sizes
    - mount points
    - filesystem types
@@ -293,10 +297,11 @@ Failures were addressed at the **normalization layer**, not in templates.
 
 ## How to Use Storage Recipes
 
- 1. Choose a recipe that matches your use case
+ 1. Choose a recipe in [`docs/storage/recipes/`](recipes/) that matches your use case
     (e.g., single disk, multi-disk, no LVM, etc.)
- 1. Copy the vm_storage definition into your variables
+ 1. Replace the contents of `config/linux-storage.pkrvars.hcl` with the HCL definition from the recipe
  1. Adjust:
+    - `vm_efi_storage_pool` and `storage_pool` to match your Proxmox storage pool
     - disk sizes
     - mount points
     - filesystem types
@@ -311,7 +316,7 @@ The Storage API will:
 
 Storage Recipes are built on top of the contract defined in:
 
-[**ADR-0002: Storage API Contract for Template Builds**](../../adr/ADR-0002-storage-api.md)
+[**ADR-0002: Storage API Contract for Template Builds**](../adr/ADR-0002-storage-api.md)
 
 This ADR defines the structure, validation rules, and guarantees that make cross-distribution storage behavior consistent and predictable.
 

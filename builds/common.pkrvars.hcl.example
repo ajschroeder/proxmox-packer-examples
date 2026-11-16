@@ -7,10 +7,11 @@
 // Removable Media Settings
 common_iso_storage = "OS"
 
-// Where to store the completed VM templates
-vm_storage_pool = "pool0"
+// Proxmox storage pool for Cloud-Init drives (Linux) and VM template disks (Windows)
+vm_storage_pool = "local-zfs"
 
 // Boot and Provisioning Settings
+// Use "http" when running Packer natively on a host, or "disk" when running inside a Dev Container
 common_data_source       = "http"
 common_http_interface    = null
 common_http_bind_address = null

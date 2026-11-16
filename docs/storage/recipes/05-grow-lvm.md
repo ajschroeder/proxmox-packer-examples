@@ -12,7 +12,10 @@ This maximizes disk utilization dynamically.
 
 ## Storage Definition
 ```hcl
-vm_firmware = "ovmf"
+vm_firmware              = "ovmf"
+vm_efi_storage_pool      = "local-zfs"
+vm_efi_type              = "4m"
+vm_efi_pre_enrolled_keys = false
 
 vm_storage = {
   disks = [
