@@ -9,7 +9,7 @@
 
   - name: Installing additional packages
     ansible.builtin.zypper:
-      name: "{{ additional_packages[ansible_os_family] }}"
+      name: "{{ additional_packages[ansible_facts['os_family']] }}"
       state: latest
 
 - name: "Configure cloud-init."

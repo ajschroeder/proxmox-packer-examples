@@ -13,12 +13,12 @@
 
   - name: "Installing additional packages."
     ansible.builtin.dnf:
-      name: "{{ additional_packages[ansible_os_family] }}"
+      name: "{{ additional_packages[ansible_facts['os_family']] }}"
       state: latest     # noqa package-latest
 
-- name: "Installing cloud-init."
-  become: true
-  ansible.builtin.dnf:
-    name: cloud-init
-    state: latest
-  when: enable_cloudinit == 'true'
+  - name: "Installing cloud-init."
+    become: true
+    ansible.builtin.dnf:
+      name: cloud-init
+      state: latest
+    when: enable_cloudinit == 'true'

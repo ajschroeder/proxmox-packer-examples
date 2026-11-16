@@ -3,7 +3,7 @@
 - name: "Unregistering from Red Hat Subscription Manager."
   community.general.redhat_subscription:
     state: absent
-  when: ansible_distribution == 'RedHat'
+  when: ansible_facts['distribution'] == 'RedHat'
   
 # Tasks for configuring SSH for public key authentication.
 - name: "Configuring SSH for Public Key Authentication."
@@ -24,9 +24,10 @@
 
 # Tasks for disabling SELinux.
 - name: "Disabling SELinux."
-  ansible.builtin.selinux:
-    state: disabled
-    policy: targeted
+  ansible.builtin.lineinfile:
+    path: /etc/selinux/config
+    regexp: '^SELINUX='
+    line: 'SELINUX=disabled'
 
 # Tasks for configuring cloud-init.
 - block:

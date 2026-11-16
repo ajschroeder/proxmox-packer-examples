@@ -10,7 +10,7 @@
 
   - name: "Installing additional packages."
     ansible.builtin.apt:
-      name: "{{ additional_packages[ansible_os_family] }}"
+      name: "{{ additional_packages[ansible_facts['os_family']] }}"
       state: latest     # noqa package-latest
 
   - name: "Installing cloud-init."
@@ -18,4 +18,4 @@
     ansible.builtin.apt:
       name: cloud-init
       state: latest
-    when: enable_cloudinit == 'true' and ansible_distribution_version | int >= 11
+    when: enable_cloudinit == 'true' and ansible_facts['distribution_version'] | int >= 11

@@ -2,7 +2,7 @@
 
 - name: "Getting guest operating system information."
   ansible.builtin.debug:
-    msg: "OS Family: {{ ansible_os_family }} | Ansible Distribution: {{ ansible_distribution }} | Distribution Version: {{ ansible_distribution_version }}"
+    msg: "OS Family: {{ ansible_facts['os_family'] }} | Ansible Distribution: {{ ansible_facts['distribution'] }} | Distribution Version: {{ ansible_facts['distribution_version'] }}"
 
 - name: Prepare the {{ ansible_facts['distribution'] }} guest operating system
   include_tasks: "{{ ansible_facts['distribution'] | lower }}.yml"
@@ -20,6 +20,6 @@
   include_tasks: suse.yml
   when: "ansible_facts['distribution'] in ['openSUSE Leap', 'Suse']"
 
-- name: "{{ base_task_name }}"
+- name: "{{ task_name }}"
   ansible.builtin.include_tasks: windows.yml
-  when: ansible_os_family == "Windows"
+  when: ansible_facts['os_family'] == "Windows"

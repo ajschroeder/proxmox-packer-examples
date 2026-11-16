@@ -4,7 +4,7 @@
   ansible.builtin.file:
     path: /var/log/rhsm
     state: absent
-  when: ansible_distribution == 'RedHat'
+  when: ansible_facts['distribution'] == 'RedHat'
 
 # Tasks to clean the audit logs.
 - name: "Cleaning the audit logs."
@@ -81,12 +81,12 @@
         src: /etc/machine-id
         dest: /var/lib/dbus/machine-id
         state: link
-  when: ansible_distribution_major_version | int <= 8
+  when: ansible_facts['distribution_major_version'] | int <= 8
 
 # Tasks to clean the shell history.
 - name: "Cleaning the shell history."
   block:
   - name: "Cleaning the shell history."
     ansible.builtin.file:
-      path: "{{ ansible_env.HOME }}/.bash_history"
+      path: "{{ ansible_facts['env']['HOME'] }}/.bash_history"
       state: absent

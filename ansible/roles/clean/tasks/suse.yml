@@ -74,7 +74,7 @@
   block:
   - name: "Cleaning the shell history."
     ansible.builtin.file:
-      path: "{{ ansible_env.HOME }}/.bash_history"
+      path: "{{ ansible_facts['env']['HOME'] }}/.bash_history"
       state: absent
 
 ...
