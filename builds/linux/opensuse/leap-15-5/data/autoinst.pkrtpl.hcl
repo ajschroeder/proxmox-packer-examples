@@ -506,6 +506,8 @@ ${storage}
       <package>chrony</package>
       <package>autoyast2</package>
       <package>qemu-guest-agent</package>
+      <package>python311</package>
+      <package>python311-rpm</package>
     </packages>
     <patterns t="list">
       <pattern>apparmor</pattern>

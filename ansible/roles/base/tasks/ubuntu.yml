@@ -8,5 +8,5 @@
 
 - name: "Installing additional packages."
   apt:
-    name: "{{ additional_packages[ansible_os_family] }}"
+    name: "{{ additional_packages[ansible_facts['os_family']] }}"
     state: latest     # noqa package-latest

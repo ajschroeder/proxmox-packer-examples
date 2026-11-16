@@ -4,7 +4,7 @@
 # Tasks for updating the operating system and installing additional packages.
 - name: Getting guest operating system information
   ansible.builtin.debug:
-    msg: "OS: {{ ansible_os_name }}"
+    msg: "OS: {{ ansible_facts['os_name'] }}"
 
 - name: Install latest version of Chocolatey
   chocolatey.chocolatey.win_chocolatey:

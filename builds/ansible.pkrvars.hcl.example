@@ -5,5 +5,6 @@
 */
 
 // Ansible Credentials
+// Note: ansible_key must include the key type prefix (e.g., "ssh-ed25519 AAAA... user@host" or "ssh-rsa AAAA... user@host")
 ansible_username = "ansible"
-ansible_key      = "<SSH public key for Ansible user goes here>"
+ansible_key      = "<Full OpenSSH public key, e.g. ssh-ed25519 AAAA... user@host>"

@@ -48,9 +48,9 @@ This keeps the layout simple while still allowing flexibility.
 ## Storage Definition
 
 ```hcl
-//VM EFI Settings
+// VM Firmware & EFI Settings
 vm_firmware              = "ovmf"
-vm_efi_storage_pool      = "pool0"
+vm_efi_storage_pool      = "local-zfs"
 vm_efi_type              = "4m"
 vm_efi_pre_enrolled_keys = false
 
@@ -64,7 +64,7 @@ vm_storage = {
         {
           size = 512
           role = "efi"
-          vg   = ""
+          vg   = null
           filesystem = {
             fstype  = "fat32"
             label   = "EFI"
@@ -75,7 +75,7 @@ vm_storage = {
         {
           size = 1024
           role = "filesystem"
-          vg   = ""
+          vg   = null
           filesystem = {
             fstype  = "ext4"
             label   = "BOOT"

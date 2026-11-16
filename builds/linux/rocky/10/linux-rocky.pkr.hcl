@@ -78,9 +78,8 @@ locals {
       additional_packages = join(" ", var.additional_packages)
     })
   }
-  data_source_command = var.common_data_source == "http" ? "inst.ks=http://{{.HTTPIP}}:{{.HTTPPort}}/ks.cfg" : "inst.ks=/cdrom/ks.cfg"
+  data_source_command = var.common_data_source == "http" ? "inst.ks=http://{{.HTTPIP}}:{{.HTTPPort}}/ks.cfg" : "inst.ks=hd:LABEL=cidata:/ks.cfg"
   vm_name = "${var.vm_os_family}-${var.vm_os_name}-${var.vm_os_version}"
-  vm_firmware = var.vm_firmware == "ovmf" ? var.vm_firmware_path : null
 }
 
 //  BLOCK: source
@@ -158,9 +157,12 @@ source "proxmox-iso" "linux-rocky" {
   dynamic "additional_iso_files" {
     for_each = var.common_data_source == "disk" ? [1] : []
     content {
-      cd_files = var.common_data_source == "disk" ? local.data_source_content : null
-      cd_label = var.common_data_source == "disk" ? "cidata" : null
-      iso_storage_pool = var.common_data_source == "disk" ? "local" : null
+      type             = "ide"
+      index            = 3
+      cd_content       = var.common_data_source == "disk" ? local.data_source_content : null
+      cd_label         = var.common_data_source == "disk" ? "cidata" : null
+      iso_storage_pool = var.common_data_source == "disk" ? var.common_iso_storage : null
+      unmount          = true
     }
   }
 
@@ -185,7 +187,7 @@ build {
     roles_path             = "${path.cwd}/ansible/roles"
     ansible_env_vars = [
       "ANSIBLE_CONFIG=${path.cwd}/ansible/ansible.cfg",
-      "ANSIBLE_PYTHON_INTERPRETER=/usr/libexec/platform-python"
+      "ANSIBLE_PYTHON_INTERPRETER=/usr/bin/python3"
     ]
     extra_arguments = [
       "--extra-vars", "display_skipped_hosts=false",

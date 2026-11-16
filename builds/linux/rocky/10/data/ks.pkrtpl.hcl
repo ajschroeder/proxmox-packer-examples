@@ -65,7 +65,6 @@ skipx
 %packages --ignoremissing --excludedocs
 @core
 sudo
-cloud-init
 qemu-guest-agent
 epel-release
 -iwl*firmware

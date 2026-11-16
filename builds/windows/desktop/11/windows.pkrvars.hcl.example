@@ -53,8 +53,7 @@ iso_checksum = ""
 vm_boot_order = "order=virtio0;ide2;net0"
 
 // EFI Settings
-vm_efi_storage_pool = "pool0"
-vm_firmware_path    = "./OVMF.fd"
+vm_efi_storage_pool = "local-zfs"
 
 // TPM Settings
-vm_tpm_storage_pool = "pool0"
+vm_tpm_storage_pool = "local-zfs"

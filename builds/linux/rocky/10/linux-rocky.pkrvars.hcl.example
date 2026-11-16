@@ -33,6 +33,3 @@ iso_checksum = "file:https://download.rockylinux.org/pub/rocky/10/isos/x86_64/CH
 // Boot Settings
 vm_boot      = "order=virtio0;ide2;net0"
 vm_boot_wait = "10s"
-
-// EFI Settings
-vm_firmware_path         = "./OVMF.fd"

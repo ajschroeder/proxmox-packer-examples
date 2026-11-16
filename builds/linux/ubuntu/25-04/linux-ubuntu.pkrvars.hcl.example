@@ -33,6 +33,3 @@ iso_checksum = "https://releases.ubuntu.com/plucky/SHA256SUMS"
 // Boot Settings
 vm_boot      = "order=virtio0;ide2;net0"
 vm_boot_wait = "5s"
-
-// EFI Settings
-vm_firmware_path         = "./OVMF.fd"

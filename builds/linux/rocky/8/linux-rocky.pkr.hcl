@@ -50,7 +50,7 @@ locals {
     "<down><down><end><wait>",
     // This types the string "text" followed by the value of the 'data_source_command' local variable.
     // This is used to modify the boot menu option's configuration to boot in text mode and specify the kickstart data source configured in the common variables.
-    "text ${local.data_source_command}",
+    " text ${local.data_source_command}",
     // This sends the "enter" key, waits, turns on the left control key, sends the "x" key, and then turns off the left control key. This is used to save the changes and exit the boot menu option's configuration, and then continue the boot process.
     "<enter><wait><leftCtrlOn>x<leftCtrlOff>"
   ]
@@ -85,10 +85,9 @@ locals {
       additional_packages = join(" ", var.additional_packages)
     })
   }
-  data_source_command = var.common_data_source == "http" ? "inst.ks=http://{{.HTTPIP}}:{{.HTTPPort}}/ks.cfg" : "inst.ks=/cdrom/ks.cfg"
+  data_source_command = var.common_data_source == "http" ? "inst.ks=http://{{.HTTPIP}}:{{.HTTPPort}}/ks.cfg" : "inst.ks=hd:LABEL=cidata:/ks.cfg"
   vm_name = "${var.vm_os_family}-${var.vm_os_name}-${var.vm_os_version}"
   boot_command = var.vm_firmware == "ovmf" ? local.uefi_boot_command : local.bios_boot_command
-  vm_firmware = var.vm_firmware == "ovmf" ? var.vm_firmware_path : null
 }
 
 //  BLOCK: source
@@ -166,9 +165,12 @@ source "proxmox-iso" "linux-rocky" {
   dynamic "additional_iso_files" {
     for_each = var.common_data_source == "disk" ? [1] : []
     content {
-      cd_files = var.common_data_source == "disk" ? local.data_source_content : null
-      cd_label = var.common_data_source == "disk" ? "cidata" : null
-      iso_storage_pool = var.common_data_source == "disk" ? "local" : null
+      type             = "ide"
+      index            = 3
+      cd_content       = var.common_data_source == "disk" ? local.data_source_content : null
+      cd_label         = var.common_data_source == "disk" ? "cidata" : null
+      iso_storage_pool = var.common_data_source == "disk" ? var.common_iso_storage : null
+      unmount          = true
     }
   }
 
@@ -193,7 +195,7 @@ build {
     roles_path             = "${path.cwd}/ansible/roles"
     ansible_env_vars = [
       "ANSIBLE_CONFIG=${path.cwd}/ansible/ansible.cfg",
-      "ANSIBLE_PYTHON_INTERPRETER=/usr/libexec/platform-python"
+      "ANSIBLE_PYTHON_INTERPRETER=/usr/bin/python3.11"
     ]
     extra_arguments = [
       "--extra-vars", "display_skipped_hosts=false",

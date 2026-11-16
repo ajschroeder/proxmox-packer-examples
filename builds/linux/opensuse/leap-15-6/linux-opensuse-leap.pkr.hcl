@@ -78,7 +78,7 @@ locals {
       vm_os_keyboard           = var.vm_os_keyboard
       vm_os_timezone           = var.vm_os_timezone
       network = templatefile("${abspath(path.root)}/data/network.pkrtpl.hcl", {
-        device  = var.vm_bridge_interface
+        device  = var.vm_network_device
         ip      = var.vm_ip_address
         netmask = var.vm_ip_netmask
         gateway = var.vm_ip_gateway
@@ -92,7 +92,6 @@ locals {
   data_source_command = var.common_data_source == "http" ? " autoyast=http://{{ .HTTPIP }}:{{ .HTTPPort }}/autoinst.xml" : " netsetup=dhcp autoyast=device://sr1/autoinst.xml"
   vm_name = "${var.vm_os_family}-${var.vm_os_name}-${var.vm_os_version}"
   boot_command = var.vm_firmware == "ovmf" ? local.uefi_boot_command : local.bios_boot_command
-  vm_firmware = var.vm_firmware == "ovmf" ? var.vm_firmware_path : null
 }
 
 //  BLOCK: source
@@ -170,9 +169,12 @@ source "proxmox-iso" "linux-opensuse-leap" {
   dynamic "additional_iso_files" {
     for_each = var.common_data_source == "disk" ? [1] : []
     content {
-      cd_files = var.common_data_source == "disk" ? local.data_source_content : null
-      cd_label = var.common_data_source == "disk" ? "cidata" : null
-      iso_storage_pool = var.common_data_source == "disk" ? "local" : null
+      type             = "ide"
+      index            = 3
+      cd_content       = var.common_data_source == "disk" ? local.data_source_content : null
+      cd_label         = var.common_data_source == "disk" ? "cidata" : null
+      iso_storage_pool = var.common_data_source == "disk" ? var.common_iso_storage : null
+      unmount          = true
     }
   }
 
@@ -197,7 +199,7 @@ build {
     roles_path             = "${path.cwd}/ansible/roles"
     ansible_env_vars = [
       "ANSIBLE_CONFIG=${path.cwd}/ansible/ansible.cfg",
-      "ANSIBLE_PYTHON_INTERPRETER=/usr/bin/python3"
+      "ANSIBLE_PYTHON_INTERPRETER=/usr/bin/python3.11"
     ]
     extra_arguments = [
       "--extra-vars", "display_skipped_hosts=false",

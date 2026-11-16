@@ -3,6 +3,8 @@
   debugger: never
   gather_facts: true
   hosts: all
+  vars:
+    ansible_shell_type: cmd
   roles:
     - base
     - configure
