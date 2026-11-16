@@ -1,6 +1,6 @@
 /*
     DESCRIPTION:
-    openSUSE Leap 15.5 network variables used by the Packer Plugin for VMware vSphere (vsphere-iso).
+    openSUSE Leap 15.5 network variables used by the Packer Plugin for Proxmox (proxmox-iso).
 */
 
 // VM Network Settings
@@ -8,7 +8,7 @@
 variable "vm_network_device" {
   type        = string
   description = "The network device of the VM."
-  default     = "ens192"
+  default     = "ens18"
 }
 
 variable "vm_ip_address" {

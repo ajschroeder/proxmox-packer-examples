@@ -8,7 +8,7 @@
 variable "vm_network_device" {
   type        = string
   description = "The network device of the VM."
-  default     = "ens192"
+  default     = "ens18"
 }
 
 variable "vm_ip_address" {
