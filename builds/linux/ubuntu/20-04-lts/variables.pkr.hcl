@@ -100,12 +100,6 @@ EOF
   }
 }
 
-variable "vm_firmware_path" {
-  type        = string
-  description = "The firmware file to be used. Needed for EFI"
-  default     = "/usr/share/ovmf/OVMF.fd"
-}
-
 variable "vm_efi_storage_pool" {
   type        = string
   description = "Set the UEFI disk storage location. (e.g. 'local-lvm')"
