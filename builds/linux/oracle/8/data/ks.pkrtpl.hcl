@@ -65,9 +65,9 @@ skipx
 %packages --ignoremissing --excludedocs
 @core
 sudo
-cloud-init
 qemu-guest-agent
 epel-release
+python3.11
 -iwl*firmware
 %end
 

@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/devcontainers/base:ubuntu
 
 # Install additional packages.
 RUN apt-get update && \
-    apt-get install -y curl software-properties-common ca-certificates
+    apt-get install -y curl software-properties-common ca-certificates xorriso whois
 
 RUN update-ca-certificates
 

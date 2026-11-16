@@ -32,8 +32,8 @@ autoinstall:
     disable_root: false
     timezone: ${vm_os_timezone}
   late-commands:
-    - curtin in-target -- sh -c "echo 'deploy ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/deploy"
-    - curtin in-target -- chmod 440 /etc/sudoers.d/deploy
+    - curtin in-target -- sh -c "echo '${build_username} ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/${build_username}"
+    - curtin in-target -- chmod 440 /etc/sudoers.d/${build_username}
     - curtin in-target -- apt-get update
     - curtin in-target -- apt-get install -y qemu-guest-agent
     - curtin in-target -- systemctl enable qemu-guest-agent

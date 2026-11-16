@@ -443,32 +443,7 @@
       </hosts_entry>
     </hosts>
   </host>
-  <networking t="map">
-    <dhcp_options t="map">
-      <dhclient_client_id/>
-      <dhclient_hostname_option>AUTO</dhclient_hostname_option>
-    </dhcp_options>
-    <dns t="map">
-      <dhcp_hostname t="boolean">true</dhcp_hostname>
-      <hostname>localhost</hostname>
-      <resolv_conf_policy>auto</resolv_conf_policy>
-    </dns>
-    <interfaces t="list">
-      <interface t="map">
-        <bootproto>dhcp</bootproto>
-        <name>eth0</name>
-        <startmode>auto</startmode>
-        <zone>public</zone>
-      </interface>
-    </interfaces>
-    <ipv6 t="boolean">true</ipv6>
-    <keep_install_network t="boolean">true</keep_install_network>
-    <managed t="boolean">false</managed>
-    <routing t="map">
-      <ipv4_forward t="boolean">false</ipv4_forward>
-      <ipv6_forward t="boolean">false</ipv6_forward>
-    </routing>
-  </networking>
+${network}
   <ntp-client t="map">
     <ntp_policy>auto</ntp_policy>
     <ntp_servers t="list"/>
@@ -531,6 +506,8 @@ ${storage}
       <package>chrony</package>
       <package>autoyast2</package>
       <package>qemu-guest-agent</package>
+      <package>python311</package>
+      <package>python311-rpm</package>
     </packages>
     <patterns t="list">
       <pattern>apparmor</pattern>

@@ -42,7 +42,12 @@ locals {
     "${local.data_source_command} ",
     "netcfg/get_hostname=debian netcfg/get_domain=example.com ",
     "interface=auto ",
-    "vga=788 noprompt quiet --<enter>"
+    "vga=788 noprompt quiet --<enter>",
+    "<wait30s>",
+    "<enter><wait>",
+    "<enter><wait>",
+    " ${local.mount_cdrom}",
+    "<down><down><down><down><enter>"
   ]
 
   uefi_boot_command = [
@@ -110,7 +115,6 @@ locals {
   mount_cdrom         = var.common_data_source == "http" ? " " : local.mount_cdrom_command
   vm_name = "${var.vm_os_family}-${var.vm_os_name}-${var.vm_os_version}"
   boot_command = var.vm_firmware == "ovmf" ? local.uefi_boot_command : local.bios_boot_command
-  vm_firmware = var.vm_firmware == "ovmf" ? var.vm_firmware_path : null
 }
 
 //  BLOCK: source
@@ -188,9 +192,13 @@ source "proxmox-iso" "debian" {
   dynamic "additional_iso_files" {
     for_each = var.common_data_source == "disk" ? [1] : []
     content {
-      cd_files = var.common_data_source == "disk" ? local.data_source_content : null
-      cd_label = var.common_data_source == "disk" ? "cidata" : null
-      iso_storage_pool = var.common_data_source == "disk" ? "local" : null
+      # Debian on OVMF refuses to acknowledge 2 IDE drives.
+      type             = "sata"
+      index            = 0
+      cd_content       = var.common_data_source == "disk" ? local.data_source_content : null
+      cd_label         = var.common_data_source == "disk" ? "cidata" : null
+      iso_storage_pool = var.common_data_source == "disk" ? var.common_iso_storage : null
+      unmount          = true
     }
   }
 

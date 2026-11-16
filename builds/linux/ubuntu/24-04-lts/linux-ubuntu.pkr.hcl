@@ -65,7 +65,6 @@ locals {
   }
   data_source_command = var.common_data_source == "http" ? "ds=\"nocloud-net;seedfrom=http://{{.HTTPIP}}:{{.HTTPPort}}/\"" : "ds=nocloud"
   vm_name = "${var.vm_os_family}-${var.vm_os_name}-${var.vm_os_version}"
-  vm_firmware = var.vm_firmware == "ovmf" ? var.vm_firmware_path : null
 }
 
 //  BLOCK: source
@@ -160,9 +159,12 @@ source "proxmox-iso" "ubuntu" {
   dynamic "additional_iso_files" {
     for_each = var.common_data_source == "disk" ? [1] : []
     content {
-      cd_files = var.common_data_source == "disk" ? local.data_source_content : null
-      cd_label = var.common_data_source == "disk" ? "cidata" : null
-      iso_storage_pool = var.common_data_source == "disk" ? "local" : null
+      type             = "ide"
+      index            = 3
+      cd_content       = var.common_data_source == "disk" ? local.data_source_content : null
+      cd_label         = var.common_data_source == "disk" ? "cidata" : null
+      iso_storage_pool = var.common_data_source == "disk" ? var.common_iso_storage : null
+      unmount          = true
     }
   }
 
