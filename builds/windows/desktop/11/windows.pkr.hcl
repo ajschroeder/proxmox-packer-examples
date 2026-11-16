@@ -60,6 +60,7 @@ source "proxmox-iso" "windows-desktop-pro" {
 
   // Proxmox Settings
   node                     = var.proxmox_node
+  task_timeout             = var.common_shutdown_timeout
 
   // Virtual Machine Settings
   machine         = var.vm_machine_type
@@ -171,6 +172,7 @@ source "proxmox-iso" "windows-desktop-ent" {
 
   // Proxmox Settings
   node                     = var.proxmox_node
+  task_timeout             = var.common_shutdown_timeout
 
   // Virtual Machine Settings
   machine         = var.vm_machine_type
@@ -267,7 +269,7 @@ source "proxmox-iso" "windows-desktop-ent" {
   winrm_port     = var.communicator_port
   winrm_timeout  = var.communicator_timeout
 
-  template_name        = local.vm_name_pro
+  template_name        = local.vm_name_ent
   template_description = local.build_description
 
 }
@@ -293,6 +295,7 @@ build {
     extra_arguments = [
       "--extra-vars", "use_proxy=false",
       "--extra-vars", "ansible_connection=winrm",
+      "--extra-vars", "ansible_shell_type=cmd",
       "--extra-vars", "ansible_user='${var.build_username}'",
       "--extra-vars", "ansible_password='${var.build_password}'",
       "--extra-vars", "ansible_port='${var.communicator_port}'",
