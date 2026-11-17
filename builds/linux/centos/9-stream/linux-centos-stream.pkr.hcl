@@ -223,7 +223,7 @@ build {
       vm_os_type               = "${var.vm_os_type}"
       vm_mem_size              = "${var.vm_mem_size}"
       vm_network_card_model    = "${var.vm_network_card_model}"
-      vm_cloud_init_enable     = "${var.vm_cloudinit}"
+      vm_cloudinit             = "${var.vm_cloudinit}"
     }
   }
 }
