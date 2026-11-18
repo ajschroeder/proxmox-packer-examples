@@ -145,8 +145,8 @@ variable "vm_vlan_tag" {
 
 variable "vm_cloudinit" {
   type        = bool
-  description = "Enable or disable cloud-init drive in Proxmox. (e.g. false)"
-  default     = false
+  description = "Enable or disable cloud-init drive in Proxmox. (e.g. true)"
+  default     = true
 }
 
 // Removable Media Settings

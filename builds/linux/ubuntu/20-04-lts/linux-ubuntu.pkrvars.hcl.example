@@ -13,7 +13,7 @@ vm_os_version    = "20.04-lts"
 
 // Virtual Machine Guest Operating System Setting
 vm_os_type       = "l26"
-vm_cloudinit     = false
+vm_cloudinit     = true
 
 // Virtual Machine Hardware Settings
 vm_cpu_count            = 1
