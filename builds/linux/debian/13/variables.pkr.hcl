@@ -148,6 +148,17 @@ variable "vm_cloudinit" {
   default     = true
 }
 
+variable "vm_cloudinit_disk_type" {
+  type        = string
+  description = "The bus type for the cloud-init drive in Proxmox. Allowed values 'ide', 'sata', or 'scsi'. (e.g. 'scsi')"
+  default     = "scsi"
+
+  validation {
+    condition     = contains(["ide", "sata", "scsi"], var.vm_cloudinit_disk_type)
+    error_message = "The vm_cloudinit_disk_type value must be 'ide', 'sata', or 'scsi'."
+  }
+}
+
 // Removable Media Settings
 
 variable "common_iso_storage" {

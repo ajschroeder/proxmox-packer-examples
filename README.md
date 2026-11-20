@@ -535,6 +535,8 @@ All builds for operating systems that support [cloud-init][cloud-init] now have 
 
 If a particular linux distribution ships with cloud-init (e.g. Ubuntu) and cloud-init is set to `false` in the `config/<build type>.pkrvars.hcl` file for the build, then cloud-init will be disabled in the operating system **and** within Proxmox for that specific template.
 
+By default, the Proxmox cloud-init drive is attached using the **`scsi`** bus (`vm_cloudinit_disk_type = "scsi"`), which ensures compatibility with modern UEFI (OVMF) Linux guests such as Debian 13. If a specific build requires a different bus type (`ide` or `sata`), you can override `vm_cloudinit_disk_type` in that build's `config/<build type>.pkrvars.hcl` file.
+
 # Known Issues
 
 ## Windows Builds
