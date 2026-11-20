@@ -179,6 +179,7 @@ source "proxmox-iso" "linux-rocky" {
   # VM Cloud Init Settings
   cloud_init              = var.vm_cloudinit
   cloud_init_storage_pool = var.vm_cloudinit == true ? var.vm_storage_pool : null
+  cloud_init_disk_type    = var.vm_cloudinit == true ? var.vm_cloudinit_disk_type : null
 
 }
 
