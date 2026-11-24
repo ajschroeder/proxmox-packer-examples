@@ -15,7 +15,12 @@
   when: "ansible_facts['distribution'] != 'openSUSE Leap'"
 
 # Tasks for configuring SSH for public key authentication.
-- name: "Configuring SSH for Public Key Authentication."
+- name: "Checking if /etc/ssh/sshd_config exists."
+  ansible.builtin.stat:
+    path: /etc/ssh/sshd_config
+  register: sshd_config_stat
+
+- name: "Configuring SSH for Public Key Authentication (/etc/ssh/sshd_config)."
   block:
     - ansible.builtin.lineinfile:
         path: /etc/ssh/sshd_config
@@ -25,6 +30,21 @@
         path: /etc/ssh/sshd_config
         regexp: '^PubkeyAuthentication'
         line: 'PubkeyAuthentication yes'
+  when: sshd_config_stat.stat.exists
+
+- name: "Configuring SSH for Public Key Authentication (/etc/ssh/sshd_config.d)."
+  block:
+    - ansible.builtin.file:
+        path: /etc/ssh/sshd_config.d
+        state: directory
+        mode: '0755'
+    - ansible.builtin.copy:
+        dest: /etc/ssh/sshd_config.d/99-packer.conf
+        mode: '0644'
+        content: |
+          PermitRootLogin no
+          PubkeyAuthentication yes
+  when: not sshd_config_stat.stat.exists
 
 # Tasks for setting the hostname.
 - name: "Setting the hostname."
