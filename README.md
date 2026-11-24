@@ -29,6 +29,7 @@ The following builds are available:
 
 | Operating System | Version   | Storage API Compatibility | Static IP Support | UEFI Bootloader | BIOS Bootloader |
 | :---             | :---      | :---:                     | :---:             | :---:           | :---:           |
+| AlmaLinux        | 10 Kitten | &check;                   | &check;           | &check;         | &check;         |
 | AlmaLinux        | 10        | &check;                   | &check;           | &check;         | &check;         |
 | AlmaLinux        | 9         | &check;                   | &check;           | &check;         | &check;         |
 | AlmaLinux        | 8         | &check;                   | &check;           | &check;         | &check;         |
