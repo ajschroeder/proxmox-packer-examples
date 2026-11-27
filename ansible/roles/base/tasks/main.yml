@@ -18,7 +18,7 @@
 
 - name: Prepare the {{ ansible_facts['distribution'] }} guest operating system
   include_tasks: suse.yml
-  when: "ansible_facts['distribution'] in ['openSUSE Leap', 'Suse']"
+  when: "ansible_facts['distribution'] in ['openSUSE Leap', 'openSUSE Tumbleweed', 'Suse']"
 
 - name: "{{ task_name }}"
   ansible.builtin.include_tasks: windows.yml
