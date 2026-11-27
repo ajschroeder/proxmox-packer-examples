@@ -20,6 +20,7 @@
       name: repo-oss
       repo: "http://download.opensuse.org/distribution/leap/$releasever/repo/oss/"
       auto_import_keys: true
+    when: "ansible_facts['distribution'] == 'openSUSE Leap'"
 
   - name: "Installing cloud-init."
     become: true

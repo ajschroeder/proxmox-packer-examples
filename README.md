@@ -38,9 +38,10 @@ The following builds are available:
 | Debian           | 13        | &check;                   | &check;           | &check;         | &check;         |
 | Debian           | 12        | &check;                   | &check;           | &check;         | &check;         |
 | Debian           | 11        | &check;                   | &check;           | &check;         | &check;         |
-| OpenSUSE Leap    | 16.1      | &check;                   | &check;           | &check;         | &check;         |
-| OpenSUSE Leap    | 15.6      | &check;                   | &check;           | &check;         | &check;         |
-| OpenSUSE Leap    | 15.5      | &check;                   | &check;           | &check;         | &check;         |
+| OpenSUSE Leap       | 16.1      | &check;                   | &check;           | &check;         | &check;         |
+| OpenSUSE Leap       | 15.6      | &check;                   | &check;           | &check;         | &check;         |
+| OpenSUSE Leap       | 15.5      | &check;                   | &check;           | &check;         | &check;         |
+| OpenSUSE Tumbleweed | Rolling   | &check;                   | &check;           | &check;         | &check;         |
 | Oracle Linux     | 10        | &check;                   | &check;           | &check;         | &check;         |
 | Oracle Linux     | 9         | &check;                   | &check;           | &check;         | &check;         |
 | Oracle Linux     | 8         | &check;                   | &check;           | &check;         | &check;         |

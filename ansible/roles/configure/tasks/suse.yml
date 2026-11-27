@@ -12,7 +12,7 @@
   loop:
     - SUSEConnect -d
     - SUSEConnect --cleanup
-  when: "ansible_facts['distribution'] != 'openSUSE Leap'"
+  when: "ansible_facts['distribution'] not in ['openSUSE Leap', 'openSUSE Tumbleweed']"
 
 # Tasks for configuring SSH for public key authentication.
 - name: "Checking if /etc/ssh/sshd_config exists."
